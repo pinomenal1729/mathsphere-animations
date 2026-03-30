@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Axiom Verifier | MathSphere</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        :root{
+            --deep:#1B2A4A;--ora:#E07A3A;--gray:#F2F2F2;--med:#B0B0B0;
+            --txt:#2C2C2C;--pur:#7C3AED;--grn:#22C55E;--blu:#2563EB;
+            --red:#EF4444;--teal:#06B6D4;--pink:#EC4899;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#EDEEF2;color:var(--txt);overflow-x:hidden}
+
+        header{background:var(--deep);padding:11px 22px;display:flex;justify-content:space-between;align-items:center}
+        .la{display:flex;align-items:center;gap:9px}
+        .lb{width:32px;height:32px;background:var(--ora);border-radius:6px;display:grid;place-items:center;font-weight:800;font-size:16px;color:#fff}
+        .ln{font-weight:700;font-size:14px;color:#fff}
+        .ls{font-size:9px;color:#8899B0;letter-spacing:.7px;text-transform:uppercase}
+        .hr{text-align:right}
+        .hc{font-size:10px;color:var(--ora);font-weight:600}
+        .ha{font-size:9.5px;color:#8899B0}
+
+        .titl{background:#fff;border-bottom:3px solid var(--ora);padding:14px 22px}
+        .titl .r{font-size:10px;color:var(--ora);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+        .titl h1{font-size:20px;color:var(--deep);margin:3px 0 2px}
+        .titl p{font-size:12px;color:var(--med);line-height:1.5;max-width:660px}
+
+        .app{display:flex;max-width:1360px;margin:14px auto;padding:0 14px;gap:14px}
+        .left{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+        .right{width:330px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+
+        .ccard{background:#fff;border-radius:10px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 2px 8px rgba(27,42,74,.06)}
+        .tbar{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid #EEF0F4;background:#FAFBFD;flex-wrap:wrap;gap:5px}
+        .tgrp{display:flex;gap:5px;flex-wrap:wrap}
+        .tb{padding:5px 12px;border:1.5px solid var(--deep);border-radius:5px;background:#fff;color:var(--deep);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
+        .tb:hover,.tb.on{background:var(--deep);color:#fff}
+        .tb.sec{border-color:#DDE1E8;color:var(--txt);font-weight:500}
+        .tb.sec:hover{border-color:var(--red);color:var(--red);background:#FEF2F2}
+        .tb.go{border-color:var(--grn);color:var(--grn);font-weight:700}
+        .tb.go:hover,.tb.go.on{background:var(--grn);color:#fff}
+        .tb.ora{border-color:var(--ora);color:var(--ora)}
+        .tb.ora:hover{background:var(--ora);color:#fff}
+        canvas#cv{display:block;width:100%;background:#FAFBFD}
+
+        .step-bar{padding:8px 14px;background:#FAFBFD;border-top:1px solid #EEF0F4;display:flex;align-items:center;gap:8px;min-height:38px;flex-wrap:wrap}
+        .step-num{background:var(--deep);color:#fff;font-size:10px;font-weight:700;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+        .step-num.active{background:var(--ora)}
+        .step-num.done{background:var(--grn)}
+        .step-text{font-size:11.5px;color:var(--txt);line-height:1.4}
+        .step-text b{color:var(--deep)}
+        .step-connector{width:16px;height:2px;background:#E0E4EA;flex-shrink:0}
+        .step-connector.done{background:var(--grn)}
+
+        .controls{background:#fff;border-radius:10px;border:1px solid #DDE1E8;padding:12px 16px;box-shadow:0 2px 8px rgba(27,42,74,.04)}
+        .ctrl-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--deep);margin-bottom:8px}
+        .ctrl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px 14px}
+        .ctrl-group label{font-size:11px;font-weight:600;color:var(--deep);display:block;margin-bottom:3px}
+        .sl-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+        .val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--ora);min-width:38px;text-align:right}
+        input[type=range]{-webkit-appearance:none;flex:1;height:5px;border-radius:3px;background:#E0E4EA;outline:none}
+        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--deep);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+
+        .card{background:#fff;border-radius:10px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 1px 5px rgba(27,42,74,.04)}
+        .chd{padding:8px 12px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid #EEF0F4}
+        .chd.bl{background:var(--deep);color:#fff}
+        .chd.or{background:var(--ora);color:#fff}
+        .cbd{padding:10px 12px}
+        .empty{text-align:center;font-size:11px;color:var(--med);padding:8px 0;line-height:1.6}
+
+        .ax-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.2s;border:1.5px solid transparent;margin-bottom:3px}
+        .ax-row:hover{background:#F8FAFC}
+        .ax-row.active{border-color:var(--ora);background:#FFF7ED}
+        .ax-row.pass{border-color:var(--grn);background:#F0FDF4}
+        .ax-dot{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;flex-shrink:0}
+        .ax-dot.w{background:#E0E4EA;color:var(--med)}
+        .ax-dot.a{background:var(--ora);color:#fff;animation:pulse .7s infinite}
+        .ax-dot.p{background:var(--grn);color:#fff}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+        .ax-code{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;color:var(--deep)}
+        .ax-name{font-size:10px;color:#777}
+
+        .prog-wrap{margin-top:6px}
+        .prog-lbl{display:flex;justify-content:space-between;font-size:10px;font-weight:600;margin-bottom:3px}
+        .prog-bar{height:6px;background:#E0E4EA;border-radius:3px;overflow:hidden}
+        .prog-fill{height:100%;background:linear-gradient(90deg,var(--grn),var(--teal));border-radius:3px;transition:width .4s}
+
+        .mbx{background:var(--gray);border-radius:6px;padding:8px;text-align:center;min-height:30px;display:flex;align-items:center;justify-content:center;margin:6px 0}
+
+        .verdict{padding:10px;border-radius:8px;margin-top:8px;text-align:center;font-weight:700;font-size:13px}
+        .verdict.pass{background:#F0FDF4;color:var(--grn);border:2px solid var(--grn)}
+        .verdict.wait{background:var(--gray);color:var(--med);border:2px solid #E0E4EA}
+
+        .ins{background:linear-gradient(135deg,#FFF7ED,#FFFBF5);border-left:3px solid var(--ora);border-radius:0 8px 8px 0;padding:10px 12px}
+        .ins .it{font-size:9.5px;font-weight:700;color:var(--ora);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+        .ins p{font-size:11px;line-height:1.6;color:var(--txt)}
+
+        footer{background:var(--deep);padding:11px 22px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+        .fl{display:flex;align-items:center;gap:7px}
+        .flb{width:20px;height:20px;background:var(--ora);border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+        .flt{font-size:10px;color:#8899B0}.flt strong{color:#fff}
+        .fr{font-size:9px;color:#667799}
+
+        @media(max-width:900px){.app{flex-direction:column}.right{width:100%}.ctrl-grid{grid-template-columns:1fr 1fr}}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="la"><div class="lb">M</div><div><div class="ln">MathSphere</div><div class="ls">Mathematics for Machine Learning</div></div></div>
+    <div class="hr"><div class="hc">Chapter 1 · Vectors and Vector Spaces</div><div class="ha">by Anupam Nigam</div></div>
+</header>
+
+<div class="titl">
+    <div class="r">Interactive Animation 1.2</div>
+    <h1>The Axiom Verifier</h1>
+    <p>Pick two vectors and two scalars. Then watch each axiom verified step by step — slowly, geometrically, with no hand-waving.</p>
+</div>
+
+<div class="app">
+    <div class="left">
+        <div class="ccard">
+            <div class="tbar">
+                <div class="tgrp">
+                    <button class="tb go" onclick="verifyNext()">▶ Verify Next Axiom</button>
+                    <button class="tb ora" onclick="verifyAllSeq()">▶▶ Verify All (Slow)</button>
+                </div>
+                <div class="tgrp">
+                    <button class="tb sec" onclick="resetAll()">↺ Reset All</button>
+                </div>
+            </div>
+            <canvas id="cv"></canvas>
+            <div class="step-bar" id="stepBar">
+                <div class="step-text" style="color:var(--med)">Select an axiom from the right panel, or press <b>▶ Verify Next Axiom</b></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="ctrl-title">Your Vectors & Scalars (drag sliders or drag vectors on canvas)</div>
+            <div class="ctrl-grid">
+                <div class="ctrl-group">
+                    <label style="color:var(--ora)">u = (u₁, u₂)</label>
+                    <div class="sl-row"><input type="range" id="ux" min="-5" max="5" step="0.5" value="3" oninput="sync()"><span class="val" id="uxV">3.0</span></div>
+                    <div class="sl-row"><input type="range" id="uy" min="-5" max="5" step="0.5" value="1" oninput="sync()"><span class="val" id="uyV">1.0</span></div>
+                </div>
+                <div class="ctrl-group">
+                    <label style="color:var(--blu)">v = (v₁, v₂)</label>
+                    <div class="sl-row"><input type="range" id="vx" min="-5" max="5" step="0.5" value="1" oninput="sync()"><span class="val" id="vxV">1.0</span></div>
+                    <div class="sl-row"><input type="range" id="vy" min="-5" max="5" step="0.5" value="2.5" oninput="sync()"><span class="val" id="vyV">2.5</span></div>
+                </div>
+                <div class="ctrl-group">
+                    <label style="color:var(--deep)">Scalars c, d</label>
+                    <div class="sl-row"><label style="min-width:14px;font-size:11px">c</label><input type="range" id="sc" min="-3" max="3" step="0.25" value="2" oninput="sync()"><span class="val" id="scV">2.00</span></div>
+                    <div class="sl-row"><label style="min-width:14px;font-size:11px">d</label><input type="range" id="sd" min="-3" max="3" step="0.25" value="-1" oninput="sync()"><span class="val" id="sdV">-1.00</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right">
+        <div class="card">
+            <div class="chd bl">The 8 Axioms</div>
+            <div class="cbd" id="axList"></div>
+            <div class="cbd" style="border-top:1px solid #EEF0F4;padding-top:8px">
+                <div class="prog-wrap">
+                    <div class="prog-lbl"><span style="color:var(--deep)">Progress</span><span style="color:var(--grn);font-family:'JetBrains Mono',monospace" id="progT">0/8</span></div>
+                    <div class="prog-bar"><div class="prog-fill" id="progF" style="width:0%"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="chd or">Current Verification</div>
+            <div class="cbd" id="verifP"><div class="empty">Click an axiom to begin</div></div>
+        </div>
+
+        <div class="card">
+            <div class="cbd" style="padding:0"><div class="ins"><div class="it">Key Insight</div><p id="insP">These 8 rules are the <b>contract</b> that makes linear algebra work. Every ML algorithm — gradient descent, PCA, backpropagation — relies on these axioms holding true. Change the vectors and scalars, then verify to see they hold for <b>any</b> choice.</p></div></div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="fl"><div class="flb">M</div><div class="flt"><strong>MathSphere</strong> · Created by <strong>Anupam Nigam</strong></div></div>
+    <div class="fr">Mathematics for Machine Learning · Chapter 1 · Animation 1.2</div>
+</footer>
+
+<script>
+// ================================================================
+//  COLORS & CONSTANTS
+// ================================================================
+const ORA='#E07A3A', BLU='#2563EB', DEEP='#1B2A4A', PUR='#7C3AED', GRN='#22C55E',
+      TEAL='#06B6D4', RED='#EF4444', PINK='#EC4899', GRAY='#999';
+const GS = 40; // grid spacing
+
+// ================================================================
+//  STATE
+// ================================================================
+let U = [3, 1], V = [1, 2.5], C = 2, D = -1;
+let W_ = [2, -1]; // third vector for associativity
+
+let axStates = new Array(8).fill(0); // 0=wait, 1=running, 2=pass
+let curAx = -1;
+
+// Animation
+let steps = [];
+let stepIdx = -1;
+let stepT = 0;
+let stepSpeed = 0.012;
+let playing = false;
+let paused = false;
+let allMode = false;
+let pauseTimer = null;
+
+// Canvas
+const cv = document.getElementById('cv');
+const cx = cv.getContext('2d');
+let CW, CH, ox, oy;
+const dpr = window.devicePixelRatio || 1;
+
+function resize() {
+    const r = cv.parentElement.getBoundingClientRect();
+    CW = r.width;
+    CH = Math.max(420, Math.min(520, innerHeight * 0.46));
+    cv.style.width = CW + 'px';
+    cv.style.height = CH + 'px';
+    cv.width = CW * dpr;
+    cv.height = CH * dpr;
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ox = Math.round(CW / 2);
+    oy = Math.round(CH / 2);
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ================================================================
+//  AXIOM DEFINITIONS
+// ================================================================
+const AX_NAMES = [
+    'Commutativity', 'Associativity', 'Zero Vector', 'Additive Inverse',
+    'Scalar Compatibility', 'Identity (×1)', 'Distrib. over Vectors', 'Distrib. over Scalars'
+];
+const AX_CODES = ['A1','A2','A3','A4','S1','S2','D1','D2'];
+const AX_LAWS = [
+    'u+v = v+u', '(u+v)+w = u+(v+w)', 'v+0 = v', 'v+(−v) = 0',
+    'c(dv) = (cd)v', '1·v = v', 'c(u+v) = cu+cv', '(c+d)v = cv+dv'
+];
+const AX_TEX = [
+    '\\mathbf{u}+\\mathbf{v} = \\mathbf{v}+\\mathbf{u}',
+    '(\\mathbf{u}+\\mathbf{v})+\\mathbf{w} = \\mathbf{u}+(\\mathbf{v}+\\mathbf{w})',
+    '\\mathbf{v}+\\mathbf{0} = \\mathbf{v}',
+    '\\mathbf{v}+(-\\mathbf{v}) = \\mathbf{0}',
+    'c(d\\mathbf{v}) = (cd)\\mathbf{v}',
+    '1\\cdot\\mathbf{v} = \\mathbf{v}',
+    'c(\\mathbf{u}+\\mathbf{v}) = c\\mathbf{u}+c\\mathbf{v}',
+    '(c+d)\\mathbf{v} = c\\mathbf{v}+d\\mathbf{v}'
+];
+const AX_INSIGHTS = [
+    'The parallelogram rule shows <b>u+v</b> and <b>v+u</b> arrive at the same point. In ML, this means the order you accumulate gradients does not matter.',
+    'Grouping does not matter: <b>(u+v)+w = u+(v+w)</b>. This is why you can split computation across batches and combine later.',
+    'The zero vector changes nothing. In gradient descent, a <b>zero gradient</b> means you are at a critical point.',
+    'Every vector has a perfect opposite. This is why <b>u − v = u + (−v)</b> works.',
+    'Scaling twice = scaling once by the product. This is why <b>learning rate schedules</b> compose predictably.',
+    'Scaling by 1 is a no-op. This is the <b>identity matrix</b> in disguise — the transformation that does nothing.',
+    'This axiom is the reason <b>linear layers</b> in neural networks work: W(x₁+x₂) = Wx₁ + Wx₂.',
+    'This is why <b>gradient accumulation</b> works: summing scaled gradients from mini-batches equals scaling the summed gradient.'
+];
+
+// ================================================================
+//  STEP GENERATORS FOR EACH AXIOM
+// ================================================================
+function makeSteps(idx) {
+    let u = U.slice(), v = V.slice(), c = C, d = D;
+    let w = [Math.round((u[0]*0.4+0.5)*2)/2, Math.round((-v[1]*0.3-0.5)*2)/2];
+    if (Math.abs(w[0]) < 0.3 && Math.abs(w[1]) < 0.3) { w = [1.5, -1]; }
+
+    switch(idx) {
+        case 0: return stepsCommutativity(u, v);
+        case 1: return stepsAssociativity(u, v, w);
+        case 2: return stepsZero(v);
+        case 3: return stepsInverse(v);
+        case 4: return stepsCompat(v, c, d);
+        case 5: return stepsIdentity(v);
+        case 6: return stepsDistVec(u, v, c);
+        case 7: return stepsDistScalar(v, c, d);
+    }
+    return [];
+}
+
+// A1: Commutativity
+function stepsCommutativity(u, v) {
+    let sum = [u[0]+v[0], u[1]+v[1]];
+    return [
+        { dur:1.0, label:'Draw <b>u</b> (orange) and <b>v</b> (blue)',
+          draw(t) {
+              drawVecAnim(u, ORA, 'u', t);
+              drawVecAnim(v, BLU, 'v', t);
+          }},
+        { dur:1.4, label:'Compute <b>u + v</b> — place v at tip of u',
+          draw(t) {
+              drawVecStatic(u, ORA, 'u');
+              drawVecStatic(v, BLU, 'v');
+              let base = [ox + u[0]*GS, oy - u[1]*GS];
+              drawVecAnim(v, BLU, 'v', t, base[0], base[1]);
+              if (t > 0.6) {
+                  drawVecAnim(sum, PUR, 'u+v', (t-0.6)/0.4);
+              }
+          }},
+        { dur:1.4, label:'Compute <b>v + u</b> — place u at tip of v',
+          draw(t) {
+              drawVecStatic(u, ORA, 'u', 0.3);
+              drawVecStatic(v, BLU, 'v', 0.3);
+              let base = [ox + v[0]*GS, oy - v[1]*GS];
+              drawVecAnim(u, ORA, 'u', t, base[0], base[1]);
+              if (t > 0.6) {
+                  drawVecAnim(sum, TEAL, 'v+u', (t-0.6)/0.4);
+              }
+          }},
+        { dur:2.0, label:'Both arrive at the <b>same point</b> — commutativity!',
+          draw(t) {
+              drawParallelogram(u, v, Math.min(t*3, 0.2));
+              drawVecStatic(u, ORA, 'u', 0.4);
+              drawVecStatic(v, BLU, 'v', 0.4);
+              let flash = 0.5 + 0.5 * Math.sin(t * 8);
+              drawVecStatic(sum, PUR, 'u+v', 0.5);
+              drawVecStatic(sum, GRN, 'v+u', flash);
+              if (t > 0.3) drawCheckMark(sum, Math.min((t-0.3)*2, 1));
+              drawCoordLabel(sum, GRN, '= same point!');
+          }}
+    ];
+}
+
+// A2: Associativity
+function stepsAssociativity(u, v, w) {
+    let uv = [u[0]+v[0], u[1]+v[1]];
+    let total = [u[0]+v[0]+w[0], u[1]+v[1]+w[1]];
+    return [
+        { dur:0.8, label:'Draw <b>u</b>, <b>v</b>, and <b>w</b>',
+          draw(t) { drawVecAnim(u,ORA,'u',t); drawVecAnim(v,BLU,'v',t); drawVecAnim(w,TEAL,'w',t); }},
+        { dur:1.5, label:'Compute <b>(u+v)</b>, then add <b>w</b>',
+          draw(t) {
+              drawVecStatic(u,ORA,'u',0.3); drawVecStatic(v,BLU,'v',0.3); drawVecStatic(w,TEAL,'w',0.3);
+              if (t < 0.5) { drawVecAnim(uv, PUR, 'u+v', t*2); }
+              else {
+                  drawVecStatic(uv, PUR, 'u+v', 0.4);
+                  let base = [ox+uv[0]*GS, oy-uv[1]*GS];
+                  drawVecAnim(w, TEAL, 'w', (t-0.5)*2, base[0], base[1]);
+                  if (t > 0.85) drawVecAnim(total, PUR, '(u+v)+w', (t-0.85)/0.15);
+              }
+          }},
+        { dur:1.5, label:'Now compute <b>u+(v+w)</b> instead',
+          draw(t) {
+              let vw = [v[0]+w[0], v[1]+w[1]];
+              drawVecStatic(u,ORA,'u',0.3); drawVecStatic(v,BLU,'v',0.3); drawVecStatic(w,TEAL,'w',0.3);
+              if (t < 0.5) { drawVecAnim(vw, PINK, 'v+w', t*2); }
+              else {
+                  drawVecStatic(vw, PINK, 'v+w', 0.4);
+                  let base = [ox+u[0]*GS, oy-u[1]*GS];
+                  drawVecAnim(vw, PINK, 'v+w', (t-0.5)*2, base[0], base[1]);
+                  if (t > 0.85) drawVecAnim(total, GRN, 'u+(v+w)', (t-0.85)/0.15);
+              }
+          }},
+        { dur:1.8, label:'Both give the <b>same result</b>!',
+          draw(t) {
+              let flash = 0.5+0.4*Math.sin(t*8);
+              drawVecStatic(total, PUR, '(u+v)+w', 0.5);
+              drawVecStatic(total, GRN, 'u+(v+w)', flash);
+              if (t > 0.3) drawCheckMark(total, Math.min((t-0.3)*2,1));
+              drawCoordLabel(total, GRN, '= same point!');
+          }}
+    ];
+}
+
+// A3: Zero vector
+function stepsZero(v) {
+    return [
+        { dur:0.8, label:'Draw <b>v</b>',
+          draw(t) { drawVecAnim(v, BLU, 'v', t); }},
+        { dur:1.0, label:'The zero vector <b>0</b> is a dot at the origin',
+          draw(t) {
+              drawVecStatic(v, BLU, 'v');
+              cx.save(); cx.globalAlpha = t;
+              cx.beginPath(); cx.arc(ox, oy, 6*t, 0, Math.PI*2); cx.fillStyle = GRN; cx.fill();
+              cx.font='600 11px Inter'; cx.fillStyle=GRN; cx.textAlign='left'; cx.textBaseline='bottom';
+              cx.fillText('0', ox+10, oy-4); cx.restore();
+          }},
+        { dur:1.5, label:'<b>v + 0 = v</b> — nothing changes!',
+          draw(t) {
+              cx.save(); cx.globalAlpha=0.5; cx.beginPath(); cx.arc(ox,oy,6,0,Math.PI*2); cx.fillStyle=GRN; cx.fill(); cx.restore();
+              let flash = 0.5+0.5*Math.sin(t*6);
+              drawVecStatic(v, BLU, 'v', flash);
+              drawVecStatic(v, GRN, 'v+0', 0.6);
+              if (t > 0.5) drawCheckMark(v, Math.min((t-0.5)*2.5, 1));
+              if (t > 0.6) drawCoordLabel(v, GRN, 'unchanged!');
+          }}
+    ];
+}
+
+// A4: Additive inverse
+function stepsInverse(v) {
+    let neg = [-v[0], -v[1]];
+    return [
+        { dur:0.8, label:'Draw <b>v</b>',
+          draw(t) { drawVecAnim(v, BLU, 'v', t); }},
+        { dur:1.0, label:'Draw <b>−v</b> (the opposite direction)',
+          draw(t) { drawVecStatic(v, BLU, 'v'); drawVecAnim(neg, RED, '−v', t); }},
+        { dur:1.8, label:'<b>v + (−v) = 0</b> — they cancel!',
+          draw(t) {
+              let shrink = 1 - Math.min(t*1.5, 1);
+              drawVecStatic([v[0]*shrink, v[1]*shrink], BLU, 'v', 0.6);
+              drawVecStatic([neg[0]*shrink, neg[1]*shrink], RED, '−v', 0.6);
+              if (t > 0.6) {
+                  let pulse = 4+4*Math.sin((t-0.6)*12);
+                  cx.save(); cx.globalAlpha = Math.min((t-0.6)*3, 1);
+                  cx.beginPath(); cx.arc(ox, oy, pulse, 0, Math.PI*2); cx.fillStyle=GRN; cx.fill();
+                  cx.font='700 13px Inter'; cx.fillStyle=GRN; cx.textAlign='left'; cx.textBaseline='bottom';
+                  cx.fillText('= 0', ox+12, oy-6); cx.restore();
+              }
+          }}
+    ];
+}
+
+// S1: Scalar compatibility c(dv) = (cd)v
+function stepsCompat(v, c, d) {
+    let dv = [d*v[0], d*v[1]];
+    let cdv = [c*dv[0], c*dv[1]];
+    let cd = c*d;
+    let cdv2 = [cd*v[0], cd*v[1]];
+    return [
+        { dur:0.8, label:'Draw <b>v</b>',
+          draw(t) { drawVecAnim(v, BLU, 'v', t); }},
+        { dur:1.2, label:`Scale v by d=${d.toFixed(1)} → <b>dv</b>`,
+          draw(t) { drawVecStatic(v,BLU,'v',0.3); drawVecAnim(dv,TEAL,'dv',t); }},
+        { dur:1.2, label:`Scale dv by c=${c.toFixed(1)} → <b>c(dv)</b>`,
+          draw(t) { drawVecStatic(v,BLU,'v',0.2); drawVecStatic(dv,TEAL,'dv',0.3); drawVecAnim(cdv,PUR,'c(dv)',t); }},
+        { dur:1.2, label:`Alternatively, scale v by cd=${cd.toFixed(1)} → <b>(cd)v</b>`,
+          draw(t) { drawVecStatic(v,BLU,'v',0.2); drawVecStatic(cdv,PUR,'c(dv)',0.3); drawVecAnim(cdv2,GRN,'(cd)v',t); }},
+        { dur:1.8, label:'Both are the <b>same vector</b>!',
+          draw(t) {
+              let flash=0.5+0.4*Math.sin(t*8);
+              drawVecStatic(cdv,PUR,'c(dv)',0.5);
+              drawVecStatic(cdv2,GRN,'(cd)v',flash);
+              if(t>0.3) drawCheckMark(cdv,Math.min((t-0.3)*2,1));
+          }}
+    ];
+}
+
+// S2: Identity 1·v = v
+function stepsIdentity(v) {
+    return [
+        { dur:0.8, label:'Draw <b>v</b>',
+          draw(t) { drawVecAnim(v, BLU, 'v', t); }},
+        { dur:1.5, label:'Scale v by <b>1</b> — nothing changes!',
+          draw(t) {
+              drawVecStatic(v, BLU, 'v');
+              let flash = 0.5+0.5*Math.sin(t*6);
+              drawVecStatic(v, GRN, '1·v', flash);
+              if(t>0.5) drawCheckMark(v, Math.min((t-0.5)*2.5,1));
+              if(t>0.6) drawCoordLabel(v, GRN, 'unchanged!');
+          }}
+    ];
+}
+
+// D1: Distributivity over vector addition c(u+v) = cu + cv
+function stepsDistVec(u, v, c) {
+    let uv = [u[0]+v[0], u[1]+v[1]];
+    let cuv = [c*uv[0], c*uv[1]];
+    let cu = [c*u[0], c*u[1]];
+    let cv_ = [c*v[0], c*v[1]];
+    let cucv = [cu[0]+cv_[0], cu[1]+cv_[1]];
+    return [
+        { dur:0.8, label:'Draw <b>u</b> and <b>v</b>',
+          draw(t) { drawVecAnim(u,ORA,'u',t); drawVecAnim(v,BLU,'v',t); }},
+        { dur:1.0, label:'Compute <b>u+v</b>',
+          draw(t) { drawVecStatic(u,ORA,'u',0.3); drawVecStatic(v,BLU,'v',0.3); drawVecAnim(uv,GRAY,'u+v',t); }},
+        { dur:1.2, label:`Scale (u+v) by c=${c.toFixed(1)} → <b>c(u+v)</b>`,
+          draw(t) { drawVecStatic(uv,GRAY,'u+v',0.2); drawVecAnim(cuv,PUR,'c(u+v)',t); }},
+        { dur:1.2, label:`Alternatively, compute <b>cu</b> and <b>cv</b> separately`,
+          draw(t) { drawVecStatic(cuv,PUR,'c(u+v)',0.3); drawVecAnim(cu,ORA,'cu',Math.min(t*2,1)); if(t>0.4) drawVecAnim(cv_,BLU,'cv',Math.min((t-0.4)/0.6,1)); }},
+        { dur:1.3, label:'Add <b>cu + cv</b>',
+          draw(t) {
+              drawVecStatic(cuv,PUR,'c(u+v)',0.3); drawVecStatic(cu,ORA,'cu',0.4); drawVecStatic(cv_,BLU,'cv',0.4);
+              let base = [ox+cu[0]*GS, oy-cu[1]*GS];
+              drawVecAnim(cv_, BLU, 'cv', t, base[0], base[1]);
+              if(t>0.7) drawVecAnim(cucv, GRN, 'cu+cv', (t-0.7)/0.3);
+          }},
+        { dur:1.8, label:'Both are the <b>same</b>!',
+          draw(t) {
+              let flash=0.5+0.4*Math.sin(t*8);
+              drawVecStatic(cuv,PUR,'c(u+v)',0.5); drawVecStatic(cucv,GRN,'cu+cv',flash);
+              if(t>0.3) drawCheckMark(cuv,Math.min((t-0.3)*2,1));
+          }}
+    ];
+}
+
+// D2: Distributivity over scalar addition (c+d)v = cv + dv
+function stepsDistScalar(v, c, d) {
+    let cpd = c + d;
+    let cpdv = [cpd*v[0], cpd*v[1]];
+    let cv_ = [c*v[0], c*v[1]];
+    let dv = [d*v[0], d*v[1]];
+    let sum = [cv_[0]+dv[0], cv_[1]+dv[1]];
+    return [
+        { dur:0.8, label:'Draw <b>v</b>',
+          draw(t) { drawVecAnim(v, BLU, 'v', t); }},
+        { dur:1.2, label:`Scale v by (c+d)=${cpd.toFixed(1)} → <b>(c+d)v</b>`,
+          draw(t) { drawVecStatic(v,BLU,'v',0.3); drawVecAnim(cpdv,PUR,'(c+d)v',t); }},
+        { dur:1.0, label:`Compute <b>cv</b> (scale by c=${c.toFixed(1)})`,
+          draw(t) { drawVecStatic(v,BLU,'v',0.2); drawVecStatic(cpdv,PUR,'(c+d)v',0.3); drawVecAnim(cv_,ORA,'cv',t); }},
+        { dur:1.0, label:`Compute <b>dv</b> (scale by d=${d.toFixed(1)})`,
+          draw(t) { drawVecStatic(cpdv,PUR,'(c+d)v',0.3); drawVecStatic(cv_,ORA,'cv',0.4); drawVecAnim(dv,TEAL,'dv',t); }},
+        { dur:1.3, label:'Add <b>cv + dv</b>',
+          draw(t) {
+              drawVecStatic(cpdv,PUR,'(c+d)v',0.3); drawVecStatic(cv_,ORA,'cv',0.4); drawVecStatic(dv,TEAL,'dv',0.4);
+              let base = [ox+cv_[0]*GS, oy-cv_[1]*GS];
+              drawVecAnim(dv, TEAL, 'dv', t, base[0], base[1]);
+              if(t>0.7) drawVecAnim(sum, GRN, 'cv+dv', (t-0.7)/0.3);
+          }},
+        { dur:1.8, label:'Both are the <b>same</b>!',
+          draw(t) {
+              let flash=0.5+0.4*Math.sin(t*8);
+              drawVecStatic(cpdv,PUR,'(c+d)v',0.5); drawVecStatic(sum,GRN,'cv+dv',flash);
+              if(t>0.3) drawCheckMark(cpdv,Math.min((t-0.3)*2,1));
+          }}
+    ];
+}
+
+// ================================================================
+//  DRAWING PRIMITIVES
+// ================================================================
+function rgba(hex, a) {
+    let h = hex.replace('#','');
+    return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`;
+}
+
+function ease(t) { return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2; }
+
+function drawVecAnim(vec, col, label, t, bx, by) {
+    t = Math.max(0, Math.min(1, t));
+    let e = ease(t);
+    drawVecCore(vec[0]*e, vec[1]*e, col, label, e, bx, by);
+}
+
+function drawVecStatic(vec, col, label, alpha, bx, by) {
+    drawVecCore(vec[0], vec[1], col, label, alpha !== undefined ? alpha : 1, bx, by);
+}
+
+function drawVecCore(vx, vy, col, label, alpha, bx, by) {
+    if (Math.abs(vx) < 0.01 && Math.abs(vy) < 0.01) return;
+    let a = Math.max(0, Math.min(1, alpha));
+    let fx = bx !== undefined ? bx : ox;
+    let fy = by !== undefined ? by : oy;
+    let px = fx + vx * GS, py = fy - vy * GS;
+
+    cx.save(); cx.globalAlpha = a;
+
+    // Shaft
+    cx.strokeStyle = col; cx.lineWidth = 2.5; cx.lineCap = 'round';
+    cx.beginPath(); cx.moveTo(fx, fy); cx.lineTo(px, py); cx.stroke();
+
+    // Arrowhead
+    let ang = Math.atan2(fy - py, px - fx), hl = 11, ha = 0.4;
+    cx.fillStyle = col; cx.beginPath();
+    cx.moveTo(px, py);
+    cx.lineTo(px - hl*Math.cos(ang - ha), py + hl*Math.sin(ang - ha));
+    cx.lineTo(px - hl*Math.cos(ang + ha), py + hl*Math.sin(ang + ha));
+    cx.closePath(); cx.fill();
+
+    // Tip dot
+    cx.beginPath(); cx.arc(px, py, 3.5, 0, Math.PI*2); cx.fill();
+
+    // Label
+    if (label) {
+        cx.font = '700 11px Inter'; cx.textAlign = 'left'; cx.textBaseline = 'bottom';
+        cx.fillText(label, px + 8, py - 5);
+    }
+    cx.restore();
+}
+
+function drawCoordLabel(vec, col, text) {
+    let px = ox + vec[0]*GS, py = oy - vec[1]*GS;
+    cx.save(); cx.font = '500 9.5px JetBrains Mono'; cx.fillStyle = col; cx.globalAlpha = 0.8;
+    cx.textAlign = 'left'; cx.textBaseline = 'top';
+    cx.fillText(`(${vec[0].toFixed(1)}, ${vec[1].toFixed(1)})  ${text || ''}`, px + 10, py + 6);
+    cx.restore();
+}
+
+function drawParallelogram(a, b, alpha) {
+    let p1x = ox+a[0]*GS, p1y = oy-a[1]*GS;
+    let p2x = ox+b[0]*GS, p2y = oy-b[1]*GS;
+    let p3x = ox+(a[0]+b[0])*GS, p3y = oy-(a[1]+b[1])*GS;
+    cx.save(); cx.globalAlpha = alpha;
+    cx.fillStyle = PUR; cx.beginPath();
+    cx.moveTo(ox, oy); cx.lineTo(p1x, p1y); cx.lineTo(p3x, p3y); cx.lineTo(p2x, p2y);
+    cx.closePath(); cx.fill();
+    cx.globalAlpha = alpha + 0.15; cx.strokeStyle = PUR; cx.lineWidth = 1; cx.setLineDash([6, 4]);
+    cx.beginPath(); cx.moveTo(p1x, p1y); cx.lineTo(p3x, p3y); cx.stroke();
+    cx.beginPath(); cx.moveTo(p2x, p2y); cx.lineTo(p3x, p3y); cx.stroke();
+    cx.setLineDash([]); cx.restore();
+}
+
+function drawCheckMark(vec, t) {
+    let px = ox + vec[0]*GS, py = oy - vec[1]*GS;
+    cx.save(); cx.globalAlpha = t;
+    cx.beginPath(); cx.arc(px - 20, py, 14, 0, Math.PI*2);
+    cx.fillStyle = rgba(GRN, 0.15); cx.fill();
+    cx.font = '800 20px Inter'; cx.fillStyle = GRN; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText('✓', px - 20, py + 1);
+    cx.restore();
+}
+
+function drawGrid() {
+    cx.strokeStyle = '#E6E8EE'; cx.lineWidth = 0.5;
+    for (let x = ox % GS; x < CW; x += GS) { cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x, CH); cx.stroke(); }
+    for (let y = oy % GS; y < CH; y += GS) { cx.beginPath(); cx.moveTo(0, y); cx.lineTo(CW, y); cx.stroke(); }
+    cx.strokeStyle = '#D0D4DD'; cx.lineWidth = 1;
+    cx.beginPath(); cx.moveTo(ox, 0); cx.lineTo(ox, CH); cx.stroke();
+    cx.beginPath(); cx.moveTo(0, oy); cx.lineTo(CW, oy); cx.stroke();
+}
+
+function drawAxes() {
+    cx.fillStyle = '#AAB0BE'; cx.font = '500 9px JetBrains Mono';
+    cx.textAlign = 'center'; cx.textBaseline = 'top';
+    for (let i = -15; i <= 15; i++) {
+        if (!i) continue;
+        let px = ox + i * GS;
+        if (px > 8 && px < CW - 8) cx.fillText(i, px, oy + 4);
+    }
+    cx.textAlign = 'right'; cx.textBaseline = 'middle';
+    for (let i = -15; i <= 15; i++) {
+        if (!i) continue;
+        let py = oy - i * GS;
+        if (py > 8 && py < CH - 8) cx.fillText(i, ox - 6, py);
+    }
+    cx.fillStyle = DEEP; cx.font = '600 11px Inter';
+    cx.textAlign = 'center'; cx.textBaseline = 'bottom'; cx.fillText('x₁', CW - 14, oy - 7);
+    cx.textAlign = 'left'; cx.textBaseline = 'middle'; cx.fillText('x₂', ox + 7, 13);
+    cx.beginPath(); cx.arc(ox, oy, 3, 0, Math.PI*2); cx.fillStyle = DEEP; cx.fill();
+}
+
+// ================================================================
+//  MAIN RENDER LOOP
+// ================================================================
+function frame() {
+    cx.clearRect(0, 0, CW, CH);
+    cx.fillStyle = '#FAFBFD'; cx.fillRect(0, 0, CW, CH);
+    drawGrid();
+    drawAxes();
+
+    // Advance animation
+    if (playing && !paused && stepIdx >= 0 && stepIdx < steps.length) {
+        let step = steps[stepIdx];
+        stepT += stepSpeed / step.dur;
+
+        if (stepT >= 1) {
+            stepT = 1;
+            playing = false;
+            // Draw everything at final state
+            drawAllSteps(stepIdx, 1);
+            // Advance after a pause
+            clearTimeout(pauseTimer);
+            pauseTimer = setTimeout(() => {
+                stepIdx++;
+                stepT = 0;
+                if (stepIdx >= steps.length) {
+                    // Axiom complete!
+                    axStates[curAx] = 2;
+                    buildAxList();
+                    updateProg();
+                    updateVerif();
+                    updateStepBar();
+                    // If running all, start next
+                    if (allMode) {
+                        setTimeout(() => {
+                            let next = axStates.indexOf(0);
+                            if (next >= 0) startAxiom(next);
+                            else allMode = false;
+                        }, 500);
+                    }
+                } else {
+                    playing = true;
+                    updateStepBar();
+                }
+            }, 350);
+        } else {
+            drawAllSteps(stepIdx, stepT);
+        }
+    } else if (stepIdx >= 0 && steps.length > 0) {
+        // Static: draw completed state
+        drawAllSteps(Math.min(stepIdx, steps.length - 1), stepIdx < steps.length ? stepT : 1);
+    }
+
+    // If no axiom selected, draw base vectors
+    if (curAx < 0) {
+        drawVecStatic(U, ORA, 'u');
+        drawVecStatic(V, BLU, 'v');
+    }
+
+    requestAnimationFrame(frame);
+}
+
+function drawAllSteps(currentIdx, currentT) {
+    for (let i = 0; i < currentIdx; i++) {
+        steps[i].draw(1);
+    }
+    if (currentIdx < steps.length) {
+        steps[currentIdx].draw(Math.max(0, Math.min(1, currentT)));
+    }
+}
+
+requestAnimationFrame(frame);
+
+// ================================================================
+//  AXIOM CONTROL
+// ================================================================
+function startAxiom(i) {
+    clearTimeout(pauseTimer);
+    curAx = i;
+    axStates[i] = 1;
+    steps = makeSteps(i);
+    stepIdx = 0;
+    stepT = 0;
+    playing = true;
+    paused = false;
+    buildAxList();
+    updateStepBar();
+    updateVerif();
+}
+
+function verifyNext() {
+    allMode = false;
+    let n = axStates.indexOf(0);
+    if (n >= 0) startAxiom(n);
+}
+
+function verifyAllSeq() {
+    allMode = true;
+    axStates.fill(0);
+    buildAxList();
+    updateProg();
+    startAxiom(0);
+}
+
+function resetAll() {
+    clearTimeout(pauseTimer);
+    axStates.fill(0);
+    curAx = -1;
+    steps = [];
+    stepIdx = -1;
+    playing = false;
+    paused = false;
+    allMode = false;
+    buildAxList();
+    updateProg();
+    document.getElementById('stepBar').innerHTML = '<div class="step-text" style="color:var(--med)">Select an axiom or press <b>▶ Verify Next Axiom</b></div>';
+    document.getElementById('verifP').innerHTML = '<div class="empty">Click an axiom to begin</div>';
+    document.getElementById('insP').innerHTML = 'These 8 rules are the <b>contract</b> that makes linear algebra work. Every ML algorithm relies on them. Change vectors and scalars, then verify to see they hold for <b>any</b> choice.';
+}
+
+function clickAx(i) {
+    if (playing) return;
+    startAxiom(i);
+}
+
+// ================================================================
+//  UI BUILDERS
+// ================================================================
+function buildAxList() {
+    let h = '';
+    for (let i = 0; i < 8; i++) {
+        let s = axStates[i];
+        let rc = s === 2 ? 'ax-row pass' : s === 1 ? 'ax-row active' : 'ax-row';
+        let dc = s === 2 ? 'ax-dot p' : s === 1 ? 'ax-dot a' : 'ax-dot w';
+        let dt = s === 2 ? '✓' : s === 1 ? '…' : (i+1);
+        h += `<div class="${rc}" onclick="clickAx(${i})">
+            <div class="${dc}">${dt}</div>
+                        <div style="flex:1">
+                <div class="ax-code">${AX_CODES[i]} <span style="font-weight:400;color:#888">— ${AX_NAMES[i]}</span></div>
+                <div class="ax-name" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--med)">${AX_LAWS[i]}</div>
+            </div>
+        </div>`;
+    }
+    document.getElementById('axList').innerHTML = h;
+}
+
+function updateProg() {
+    let p = axStates.filter(s => s === 2).length;
+    document.getElementById('progT').textContent = p + '/8';
+    document.getElementById('progF').style.width = (p / 8 * 100) + '%';
+}
+
+function updateStepBar() {
+    let bar = document.getElementById('stepBar');
+    if (curAx < 0 || !steps.length) {
+        bar.innerHTML = '<div class="step-text" style="color:var(--med)">Select an axiom or press <b>▶ Verify Next Axiom</b></div>';
+        return;
+    }
+
+    let h = '';
+    for (let i = 0; i < steps.length; i++) {
+        let isCur = (i === stepIdx);
+        let isDone = (i < stepIdx);
+        let nc = isDone ? 'step-num done' : isCur ? 'step-num active' : 'step-num';
+        h += `<div class="${nc}">${i + 1}</div>`;
+        if (i < steps.length - 1) {
+            let cc = isDone ? 'step-connector done' : 'step-connector';
+            h += `<div class="${cc}"></div>`;
+        }
+    }
+    let curLabel = stepIdx < steps.length ? steps[stepIdx].label : steps[steps.length - 1].label;
+    h += `<div class="step-text" style="margin-left:8px">${curLabel}</div>`;
+    bar.innerHTML = h;
+}
+
+function updateVerif() {
+    let el = document.getElementById('verifP');
+    if (curAx < 0) {
+        el.innerHTML = '<div class="empty">Click an axiom to begin</div>';
+        return;
+    }
+
+    let h = `<div style="margin-bottom:6px">
+        <span class="ax-code" style="font-size:12px">${AX_CODES[curAx]}</span>
+        <span style="color:#555;font-size:11px">${AX_NAMES[curAx]}</span>
+    </div>`;
+    h += `<div class="mbx" id="lawMath"></div>`;
+
+    if (axStates[curAx] === 2) {
+        h += `<div class="verdict pass">✓ VERIFIED — Axiom holds!</div>`;
+    } else if (axStates[curAx] === 1) {
+        h += `<div class="verdict wait">Verifying step by step...</div>`;
+    }
+
+    el.innerHTML = h;
+
+    // Render KaTeX
+    let mathEl = document.getElementById('lawMath');
+    if (mathEl) {
+        try {
+            katex.render(AX_TEX[curAx], mathEl, { displayMode: true, throwOnError: false });
+        } catch(e) {
+            mathEl.textContent = AX_LAWS[curAx];
+        }
+    }
+
+    // Update insight
+    document.getElementById('insP').innerHTML = AX_INSIGHTS[curAx];
+}
+
+// ================================================================
+//  SLIDERS SYNC
+// ================================================================
+function sync() {
+    U = [parseFloat(document.getElementById('ux').value), parseFloat(document.getElementById('uy').value)];
+    V = [parseFloat(document.getElementById('vx').value), parseFloat(document.getElementById('vy').value)];
+    C = parseFloat(document.getElementById('sc').value);
+    D = parseFloat(document.getElementById('sd').value);
+
+    document.getElementById('uxV').textContent = U[0].toFixed(1);
+    document.getElementById('uyV').textContent = U[1].toFixed(1);
+    document.getElementById('vxV').textContent = V[0].toFixed(1);
+    document.getElementById('vyV').textContent = V[1].toFixed(1);
+    document.getElementById('scV').textContent = C.toFixed(2);
+    document.getElementById('sdV').textContent = D.toFixed(2);
+
+    // If not animating, reset verification so new values take effect
+    if (!playing && curAx >= 0 && axStates[curAx] !== 1) {
+        // Allow re-verification with new values
+    }
+}
+
+// ================================================================
+//  CANVAS DRAG (drag u and v tips directly)
+// ================================================================
+let dragTarget = null;
+
+cv.addEventListener('mousedown', e => {
+    let r = cv.getBoundingClientRect();
+    let mx = e.clientX - r.left, my = e.clientY - r.top;
+    let du = Math.hypot(mx - (ox + U[0]*GS), my - (oy - U[1]*GS));
+    let dv = Math.hypot(mx - (ox + V[0]*GS), my - (oy - V[1]*GS));
+    if (du < 22) dragTarget = 'u';
+    else if (dv < 22) dragTarget = 'v';
+    else dragTarget = null;
+});
+
+cv.addEventListener('mousemove', e => {
+    let r = cv.getBoundingClientRect();
+    let mx = e.clientX - r.left, my = e.clientY - r.top;
+    if (dragTarget) {
+        let gx = Math.round((mx - ox) / GS * 2) / 2;
+        let gy = Math.round(-(my - oy) / GS * 2) / 2;
+        gx = Math.max(-5, Math.min(5, gx));
+        gy = Math.max(-5, Math.min(5, gy));
+        if (dragTarget === 'u') {
+            U = [gx, gy];
+            document.getElementById('ux').value = gx;
+            document.getElementById('uy').value = gy;
+        } else {
+            V = [gx, gy];
+            document.getElementById('vx').value = gx;
+            document.getElementById('vy').value = gy;
+        }
+        sync();
+    }
+    // Cursor
+    let du = Math.hypot(mx - (ox + U[0]*GS), my - (oy - U[1]*GS));
+    let dv = Math.hypot(mx - (ox + V[0]*GS), my - (oy - V[1]*GS));
+    cv.style.cursor = (du < 22 || dv < 22 || dragTarget) ? 'grab' : 'default';
+});
+
+cv.addEventListener('mouseup', () => { dragTarget = null; });
+cv.addEventListener('mouseleave', () => { dragTarget = null; });
+
+// Touch support
+cv.addEventListener('touchstart', e => {
+    e.preventDefault();
+    let t = e.touches[0];
+    cv.dispatchEvent(new MouseEvent('mousedown', { clientX: t.clientX, clientY: t.clientY }));
+}, { passive: false });
+
+cv.addEventListener('touchmove', e => {
+    e.preventDefault();
+    let t = e.touches[0];
+    cv.dispatchEvent(new MouseEvent('mousemove', { clientX: t.clientX, clientY: t.clientY }));
+}, { passive: false });
+
+cv.addEventListener('touchend', e => {
+    e.preventDefault();
+    cv.dispatchEvent(new MouseEvent('mouseup'));
+}, { passive: false });
+
+// ================================================================
+//  INITIALIZATION
+// ================================================================
+sync();
+buildAxList();
+updateProg();
+</script>
+</body>
+</html>

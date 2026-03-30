@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Span Visualizer | MathSphere</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        :root{
+            --deep:#1B2A4A;--ora:#E07A3A;--gray:#F2F2F2;--med:#B0B0B0;
+            --txt:#2C2C2C;--pur:#7C3AED;--grn:#22C55E;--blu:#2563EB;
+            --red:#EF4444;--teal:#06B6D4;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#EDEEF2;color:var(--txt);overflow-x:hidden}
+
+        header{background:var(--deep);padding:11px 22px;display:flex;justify-content:space-between;align-items:center}
+        .la{display:flex;align-items:center;gap:9px}
+        .lb{width:32px;height:32px;background:var(--ora);border-radius:6px;display:grid;place-items:center;font-weight:800;font-size:16px;color:#fff}
+        .ln{font-weight:700;font-size:14px;color:#fff}
+        .ls{font-size:9px;color:#8899B0;letter-spacing:.7px;text-transform:uppercase}
+        .hr{text-align:right}
+        .hc{font-size:10px;color:var(--ora);font-weight:600}
+        .ha{font-size:9.5px;color:#8899B0}
+
+        .titl{background:#fff;border-bottom:3px solid var(--ora);padding:14px 22px}
+        .titl .r{font-size:10px;color:var(--ora);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+        .titl h1{font-size:20px;color:var(--deep);margin:3px 0 2px}
+        .titl p{font-size:12px;color:var(--med);line-height:1.5;max-width:700px}
+
+        .app{display:flex;max-width:1360px;margin:14px auto;padding:0 14px;gap:14px}
+        .left{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+        .right{width:340px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+
+        .ccard{background:#fff;border-radius:10px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 2px 8px rgba(27,42,74,.06)}
+        .tbar{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid #EEF0F4;background:#FAFBFD;flex-wrap:wrap;gap:5px}
+        .tgrp{display:flex;gap:5px;flex-wrap:wrap}
+        .tb{padding:5px 14px;border:1.5px solid var(--deep);border-radius:5px;background:#fff;color:var(--deep);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
+        .tb:hover,.tb.on{background:var(--deep);color:#fff}
+        .tb.go{border-color:var(--grn);color:var(--grn);font-weight:700;font-size:12px;padding:6px 18px}
+        .tb.go:hover{background:var(--grn);color:#fff}
+        .tb.ora{border-color:var(--ora);color:var(--ora)}
+        .tb.ora:hover{background:var(--ora);color:#fff}
+        .tb.sec{border-color:#DDE1E8;color:var(--txt);font-weight:500}
+        .tb.sec:hover{border-color:var(--red);color:var(--red);background:#FEF2F2}
+        .tb:disabled{opacity:0.4;cursor:not-allowed}
+
+        canvas#cv{display:block;width:100%;background:#FAFBFD;cursor:default}
+
+        .hint-bar{padding:8px 14px;background:#FAFBFD;border-top:1px solid #EEF0F4;font-size:11.5px;color:var(--txt);text-align:center;min-height:38px;display:flex;align-items:center;justify-content:center}
+        .hint-bar b{color:var(--deep)}
+        .hint-bar .hl{color:var(--ora);font-weight:700}
+
+        .controls{background:#fff;border-radius:10px;border:1px solid #DDE1E8;padding:14px 16px;box-shadow:0 2px 8px rgba(27,42,74,.04)}
+        .ctrl-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--deep);margin-bottom:10px}
+        .ctrl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+        .vc{border-radius:8px;padding:10px 12px;border:2px solid #E0E4EA}
+        .vc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+        .vc-name{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace}
+        .vc-coord{font-family:'JetBrains Mono',monospace;font-size:11px;color:#777}
+        .sl-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+        .sl-row label{font-size:11px;font-weight:600;color:var(--deep);min-width:18px}
+        .val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--ora);min-width:38px;text-align:right}
+        input[type=range]{-webkit-appearance:none;flex:1;height:5px;border-radius:3px;background:#E0E4EA;outline:none}
+        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--deep);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+
+        .card{background:#fff;border-radius:10px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 1px 5px rgba(27,42,74,.04)}
+        .chd{padding:8px 12px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid #EEF0F4}
+        .chd.bl{background:var(--deep);color:#fff}
+        .chd.or{background:var(--ora);color:#fff}
+        .chd.pr{background:var(--pur);color:#fff}
+        .chd.gn{background:var(--grn);color:#fff}
+        .cbd{padding:10px 12px}
+        .empty{text-align:center;font-size:11px;color:var(--med);padding:8px 0;line-height:1.6}
+        .mbx{background:var(--gray);border-radius:6px;padding:10px;text-align:center;min-height:36px;display:flex;align-items:center;justify-content:center;margin:6px 0;overflow-x:auto}
+
+        .step-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;margin-bottom:4px;border:1.5px solid transparent;transition:.3s}
+        .step-row.done{background:#F0FDF4;border-color:#BBF7D0}
+        .step-row.active{background:#FFF7ED;border-color:#FED7AA;animation:stepPulse 1.5s infinite}
+        .step-row.wait{background:#F9FAFB;border-color:#E5E7EB}
+        .step-row.fail{background:#FEF2F2;border-color:#FECACA}
+        @keyframes stepPulse{0%,100%{box-shadow:0 0 0 0 rgba(224,122,58,0)}50%{box-shadow:0 0 0 4px rgba(224,122,58,0.1)}}
+        .step-dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;color:#fff;transition:.3s}
+        .step-dot.done{background:var(--grn)}
+        .step-dot.active{background:var(--ora)}
+        .step-dot.wait{background:#D0D4DD}
+        .step-dot.fail{background:var(--red)}
+        .step-label{font-size:11.5px;color:var(--txt);line-height:1.4;flex:1}
+        .step-label b{color:var(--deep)}
+
+        .result-box{padding:12px;border-radius:8px;text-align:center;font-weight:700;font-size:14px;margin-top:8px;transition:.3s}
+        .result-box.ok{background:#DCFCE7;color:#15803D;border:2px solid #86EFAC}
+        .result-box.fail{background:#FEE2E2;color:var(--red);border:2px solid #FCA5A5}
+        .result-box.hide{display:none}
+
+        .ins{background:linear-gradient(135deg,#FFF7ED,#FFFBF5);border-left:3px solid var(--ora);border-radius:0 8px 8px 0;padding:10px 12px}
+        .ins .it{font-size:9.5px;font-weight:700;color:var(--ora);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+        .ins p{font-size:11px;line-height:1.6;color:var(--txt)}
+
+        .dep-box{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:8px;padding:10px 12px;margin-top:6px}
+        .dep-box.ind{background:#F0FDF4;border-color:#BBF7D0}
+        .dep-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+        .dep-text{font-size:11px;line-height:1.5}
+
+        footer{background:var(--deep);padding:11px 22px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+        .fl{display:flex;align-items:center;gap:7px}
+        .flb{width:20px;height:20px;background:var(--ora);border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+        .flt{font-size:10px;color:#8899B0}.flt strong{color:#fff}
+        .fr{font-size:9px;color:#667799}
+
+        @media(max-width:900px){.app{flex-direction:column}.right{width:100%}.ctrl-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="la"><div class="lb">M</div><div><div class="ln">MathSphere</div><div class="ls">Mathematics for Machine Learning</div></div></div>
+    <div class="hr"><div class="hc">Chapter 1 · Vectors and Vector Spaces</div><div class="ha">by Anupam Nigam</div></div>
+</header>
+
+<div class="titl">
+    <div class="r">Interactive Animation 1.3</div>
+    <h1>What Does This Set of Vectors Span?</h1>
+    <p>Pick a target point. Pick two vectors. Press <b>Start</b> — watch them get scaled and added tip-to-tail to reach the target. If they're dependent, see why they <em>can't</em> reach it.</p>
+</div>
+
+<div class="app">
+    <div class="left">
+        <div class="ccard">
+            <div class="tbar">
+                <div class="tgrp">
+                    <button class="tb go" id="btnStart" onclick="startAnim()">▶ Start — Reach the Target</button>
+                    <button class="tb ora" onclick="pickRandomVecs()">⟳ Random Vectors</button>
+                </div>
+                <div class="tgrp">
+                    <button class="tb sec" onclick="resetAll()">Reset All</button>
+                </div>
+            </div>
+            <canvas id="cv"></canvas>
+            <div class="hint-bar" id="hintBar">
+                <span><b>Step 1:</b> Set a target (green dot). <b>Step 2:</b> Choose two vectors. <b>Step 3:</b> Press <span class="hl">▶ Start</span>.</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="ctrl-title">Set your target and two vectors — drag on canvas or use sliders</div>
+            <div class="ctrl-grid">
+                <div class="vc" style="border-color:#22C55E" id="vcTarget">
+                    <div class="vc-top">
+                        <span class="vc-name" style="color:#22C55E">🎯 Target</span>
+                        <span class="vc-coord" id="tCoord">(2.0, 3.0)</span>
+                    </div>
+                    <div class="sl-row"><label>x₁</label><input type="range" id="tx" min="-5" max="5" step="0.5" value="2" oninput="onSlider()"><span class="val" id="txV">2.0</span></div>
+                    <div class="sl-row"><label>x₂</label><input type="range" id="ty" min="-5" max="5" step="0.5" value="3" oninput="onSlider()"><span class="val" id="tyV">3.0</span></div>
+                </div>
+                <div class="vc" style="border-color:#E07A3A" id="vcV1">
+                    <div class="vc-top">
+                        <span class="vc-name" style="color:#E07A3A">v₁</span>
+                        <span class="vc-coord" id="v1Coord">(3.0, 1.0)</span>
+                    </div>
+                    <div class="sl-row"><label>x₁</label><input type="range" id="v1x" min="-5" max="5" step="0.5" value="3" oninput="onSlider()"><span class="val" id="v1xV">3.0</span></div>
+                    <div class="sl-row"><label>x₂</label><input type="range" id="v1y" min="-5" max="5" step="0.5" value="1" oninput="onSlider()"><span class="val" id="v1yV">1.0</span></div>
+                </div>
+                <div class="vc" style="border-color:#2563EB" id="vcV2">
+                    <div class="vc-top">
+                        <span class="vc-name" style="color:#2563EB">v₂</span>
+                        <span class="vc-coord" id="v2Coord">(-1.0, 2.5)</span>
+                    </div>
+                    <div class="sl-row"><label>x₁</label><input type="range" id="v2x" min="-5" max="5" step="0.5" value="-1" oninput="onSlider()"><span class="val" id="v2xV">-1.0</span></div>
+                    <div class="sl-row"><label>x₂</label><input type="range" id="v2y" min="-5" max="5" step="0.5" value="2.5" oninput="onSlider()"><span class="val" id="v2yV">2.5</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right">
+        <div class="card">
+            <div class="chd pr">What's Happening — Step by Step</div>
+            <div class="cbd" id="stepsPanel">
+                <div class="step-row wait" id="sr0"><div class="step-dot wait" id="sd0">1</div><div class="step-label" id="sl0"><b>Check:</b> Are v₁ and v₂ independent?</div></div>
+                <div class="step-row wait" id="sr1"><div class="step-dot wait" id="sd1">2</div><div class="step-label" id="sl1"><b>Solve:</b> Find c₁, c₂ so that c₁v₁ + c₂v₂ = target</div></div>
+                <div class="step-row wait" id="sr2"><div class="step-dot wait" id="sd2">3</div><div class="step-label" id="sl2"><b>Scale v₁:</b> Stretch v₁ by c₁ → draw c₁v₁</div></div>
+                <div class="step-row wait" id="sr3"><div class="step-dot wait" id="sd3">4</div><div class="step-label" id="sl3"><b>Scale v₂:</b> Stretch v₂ by c₂ → place c₂v₂ at tip of c₁v₁</div></div>
+                <div class="step-row wait" id="sr4"><div class="step-dot wait" id="sd4">5</div><div class="step-label" id="sl4"><b>Result:</b> The tip lands on the target!</div></div>
+                <div class="mbx" id="eqMath"><span class="empty">Press ▶ Start to begin</span></div>
+                <div class="result-box hide" id="resultBox"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="chd bl">Independence Check</div>
+            <div class="cbd">
+                <div id="depBox" class="dep-box ind">
+                    <div class="dep-label" style="color:#15803D" id="depLabel">✓ INDEPENDENT</div>
+                    <div class="dep-text" id="depText">v₁ and v₂ point in different directions. They form a basis for ℝ² and can reach any target.</div>
+                </div>
+                <div class="mbx" id="detMath"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="cbd" style="padding:0">
+                <div class="ins">
+                    <div class="it">Key Insight</div>
+                    <p id="insP">Two vectors <b>span ℝ²</b> if and only if they are <b>linearly independent</b> (not parallel). When they're independent, for <em>any</em> target, there exist unique coefficients c₁ and c₂ such that c₁v₁ + c₂v₂ = target. When they're dependent, some targets become <b>unreachable</b>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="fl"><div class="flb">M</div><div class="flt"><strong>MathSphere</strong> · Created by <strong>Anupam Nigam</strong></div></div>
+    <div class="fr">Mathematics for Machine Learning · Chapter 1 · Animation 1.3</div>
+</footer>
+
+<script>
+// ================================================================
+const ORA='#E07A3A',BLU='#2563EB',DEEP='#1B2A4A',PUR='#7C3AED',GRN='#22C55E',RED='#EF4444',TEAL='#06B6D4';
+const GS=48;
+
+// ================================================================
+// STATE
+// ================================================================
+let V1={x:3,y:1}, V2={x:-1,y:2.5}, TGT={x:2,y:3};
+let anim=null; // {step,t,c1,c2,sv1x,sv1y,sv2x,sv2y,independent}
+let dragWhat=null, hoverWhat=null;
+
+const cv=document.getElementById('cv'), cx=cv.getContext('2d');
+let CW,CH,ox,oy;
+const dpr=window.devicePixelRatio||1;
+
+function resize(){
+    const r=cv.parentElement.getBoundingClientRect();
+    CW=r.width; CH=Math.max(460,Math.min(560,innerHeight*0.5));
+    cv.style.width=CW+'px'; cv.style.height=CH+'px';
+    cv.width=CW*dpr; cv.height=CH*dpr;
+    cx.setTransform(dpr,0,0,dpr,0,0);
+    ox=Math.round(CW/2); oy=Math.round(CH/2);
+}
+resize(); addEventListener('resize',resize);
+
+// ================================================================
+// MATH
+// ================================================================
+function snap(v){return Math.round(v*2)/2}
+function mag(x,y){return Math.sqrt(x*x+y*y)}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2}
+function rgba(hex,a){let h=hex.replace('#','');return`rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`}
+function det2(){return V1.x*V2.y-V1.y*V2.x}
+function isIndep(){return Math.abs(det2())>0.05}
+function solveCoeffs(){
+    let d=det2();
+    if(Math.abs(d)<0.01)return null;
+    return{c1:(TGT.x*V2.y-TGT.y*V2.x)/d, c2:(V1.x*TGT.y-V1.y*TGT.x)/d};
+}
+
+// ================================================================
+// DRAWING
+// ================================================================
+function drawGrid(){
+    cx.strokeStyle='#E8EAEF';cx.lineWidth=.5;
+    for(let x=ox%GS;x<CW;x+=GS){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,CH);cx.stroke()}
+    for(let y=oy%GS;y<CH;y+=GS){cx.beginPath();cx.moveTo(0,y);cx.lineTo(CW,y);cx.stroke()}
+    cx.strokeStyle='#C8CDD6';cx.lineWidth=1.5;
+    cx.beginPath();cx.moveTo(ox,0);cx.lineTo(ox,CH);cx.stroke();
+    cx.beginPath();cx.moveTo(0,oy);cx.lineTo(CW,oy);cx.stroke();
+    cx.fillStyle='#AAB0BE';cx.font='500 9px JetBrains Mono';
+    cx.textAlign='center';cx.textBaseline='top';
+    for(let i=-10;i<=10;i++){if(!i)continue;let px=ox+i*GS;if(px>14&&px<CW-14)cx.fillText(i,px,oy+5)}
+    cx.textAlign='right';cx.textBaseline='middle';
+    for(let i=-10;i<=10;i++){if(!i)continue;let py=oy-i*GS;if(py>14&&py<CH-14)cx.fillText(i,ox-7,py)}
+    cx.fillStyle=DEEP;cx.font='600 12px Inter';
+    cx.textAlign='center';cx.textBaseline='bottom';cx.fillText('x₁',CW-16,oy-8);
+    cx.textAlign='left';cx.textBaseline='middle';cx.fillText('x₂',ox+8,14);
+}
+
+function drawArrow(x1,y1,x2,y2,col,lw,alpha,hs){
+    if(Math.abs(x2-x1)<0.5&&Math.abs(y2-y1)<0.5)return;
+    cx.save();cx.globalAlpha=alpha;hs=hs||12;
+    cx.strokeStyle=col;cx.lineWidth=lw;cx.lineCap='round';
+    cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x2,y2);cx.stroke();
+    let ang=Math.atan2(y2-y1,x2-x1),ha=.38;
+    cx.fillStyle=col;cx.beginPath();
+    cx.moveTo(x2,y2);
+    cx.lineTo(x2-hs*Math.cos(ang-ha),y2-hs*Math.sin(ang-ha));
+    cx.lineTo(x2-hs*Math.cos(ang+ha),y2-hs*Math.sin(ang+ha));
+    cx.closePath();cx.fill();
+    cx.restore();
+}
+
+function drawVec(vx,vy,col,label,hov){
+    let px=ox+vx*GS,py=oy-vy*GS,lw=hov?3.5:2.8;
+    // Glow
+    cx.save();cx.strokeStyle=rgba(col,.1);cx.lineWidth=lw+6;cx.lineCap='round';
+    cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(px,py);cx.stroke();cx.restore();
+    // Arrow
+    drawArrow(ox,oy,px,py,col,lw,1);
+    // Tip
+    cx.beginPath();cx.arc(px,py,hov?5:4,0,Math.PI*2);cx.fillStyle=col;cx.fill();
+    if(hov){cx.save();cx.strokeStyle=rgba(col,.3);cx.lineWidth=2;cx.beginPath();cx.arc(px,py,16,0,Math.PI*2);cx.stroke();cx.restore()}
+    // Projections on hover
+    if(hov){
+        cx.save();cx.strokeStyle=rgba(col,.2);cx.lineWidth=1;cx.setLineDash([5,4]);
+        cx.beginPath();cx.moveTo(px,oy);cx.lineTo(px,py);cx.stroke();
+        cx.beginPath();cx.moveTo(ox,py);cx.lineTo(px,py);cx.stroke();
+        cx.setLineDash([]);cx.restore();
+    }
+    // Label + coords
+    cx.save();cx.font='700 13px Inter';cx.fillStyle=col;cx.textAlign='left';cx.textBaseline='bottom';
+    cx.fillText(label,px+12,py-8);
+    cx.font='500 10px JetBrains Mono';cx.fillStyle=rgba(col,.7);cx.textBaseline='top';
+    cx.fillText(`(${vx.toFixed(1)}, ${vy.toFixed(1)})`,px+12,py+4);
+    cx.restore();
+}
+
+function drawTarget(){
+    let px=ox+TGT.x*GS,py=oy-TGT.y*GS;
+    let t=performance.now()/1000,pulse=6+2*Math.sin(t*3);
+    let hov=hoverWhat==='tgt';
+    cx.save();
+    // Glow
+    cx.globalAlpha=.15;cx.beginPath();cx.arc(px,py,pulse+10,0,Math.PI*2);cx.fillStyle=GRN;cx.fill();
+    // Dot
+    cx.globalAlpha=1;cx.beginPath();cx.arc(px,py,pulse,0,Math.PI*2);cx.fillStyle=GRN;cx.fill();
+    // Cross
+    cx.strokeStyle='#fff';cx.lineWidth=2;
+    cx.beginPath();cx.moveTo(px-3,py);cx.lineTo(px+3,py);cx.stroke();
+    cx.beginPath();cx.moveTo(px,py-3);cx.lineTo(px,py+3);cx.stroke();
+    if(hov){cx.strokeStyle=rgba(GRN,.4);cx.lineWidth=2;cx.beginPath();cx.arc(px,py,20,0,Math.PI*2);cx.stroke()}
+    // Label
+    cx.font='700 12px Inter';cx.fillStyle=GRN;cx.textAlign='left';cx.textBaseline='bottom';
+    cx.fillText('🎯 target',px+14,py-6);
+    cx.font='500 10px JetBrains Mono';cx.fillStyle=rgba(GRN,.7);cx.textBaseline='top';
+    cx.fillText(`(${TGT.x.toFixed(1)}, ${TGT.y.toFixed(1)})`,px+14,py+4);
+    cx.restore();
+}
+
+function drawOrigin(){
+    cx.beginPath();cx.arc(ox,oy,4,0,Math.PI*2);cx.fillStyle=DEEP;cx.fill();
+    cx.font='500 9px JetBrains Mono';cx.fillStyle='#999';cx.textAlign='left';cx.textBaseline='top';cx.fillText('O',ox+6,oy+5);
+}
+
+// ================================================================
+// ANIMATION DRAWING
+// ================================================================
+function drawAnimState(){
+    if(!anim)return;
+    let{step,t,c1,c2,sv1x,sv1y,sv2x,sv2y,independent}=anim;
+    let e=ease(Math.min(t,1));
+
+    // Dim original vectors as reference
+    cx.save();cx.globalAlpha=.15;
+    drawArrow(ox,oy,ox+V1.x*GS,oy-V1.y*GS,ORA,1.5,.15);
+    drawArrow(ox,oy,ox+V2.x*GS,oy-V2.y*GS,BLU,1.5,.15);
+    cx.font='500 9px Inter';cx.fillStyle=rgba(ORA,.3);cx.textAlign='left';cx.textBaseline='bottom';
+    cx.fillText('v₁',ox+V1.x*GS+6,oy-V1.y*GS-4);
+    cx.fillStyle=rgba(BLU,.3);cx.fillText('v₂',ox+V2.x*GS+6,oy-V2.y*GS-4);
+    cx.restore();
+
+    if(!independent){
+        // DEPENDENT CASE — show the line they span, and the target NOT on it
+        if(step>=1){
+            // Draw the span line
+            let ref=mag(V1.x,V1.y)>mag(V2.x,V2.y)?V1:V2;
+            let m=mag(ref.x,ref.y);
+            if(m>.01){
+                let dx=ref.x/m,dy=ref.y/m,ext=Math.max(CW,CH);
+                cx.save();
+                cx.strokeStyle=rgba(PUR,.15);cx.lineWidth=20;
+                cx.beginPath();cx.moveTo(ox-dx*ext,oy+dy*ext);cx.lineTo(ox+dx*ext,oy-dy*ext);cx.stroke();
+                cx.strokeStyle=rgba(PUR,.4);cx.lineWidth=2.5;
+                cx.beginPath();cx.moveTo(ox-dx*ext,oy+dy*ext);cx.lineTo(ox+dx*ext,oy-dy*ext);cx.stroke();
+                cx.font='600 11px Inter';cx.fillStyle=rgba(PUR,.6);cx.textAlign='center';cx.textBaseline='bottom';
+                cx.fillText('span = only this line',ox+dx*3.5*GS+20,oy-dy*3.5*GS-10);
+                cx.restore();
+            }
+        }
+        if(step>=2){
+            // Draw a dashed line from closest point on span to target
+            let ref=mag(V1.x,V1.y)>mag(V2.x,V2.y)?V1:V2;
+            let m=mag(ref.x,ref.y);
+            if(m>.01){
+                let dx=ref.x/m,dy=ref.y/m;
+                let proj=(TGT.x*dx+TGT.y*dy);
+                let closestX=dx*proj,closestY=dy*proj;
+                let cpx=ox+closestX*GS,cpy=oy-closestY*GS;
+                let tpx=ox+TGT.x*GS,tpy=oy-TGT.y*GS;
+
+                // Closest point
+                let ea=Math.min(e*2,1);
+                cx.save();cx.globalAlpha=ea;
+                cx.beginPath();cx.arc(cpx,cpy,5,0,Math.PI*2);cx.fillStyle=PUR;cx.fill();
+                cx.font='500 9px JetBrains Mono';cx.fillStyle=PUR;cx.textAlign='left';cx.textBaseline='top';
+                cx.fillText(`closest: (${closestX.toFixed(1)}, ${closestY.toFixed(1)})`,cpx+8,cpy+8);
+
+                // Red dashed line = the gap
+                cx.setLineDash([6,4]);cx.strokeStyle=RED;cx.lineWidth=2.5;
+                let gx=cpx+(tpx-cpx)*ea,gy=cpy+(tpy-cpy)*ea;
+                cx.beginPath();cx.moveTo(cpx,cpy);cx.lineTo(gx,gy);cx.stroke();
+                cx.setLineDash([]);
+
+                if(ea>.5){
+                    let mx2=(cpx+tpx)/2,my2=(cpy+tpy)/2;
+                    cx.font='700 11px Inter';cx.fillStyle=RED;cx.textAlign='center';cx.textBaseline='bottom';
+                    cx.fillText('✗ gap — can\'t reach!',mx2,my2-8);
+                }
+                cx.restore();
+            }
+        }
+        return;
+    }
+
+    // INDEPENDENT CASE
+    if(step>=2){
+        // Step 2: Scale v1 → c1*v1
+        let t2=step===2?e:1;
+        let curX=sv1x*t2,curY=sv1y*t2;
+        let px=ox+curX*GS,py=oy-curY*GS;
+
+        // Scaling trail
+        if(step===2&&t2<1){
+            cx.save();cx.globalAlpha=.06;cx.fillStyle=ORA;
+            cx.beginPath();cx.moveTo(ox,oy);
+            let ang1=Math.atan2(-V1.y,V1.x);
+            let len=mag(curX,curY)*GS;
+            cx.arc(ox,oy,Math.max(len,1),ang1-.08,ang1+.08);
+            cx.closePath();cx.fill();cx.restore();
+        }
+
+        drawArrow(ox,oy,px,py,ORA,3,Math.min(t2*1.5,1),14);
+        cx.beginPath();cx.arc(px,py,4,0,Math.PI*2);cx.fillStyle=ORA;cx.fill();
+        // Label
+        cx.save();cx.font='700 12px Inter';cx.fillStyle=ORA;cx.textAlign='left';cx.textBaseline='bottom';
+        cx.fillText('c₁v₁',px+10,py-10);
+        cx.font='500 10px JetBrains Mono';cx.fillStyle=rgba(ORA,.7);cx.textBaseline='top';
+        cx.fillText(`${c1.toFixed(2)} × (${V1.x.toFixed(1)}, ${V1.y.toFixed(1)})`,px+10,py+2);
+        cx.fillText(`= (${sv1x.toFixed(1)}, ${sv1y.toFixed(1)})`,px+10,py+15);
+        cx.restore();
+    }
+
+    if(step>=3){
+        // Step 3: Scale v2 from tip of c1v1
+        let t3=step===3?e:1;
+        let bx=ox+sv1x*GS,by=oy-sv1y*GS;
+        let curX=sv2x*t3,curY=sv2y*t3;
+        let tipX=bx+curX*GS,tipY=by-curY*GS;
+
+        // Base dot
+        cx.save();cx.globalAlpha=.6;cx.beginPath();cx.arc(bx,by,3,0,Math.PI*2);cx.fillStyle=ORA;cx.fill();cx.restore();
+
+        // Scaling trail
+        if(step===3&&t3<1){
+            cx.save();cx.globalAlpha=.06;cx.fillStyle=BLU;
+            let ang2=Math.atan2(-V2.y,V2.x);
+            let len=mag(curX,curY)*GS;
+            cx.beginPath();cx.moveTo(bx,by);
+            cx.arc(bx,by,Math.max(len,1),ang2-.08,ang2+.08);
+            cx.closePath();cx.fill();cx.restore();
+        }
+
+        drawArrow(bx,by,tipX,tipY,BLU,3,Math.min(t3*1.5,1),14);
+        cx.beginPath();cx.arc(tipX,tipY,4,0,Math.PI*2);cx.fillStyle=BLU;cx.fill();
+        // Label
+        cx.save();cx.font='700 12px Inter';cx.fillStyle=BLU;cx.textAlign='left';cx.textBaseline='bottom';
+        cx.fillText('c₂v₂',tipX+10,tipY-10);
+        cx.font='500 10px JetBrains Mono';cx.fillStyle=rgba(BLU,.7);cx.textBaseline='top';
+        cx.fillText(`${c2.toFixed(2)} × (${V2.x.toFixed(1)}, ${V2.y.toFixed(1)})`,tipX+10,tipY+2);
+        cx.fillText(`= (${sv2x.toFixed(1)}, ${sv2y.toFixed(1)})`,tipX+10,tipY+15);
+        cx.restore();
+
+        // Parallelogram
+        if(t3>.2){
+            let pa=Math.min((t3-.2)*1.5,1)*.07;
+            cx.save();cx.globalAlpha=pa;cx.fillStyle=PUR;
+            cx.beginPath();cx.moveTo(ox,oy);
+            cx.lineTo(ox+sv1x*GS,oy-sv1y*GS);
+            cx.lineTo(ox+(sv1x+sv2x)*GS,oy-(sv1y+sv2y)*GS);
+            cx.lineTo(ox+sv2x*GS,oy-sv2y*GS);
+            cx.closePath();cx.fill();cx.restore();
+            // Dashed second pair of parallelogram
+            cx.save();cx.globalAlpha=pa*3;cx.strokeStyle=PUR;cx.lineWidth=1;cx.setLineDash([5,5]);
+            cx.beginPath();cx.moveTo(ox+sv2x*GS,oy-sv2y*GS);cx.lineTo(ox+(sv1x+sv2x)*GS,oy-(sv1y+sv2y)*GS);cx.stroke();
+            cx.beginPath();cx.moveTo(ox+sv1x*GS,oy-sv1y*GS);cx.lineTo(ox+(sv1x+sv2x)*GS,oy-(sv1y+sv2y)*GS);cx.stroke();
+            cx.setLineDash([]);cx.restore();
+        }
+    }
+
+    if(step>=4){
+        // Step 4: Celebration
+        let t4=step===4?e:1;
+        let tpx=ox+TGT.x*GS,tpy=oy-TGT.y*GS;
+
+        // Pulsing rings
+        let pulse=10+6*Math.sin(performance.now()/120);
+        cx.save();cx.globalAlpha=.2*t4;
+        cx.strokeStyle=GRN;cx.lineWidth=3;cx.beginPath();cx.arc(tpx,tpy,pulse,0,Math.PI*2);cx.stroke();
+        cx.strokeStyle=GRN;cx.lineWidth=1.5;cx.beginPath();cx.arc(tpx,tpy,pulse+12,0,Math.PI*2);cx.stroke();
+        cx.restore();
+
+        // Dashed result from origin
+        if(t4>.3){
+            let a2=Math.min((t4-.3)*2,.5);
+            cx.save();cx.globalAlpha=a2;cx.setLineDash([8,5]);cx.strokeStyle=GRN;cx.lineWidth=2;
+            cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(tpx,tpy);cx.stroke();cx.setLineDash([]);
+            cx.font='600 10px Inter';cx.fillStyle=GRN;cx.textAlign='center';cx.textBaseline='top';
+            cx.fillText('c₁v₁ + c₂v₂ = target ✓',(ox+tpx)/2,(oy+tpy)/2+8);
+            cx.restore();
+        }
+
+        // Big checkmark
+        if(t4>.5){
+            cx.save();cx.globalAlpha=Math.min((t4-.5)*3,1);
+            cx.font='800 32px Inter';cx.fillStyle=GRN;cx.textAlign='center';cx.textBaseline='middle';
+            cx.fillText('✓',tpx,tpy-28);cx.restore();
+        }
+    }
+}
+
+// ================================================================
+// ANIMATION LOGIC
+// ================================================================
+function startAnim(){
+    let ind=isIndep();
+    let sol=ind?solveCoeffs():null;
+
+    anim={
+        step:0, t:0,
+        c1:sol?sol.c1:0, c2:sol?sol.c2:0,
+        sv1x:sol?V1.x*sol.c1:0, sv1y:sol?V1.y*sol.c1:0,
+        sv2x:sol?V2.x*sol.c2:0, sv2y:sol?V2.y*sol.c2:0,
+        independent:ind
+    };
+    resetSteps();
+    document.getElementById('resultBox').className='result-box hide';
+    document.getElementById('btnStart').disabled=true;
+}
+
+function advanceAnim(){
+    if(!anim)return;
+    anim.t+=.008;
+
+    let dur=anim.independent?
+        [1.0, 0.8, 1.3, 1.3, 1.5][anim.step]:
+        [1.0, 0.8, 1.5, 0, 0][anim.step];
+
+    if(anim.t>=dur){
+        // Complete current step
+        setStepState(anim.step,'done');
+
+        if(!anim.independent&&anim.step>=2){
+            // Dependent — end after showing gap
+            finishAnim(false);
+            return;
+        }
+
+        if(anim.step>=4){
+            finishAnim(true);
+            return;
+        }
+
+        anim.step++;
+        anim.t=0;
+        setStepState(anim.step,'active');
+        updateStepLabels();
+    }
+}
+
+function finishAnim(success){
+    let rb=document.getElementById('resultBox');
+    if(success){
+        rb.className='result-box ok';
+        rb.innerHTML='✓ Target reached! c₁v₁ + c₂v₂ = target';
+        document.getElementById('insP').innerHTML=`<b>Success!</b> The vectors are independent, so they can reach <em>any</em> target in ℝ². The coefficients c₁=${anim.c1.toFixed(2)} and c₂=${anim.c2.toFixed(2)} are unique. Try a different target — it will always work!`;
+    } else {
+        rb.className='result-box fail';
+        rb.innerHTML='✗ Cannot reach target — vectors are dependent!';
+        document.getElementById('insP').innerHTML='<b>Failed!</b> The vectors are <b>parallel</b> (dependent), so they only span a <b>line</b>. The target is not on that line. Try pressing <b>⟳ Random Vectors</b> to get independent ones, or move v₂ to a different direction.';
+    }
+    document.getElementById('btnStart').disabled=false;
+
+    // Update equation
+    updateEqMath();
+}
+
+function updateEqMath(){
+    if(!anim)return;
+    let el=document.getElementById('eqMath');
+    if(anim.independent){
+        let tex=`\\underbrace{${anim.c1.toFixed(2)}}_{c_1}\\mathbf{v_1} + \\underbrace{${anim.c2.toFixed(2)}}_{c_2}\\mathbf{v_2} = \\begin{bmatrix}${TGT.x.toFixed(1)}\\\\${TGT.y.toFixed(1)}\\end{bmatrix}`;
+        try{katex.render(tex,el,{displayMode:true,throwOnError:false})}catch(e){el.textContent=tex}
+    } else {
+        let tex=`\\text{No solution — } \\mathbf{v_1} \\parallel \\mathbf{v_2}`;
+        try{katex.render(tex,el,{displayMode:true,throwOnError:false})}catch(e){el.textContent=tex}
+    }
+}
+
+// ================================================================
+// STEP UI
+// ================================================================
+function setStepState(idx,state){
+    if(idx<0||idx>4)return;
+    let row=document.getElementById('sr'+idx);
+    let dot=document.getElementById('sd'+idx);
+    row.className='step-row '+state;
+    dot.className='step-dot '+state;
+    if(state==='done')dot.textContent='✓';
+    else if(state==='fail'){dot.textContent='✗'}
+    else if(state==='active')dot.textContent=(idx+1);
+    else dot.textContent=(idx+1);
+}
+
+function updateStepLabels(){
+    if(!anim)return;
+    if(!anim.independent){
+        document.getElementById('sl0').innerHTML='<b>Check:</b> Are v₁ and v₂ independent? <span style="color:#EF4444;font-weight:700">NO — parallel!</span>';
+        document.getElementById('sl1').innerHTML='<b>Result:</b> Cannot solve — no unique coefficients exist.';
+        document.getElementById('sl2').innerHTML='<b>Showing:</b> The span is only a line. Target is off the line.';
+        setStepState(3,'fail');
+        document.getElementById('sl3').innerHTML='<span style="color:var(--red)">Target is unreachable</span>';
+        setStepState(4,'fail');
+        document.getElementById('sl4').innerHTML='<span style="color:var(--red)">Span ≠ ℝ²</span>';
+    } else {
+        document.getElementById('sl0').innerHTML='<b>Check:</b> Are v₁ and v₂ independent? <span style="color:#22C55E;font-weight:700">YES ✓</span>';
+        if(anim.step>=1){
+            document.getElementById('sl1').innerHTML=`<b>Solve:</b> c₁ = ${anim.c1.toFixed(2)}, c₂ = ${anim.c2.toFixed(2)}`;
+        }
+        if(anim.step>=2){
+            document.getElementById('sl2').innerHTML=`<b>Scale v₁:</b> ${anim.c1.toFixed(2)} × v₁ = (${anim.sv1x.toFixed(1)}, ${anim.sv1y.toFixed(1)})`;
+        }
+        if(anim.step>=3){
+            document.getElementById('sl3').innerHTML=`<b>Scale v₂:</b> ${anim.c2.toFixed(2)} × v₂ = (${anim.sv2x.toFixed(1)}, ${anim.sv2y.toFixed(1)})  → place at tip`;
+        }
+    }
+    updateEqMath();
+}
+
+function resetSteps(){
+    for(let i=0;i<5;i++){setStepState(i,'wait')}
+    document.getElementById('sl0').innerHTML='<b>Check:</b> Are v₁ and v₂ independent?';
+    document.getElementById('sl1').innerHTML='<b>Solve:</b> Find c₁, c₂ so that c₁v₁ + c₂v₂ = target';
+    document.getElementById('sl2').innerHTML='<b>Scale v₁:</b> Stretch v₁ by c₁ → draw c₁v₁';
+    document.getElementById('sl3').innerHTML='<b>Scale v₂:</b> Stretch v₂ by c₂ → place c₂v₂ at tip of c₁v₁';
+    document.getElementById('sl4').innerHTML='<b>Result:</b> The tip lands on the target!';
+    document.getElementById('eqMath').innerHTML='<span class="empty">Press ▶ Start to begin</span>';
+}
+
+// ================================================================
+// INDEPENDENCE CHECK UI
+// ================================================================
+function updateDepBox(){
+    let box=document.getElementById('depBox');
+    let lbl=document.getElementById('depLabel');
+    let txt=document.getElementById('depText');
+    let mathEl=document.getElementById('detMath');
+    let d=det2();
+    let ind=Math.abs(d)>0.05;
+
+    if(ind){
+        box.className='dep-box ind';
+        lbl.style.color='#15803D';
+        lbl.textContent='✓ INDEPENDENT';
+        txt.innerHTML=`v₁ and v₂ are <b>not parallel</b>. They form a basis for ℝ² and can reach <b>any</b> target point.`;
+    } else {
+        box.className='dep-box';
+        lbl.style.color=RED;
+        lbl.textContent='✗ DEPENDENT (parallel)';
+        txt.innerHTML=`v₁ and v₂ are <b>parallel</b> — one is a scalar multiple of the other. They only span a <b>line</b>. Some targets are unreachable.`;
+    }
+    let tex=`\\det\\begin{bmatrix}${V1.x.toFixed(1)}&${V2.x.toFixed(1)}\\\\${V1.y.toFixed(1)}&${V2.y.toFixed(1)}\\end{bmatrix}=${d.toFixed(2)}${ind?' \\neq 0 \\;✓':' \\approx 0 \\;✗'}`;
+    try{katex.render(tex,mathEl,{displayMode:true,throwOnError:false})}catch(e){mathEl.textContent=tex}
+}
+
+// ================================================================
+// MAIN LOOP
+// ================================================================
+function frame(){
+    cx.clearRect(0,0,CW,CH);
+    cx.fillStyle='#FAFBFD';cx.fillRect(0,0,CW,CH);
+
+    advanceAnim();
+    drawGrid();
+
+    if(!anim){
+        drawVec(V1.x,V1.y,ORA,'v₁',hoverWhat==='v1');
+        drawVec(V2.x,V2.y,BLU,'v₂',hoverWhat==='v2');
+        drawTarget();
+    } else {
+        drawTarget();
+        drawAnimState();
+    }
+
+    drawOrigin();
+    updateDepBox();
+
+    requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ================================================================
+// SLIDERS
+// ================================================================
+function onSlider(){
+    V1.x=parseFloat(document.getElementById('v1x').value);
+    V1.y=parseFloat(document.getElementById('v1y').value);
+    V2.x=parseFloat(document.getElementById('v2x').value);
+    V2.y=parseFloat(document.getElementById('v2y').value);
+    TGT.x=parseFloat(document.getElementById('tx').value);
+    TGT.y=parseFloat(document.getElementById('ty').value);
+    document.getElementById('v1xV').textContent=V1.x.toFixed(1);
+    document.getElementById('v1yV').textContent=V1.y.toFixed(1);
+    document.getElementById('v2xV').textContent=V2.x.toFixed(1);
+    document.getElementById('v2yV').textContent=V2.y.toFixed(1);
+    document.getElementById('txV').textContent=TGT.x.toFixed(1);
+    document.getElementById('tyV').textContent=TGT.y.toFixed(1);
+    document.getElementById('v1Coord').textContent=`(${V1.x.toFixed(1)}, ${V1.y.toFixed(1)})`;
+    document.getElementById('v2Coord').textContent=`(${V2.x.toFixed(1)}, ${V2.y.toFixed(1)})`;
+    document.getElementById('tCoord').textContent=`(${TGT.x.toFixed(1)}, ${TGT.y.toFixed(1)})`;
+    anim=null; resetSteps();
+    document.getElementById('resultBox').className='result-box hide';
+    document.getElementById('btnStart').disabled=false;
+}
+
+function syncSliders(){
+    document.getElementById('v1x').value=V1.x; document.getElementById('v1y').value=V1.y;
+    document.getElementById('v2x').value=V2.x; document.getElementById('v2y').value=V2.y;
+    document.getElementById('tx').value=TGT.x; document.getElementById('ty').value=TGT.y;
+    onSlider();
+}
+
+// ================================================================
+// ACTIONS
+// ================================================================
+function pickRandomVecs(){
+    V1.x=snap(Math.random()*8-4); V1.y=snap(Math.random()*8-4);
+    V2.x=snap(Math.random()*8-4); V2.y=snap(Math.random()*8-4);
+    // Ensure not both zero
+    if(mag(V1.x,V1.y)<0.1){V1.x=2;V1.y=1}
+    if(mag(V2.x,V2.y)<0.1){V2.x=-1;V2.y=1.5}
+    syncSliders();
+}
+
+function resetAll(){
+    V1={x:3,y:1};V2={x:-1,y:2.5};TGT={x:2,y:3};
+    anim=null;
+    syncSliders();
+    document.getElementById('insP').innerHTML='Two vectors <b>span ℝ²</b> if and only if they are <b>linearly independent</b>. When independent, for any target, unique c₁ and c₂ exist. When dependent, some targets are <b>unreachable</b>. Press <b>▶ Start</b> to see it.';
+}
+
+// ================================================================
+// MOUSE / TOUCH
+// ================================================================
+function findNearest(mx,my){
+    let items=[
+        {key:'tgt',px:ox+TGT.x*GS,py:oy-TGT.y*GS},
+        {key:'v1',px:ox+V1.x*GS,py:oy-V1.y*GS},
+        {key:'v2',px:ox+V2.x*GS,py:oy-V2.y*GS}
+    ];
+    let best=null,bd=24;
+    for(let it of items){let d=Math.hypot(mx-it.px,my-it.py);if(d<bd){bd=d;best=it.key}}
+    return best;
+}
+
+cv.addEventListener('mousedown',e=>{
+    let r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    dragWhat=findNearest(mx,my);
+    if(dragWhat){
+        anim=null;resetSteps();
+        document.getElementById('resultBox').className='result-box hide';
+        document.getElementById('btnStart').disabled=false;
+        cv.style.cursor='grabbing';
+    }
+});
+
+cv.addEventListener('mousemove',e=>{
+    let r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    if(dragWhat){
+        let gx=snap((mx-ox)/GS),gy=snap(-(my-oy)/GS);
+        gx=Math.max(-5,Math.min(5,gx)); gy=Math.max(-5,Math.min(5,gy));
+        if(dragWhat==='v1'){V1.x=gx;V1.y=gy}
+        else if(dragWhat==='v2'){V2.x=gx;V2.y=gy}
+        else if(dragWhat==='tgt'){TGT.x=gx;TGT.y=gy}
+        syncSliders();
+    }
+    hoverWhat=findNearest(mx,my);
+    cv.style.cursor=dragWhat?'grabbing':(hoverWhat?'grab':'default');
+});
+
+cv.addEventListener('mouseup',()=>{dragWhat=null});
+cv.addEventListener('mouseleave',()=>{dragWhat=null;hoverWhat=null});
+
+cv.addEventListener('touchstart',e=>{e.preventDefault();let t=e.touches[0];cv.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY}))},{passive:false});
+cv.addEventListener('touchmove',e=>{e.preventDefault();let t=e.touches[0];cv.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}))},{passive:false});
+cv.addEventListener('touchend',e=>{e.preventDefault();cv.dispatchEvent(new MouseEvent('mouseup'))},{passive:false});
+
+// ================================================================
+// INIT
+// ================================================================
+syncSliders();
+</script>
+</body>
+</html>

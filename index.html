@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathSphere — Interactive Animations</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        :root{--deep:#1B2A4A;--ora:#E07A3A;--gray:#F2F2F2;--med:#B0B0B0;--txt:#2C2C2C;--blu:#2563EB}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#EDEEF2;color:var(--txt);min-height:100vh}
+
+        header{background:var(--deep);padding:24px 32px;text-align:center}
+        .logo{display:inline-flex;align-items:center;gap:12px;margin-bottom:8px}
+        .logo-box{width:42px;height:42px;background:var(--ora);border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:22px;color:#fff}
+        .logo-text{font-weight:800;font-size:22px;color:#fff}
+        header p{color:#8899B0;font-size:13px;margin-top:4px}
+        header .sub{color:var(--ora);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+        .container{max-width:900px;margin:32px auto;padding:0 20px}
+
+        .chapter-label{font-size:11px;font-weight:700;color:var(--ora);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+        .chapter-title{font-size:22px;font-weight:700;color:var(--deep);margin-bottom:20px}
+
+        .card{background:#fff;border-radius:12px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 2px 10px rgba(27,42,74,.06);margin-bottom:14px;transition:transform .2s,box-shadow .2s}
+        .card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,42,74,.1)}
+        .card a{text-decoration:none;display:flex;align-items:center;padding:18px 22px;gap:18px}
+
+        .card-num{width:48px;height:48px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:18px;color:#fff;flex-shrink:0}
+        .n1{background:linear-gradient(135deg,#E07A3A,#D4622A)}
+        .n2{background:linear-gradient(135deg,#2563EB,#1D4ED8)}
+        .n3{background:linear-gradient(135deg,#7C3AED,#6D28D9)}
+        .n4{background:linear-gradient(135deg,#EF4444,#DC2626)}
+        .n5{background:linear-gradient(135deg,#06B6D4,#0891B2)}
+
+        .card-body{flex:1}
+        .card-title{font-size:16px;font-weight:700;color:var(--deep);margin-bottom:3px}
+        .card-desc{font-size:12px;color:var(--med);line-height:1.5}
+        .card-section{font-size:10px;color:var(--ora);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+
+        .card-arrow{font-size:20px;color:var(--med);flex-shrink:0;transition:transform .2s,color .2s}
+        .card:hover .card-arrow{transform:translateX(4px);color:var(--ora)}
+
+        .footer-note{text-align:center;padding:30px 20px;font-size:11px;color:var(--med);line-height:1.7}
+        .footer-note strong{color:var(--deep)}
+        .footer-note a{color:var(--blu);text-decoration:none}
+        .footer-note a:hover{text-decoration:underline}
+
+        .badge{display:inline-block;background:var(--gray);color:var(--deep);font-size:9px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <div class="logo-box">M</div>
+        <span class="logo-text">MathSphere</span>
+    </div>
+    <div class="sub">Mathematics for Machine Learning — Interactive Animations</div>
+    <p>by Anupam Nigam · First Edition 2025</p>
+</header>
+
+<div class="container">
+    <div class="chapter-label">Chapter 1</div>
+    <div class="chapter-title">Vectors and Vector Spaces</div>
+
+    <div class="card">
+        <a href="ch1/vector-playground.html">
+            <div class="card-num n1">1.1</div>
+            <div class="card-body">
+                <div class="card-section">§1.1 — What Is a Vector?</div>
+                <div class="card-title">The Vector Playground</div>
+                <div class="card-desc">Drag to create vectors in 2D. Add them tip-to-tail, watch the parallelogram form, scale with sliders. See commutativity happen before your eyes.</div>
+            </div>
+            <div class="card-arrow">→</div>
+        </a>
+    </div>
+
+    <div class="card">
+        <a href="ch1/axiom-verifier.html">
+            <div class="card-num n2">1.2</div>
+            <div class="card-body">
+                <div class="card-section">§1.2 — Vector Spaces</div>
+                <div class="card-title">The Axiom Verifier</div>
+                <div class="card-desc">Choose vectors and scalars. The system checks each of the 8 vector space axioms visually — watch them light up green one by one.</div>
+            </div>
+            <div class="card-arrow">→</div>
+        </a>
+    </div>
+
+    <div class="card">
+        <a href="ch1/span-visualizer.html">
+            <div class="card-num n3">1.3</div>
+            <div class="card-body">
+                <div class="card-section">§1.3 — Linear Combinations and Span</div>
+                <div class="card-title">What Does This Set of Vectors Span?</div>
+                <div class="card-desc">Place 1, 2, or 3 vectors in 3D. Watch the span materialize in real time — line, plane, or all of ℝ³. Rotate the view freely.</div>
+            </div>
+            <div class="card-arrow">→</div>
+        </a>
+    </div>
+
+    <div class="card">
+        <a href="ch1/independence-detector.html">
+            <div class="card-num n4">1.4</div>
+            <div class="card-body">
+                <div class="card-section">§1.4 — Linear Independence</div>
+                <div class="card-title">The Redundancy Detector</div>
+                <div class="card-desc">Three vectors in 2D. Press Start — the system solves for the dependency equation step by step. Feel the moment a vector becomes redundant.</div>
+            </div>
+            <div class="card-arrow">→</div>
+        </a>
+    </div>
+
+    <div class="card">
+        <a href="ch1/basis-explorer.html">
+            <div class="card-num n5">1.5</div>
+            <div class="card-body">
+                <div class="card-section">§1.5 — Basis and Dimension</div>
+                <div class="card-title">Same Vector, Different Bases</div>
+                <div class="card-desc">One point, two coordinate systems. Drag to rotate the basis — watch coordinates transform while the point stays still. Toggle PCA view to see why basis choice matters.</div>
+            </div>
+            <div class="card-arrow">→</div>
+        </a>
+    </div>
+</div>
+
+<div class="footer-note">
+    <strong>Mathematics for Machine Learning</strong> · A Visual & Interactive Approach<br>
+    © 2025 Anupam Nigam · All rights reserved<br><br>
+    <a href="https://github.com/yourusername/mathsphere-animations">View on GitHub</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Same Vector, Different Bases | MathSphere</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        :root{
+            --deep:#1B2A4A;--ora:#E07A3A;--gray:#F2F2F2;--med:#B0B0B0;
+            --txt:#2C2C2C;--pur:#7C3AED;--grn:#22C55E;--blu:#2563EB;
+            --red:#EF4444;--teal:#06B6D4;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#EDEEF2;color:var(--txt);overflow-x:hidden}
+
+        header{background:var(--deep);padding:11px 22px;display:flex;justify-content:space-between;align-items:center}
+        .la{display:flex;align-items:center;gap:9px}
+        .lb{width:32px;height:32px;background:var(--ora);border-radius:6px;display:grid;place-items:center;font-weight:800;font-size:16px;color:#fff}
+        .ln{font-weight:700;font-size:14px;color:#fff}
+        .ls{font-size:9px;color:#8899B0;letter-spacing:.7px;text-transform:uppercase}
+        .hr{text-align:right}
+        .hc{font-size:10px;color:var(--ora);font-weight:600}
+        .ha{font-size:9.5px;color:#8899B0}
+
+        .titl{background:#fff;border-bottom:3px solid var(--ora);padding:14px 22px}
+        .titl .r{font-size:10px;color:var(--ora);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+        .titl h1{font-size:20px;color:var(--deep);margin:3px 0 2px}
+        .titl p{font-size:12px;color:var(--med);line-height:1.5;max-width:700px}
+
+        .app{display:flex;max-width:1360px;margin:14px auto;padding:0 14px;gap:14px}
+        .left{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+        .right{width:340px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+
+        .ccard{background:#fff;border-radius:10px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 2px 8px rgba(27,42,74,.06)}
+        .tbar{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid #EEF0F4;background:#FAFBFD;flex-wrap:wrap;gap:5px}
+        .tgrp{display:flex;gap:5px;flex-wrap:wrap}
+        .tb{padding:5px 14px;border:1.5px solid var(--deep);border-radius:5px;background:#fff;color:var(--deep);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
+        .tb:hover,.tb.on{background:var(--deep);color:#fff}
+        .tb.go{border-color:var(--grn);color:var(--grn);font-weight:700;font-size:12px;padding:6px 18px}
+        .tb.go:hover{background:var(--grn);color:#fff}
+        .tb.ora{border-color:var(--ora);color:var(--ora)}
+        .tb.ora:hover{background:var(--ora);color:#fff}
+        .tb.pur{border-color:var(--pur);color:var(--pur)}
+        .tb.pur:hover{background:var(--pur);color:#fff}
+        .tb.sec{border-color:#DDE1E8;color:var(--txt);font-weight:500}
+        .tb.sec:hover{border-color:var(--red);color:var(--red);background:#FEF2F2}
+        .tb.teal{border-color:var(--teal);color:var(--teal)}
+        .tb.teal:hover{background:var(--teal);color:#fff}
+        .tb:disabled{opacity:.4;cursor:not-allowed}
+
+        canvas#cv{display:block;width:100%;background:#FAFBFD;cursor:default}
+
+        .hint-bar{padding:8px 14px;background:#FAFBFD;border-top:1px solid #EEF0F4;font-size:11.5px;color:var(--txt);text-align:center;min-height:38px;display:flex;align-items:center;justify-content:center}
+        .hint-bar b{color:var(--deep)}
+        .hint-bar .hl{color:var(--ora);font-weight:700}
+
+        .controls{background:#fff;border-radius:10px;border:1px solid #DDE1E8;padding:14px 16px;box-shadow:0 2px 8px rgba(27,42,74,.04)}
+        .ctrl-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--deep);margin-bottom:10px}
+        .ctrl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+        .vc{border-radius:8px;padding:10px 12px;border:2px solid #E0E4EA}
+        .vc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+        .vc-name{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace}
+        .vc-coord{font-family:'JetBrains Mono',monospace;font-size:11px;color:#777}
+        .sl-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+        .sl-row label{font-size:11px;font-weight:600;color:var(--deep);min-width:18px}
+        .val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--ora);min-width:38px;text-align:right}
+        input[type=range]{-webkit-appearance:none;flex:1;height:5px;border-radius:3px;background:#E0E4EA;outline:none}
+        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--deep);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+
+        .card{background:#fff;border-radius:10px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 1px 5px rgba(27,42,74,.04)}
+        .chd{padding:8px 12px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid #EEF0F4}
+        .chd.bl{background:var(--deep);color:#fff}
+        .chd.or{background:var(--ora);color:#fff}
+        .chd.pr{background:var(--pur);color:#fff}
+        .chd.tl{background:var(--teal);color:#fff}
+        .cbd{padding:10px 12px}
+        .empty{text-align:center;font-size:11px;color:var(--med);padding:8px 0;line-height:1.6}
+        .mbx{background:var(--gray);border-radius:6px;padding:10px;text-align:center;min-height:36px;display:flex;align-items:center;justify-content:center;margin:6px 0;overflow-x:auto}
+
+        .step-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;margin-bottom:4px;border:1.5px solid transparent;transition:.3s}
+        .step-row.done{background:#F0FDF4;border-color:#BBF7D0}
+        .step-row.active{background:#FFF7ED;border-color:#FED7AA;animation:stepPulse 1.5s infinite}
+        .step-row.wait{background:#F9FAFB;border-color:#E5E7EB}
+        .step-row.fail{background:#FEF2F2;border-color:#FECACA}
+        @keyframes stepPulse{0%,100%{box-shadow:0 0 0 0 rgba(224,122,58,0)}50%{box-shadow:0 0 0 4px rgba(224,122,58,.1)}}
+        .step-dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0;color:#fff;transition:.3s}
+        .step-dot.done{background:var(--grn)}
+        .step-dot.active{background:var(--ora)}
+        .step-dot.wait{background:#D0D4DD}
+        .step-dot.fail{background:var(--red)}
+        .step-label{font-size:11.5px;color:var(--txt);line-height:1.4;flex:1}
+        .step-label b{color:var(--deep)}
+
+        .result-box{padding:12px;border-radius:8px;text-align:center;font-weight:700;font-size:14px;margin-top:8px;transition:.3s}
+        .result-box.suc{background:#DCFCE7;color:#15803D;border:2px solid #86EFAC}
+        .result-box.hide{display:none}
+
+        .coord-compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+        .coord-card{border-radius:8px;padding:10px;text-align:center}
+        .coord-card.std{background:#FFF7ED;border:1.5px solid #FED7AA}
+        .coord-card.cus{background:#F0F9FF;border:1.5px solid #BAE6FD}
+        .coord-card .cc-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+        .coord-card .cc-math{min-height:30px;display:flex;align-items:center;justify-content:center}
+
+        .ins{background:linear-gradient(135deg,#FFF7ED,#FFFBF5);border-left:3px solid var(--ora);border-radius:0 8px 8px 0;padding:10px 12px}
+        .ins .it{font-size:9.5px;font-weight:700;color:var(--ora);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+        .ins p{font-size:11px;line-height:1.6;color:var(--txt)}
+
+        footer{background:var(--deep);padding:11px 22px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+        .fl{display:flex;align-items:center;gap:7px}
+        .flb{width:20px;height:20px;background:var(--ora);border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+        .flt{font-size:10px;color:#8899B0}.flt strong{color:#fff}
+        .fr{font-size:9px;color:#667799}
+
+        @media(max-width:900px){.app{flex-direction:column}.right{width:100%}.ctrl-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="la"><div class="lb">M</div><div><div class="ln">MathSphere</div><div class="ls">Mathematics for Machine Learning</div></div></div>
+    <div class="hr"><div class="hc">Chapter 1 · Vectors and Vector Spaces</div><div class="ha">by Anupam Nigam</div></div>
+</header>
+
+<div class="titl">
+    <div class="r">Interactive Animation 1.5</div>
+    <h1>Same Vector, Different Bases</h1>
+    <p>A single point sits in 2D. Two bases describe it with <b>different coordinates</b> — but the point <b>never moves</b>. Drag basis vectors to rotate and stretch the coordinate system. Watch coordinates recalculate in real time. Toggle to <b>PCA view</b> to see why choosing the right basis matters.</p>
+</div>
+
+<div class="app">
+    <div class="left">
+        <div class="ccard">
+            <div class="tbar">
+                <div class="tgrp">
+                    <button class="tb go" id="btnStart" onclick="startAnim()">▶ Start — Show Decomposition</button>
+                    <button class="tb ora" onclick="pickRandomBasis()">⟳ Random Basis</button>
+                    <button class="tb pur" onclick="presetRotated()">↻ 45° Rotated</button>
+                    <button class="tb teal" id="btnPCA" onclick="togglePCA()">☁ PCA View</button>
+                </div>
+                <div class="tgrp">
+                    <button class="tb sec" onclick="resetAll()">Reset All</button>
+                </div>
+            </div>
+            <canvas id="cv"></canvas>
+            <div class="hint-bar" id="hintBar">
+                <span><b>Step 1:</b> Drag the <span style="color:#E07A3A;font-weight:700">orange</span> and <span style="color:#06B6D4;font-weight:700">teal</span> basis vector tips. <b>Step 2:</b> Press <span class="hl">▶ Start</span> to see the decomposition.</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="ctrl-title">Target vector & custom basis — drag tips on canvas or use sliders</div>
+            <div class="ctrl-grid">
+                <div class="vc" style="border-color:#7C3AED" id="vcV">
+                    <div class="vc-top">
+                        <span class="vc-name" style="color:#7C3AED">v</span>
+                        <span class="vc-coord" id="cVCoord">(3.0, 2.0)</span>
+                    </div>
+                    <div class="sl-row"><label>x₁</label><input type="range" id="vx" min="-5" max="5" step="0.5" value="3" oninput="onSlider()"><span class="val" id="vxV">3.0</span></div>
+                    <div class="sl-row"><label>x₂</label><input type="range" id="vy" min="-5" max="5" step="0.5" value="2" oninput="onSlider()"><span class="val" id="vyV">2.0</span></div>
+                </div>
+                <div class="vc" style="border-color:#E07A3A" id="vcB1">
+                    <div class="vc-top">
+                        <span class="vc-name" style="color:#E07A3A">b₁</span>
+                        <span class="vc-coord" id="cB1Coord">(1.0, 1.0)</span>
+                    </div>
+                    <div class="sl-row"><label>x₁</label><input type="range" id="b1x" min="-5" max="5" step="0.5" value="1" oninput="onSlider()"><span class="val" id="b1xV">1.0</span></div>
+                    <div class="sl-row"><label>x₂</label><input type="range" id="b1y" min="-5" max="5" step="0.5" value="1" oninput="onSlider()"><span class="val" id="b1yV">1.0</span></div>
+                </div>
+                <div class="vc" style="border-color:#06B6D4" id="vcB2">
+                    <div class="vc-top">
+                        <span class="vc-name" style="color:#06B6D4">b₂</span>
+                        <span class="vc-coord" id="cB2Coord">(1.0, -1.0)</span>
+                    </div>
+                    <div class="sl-row"><label>x₁</label><input type="range" id="b2x" min="-5" max="5" step="0.5" value="1" oninput="onSlider()"><span class="val" id="b2xV">1.0</span></div>
+                    <div class="sl-row"><label>x₂</label><input type="range" id="b2y" min="-5" max="5" step="0.5" value="-1" oninput="onSlider()"><span class="val" id="b2yV">-1.0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right">
+        <div class="card">
+            <div class="chd or">Change of Basis — Step by Step</div>
+            <div class="cbd" id="stepsPanel">
+                <div class="step-row wait" id="sr0"><div class="step-dot wait" id="sd0">1</div><div class="step-label" id="sl0"><b>Check basis:</b> Are b₁ and b₂ linearly independent?</div></div>
+                <div class="step-row wait" id="sr1"><div class="step-dot wait" id="sd1">2</div><div class="step-label" id="sl1"><b>Solve:</b> Find c₁, c₂ such that v = c₁b₁ + c₂b₂</div></div>
+                <div class="step-row wait" id="sr2"><div class="step-dot wait" id="sd2">3</div><div class="step-label" id="sl2"><b>Scale b₁:</b> Multiply b₁ by c₁</div></div>
+                <div class="step-row wait" id="sr3"><div class="step-dot wait" id="sd3">4</div><div class="step-label" id="sl3"><b>Scale b₂:</b> Multiply b₂ by c₂, place at tip of c₁b₁</div></div>
+                <div class="step-row wait" id="sr4"><div class="step-dot wait" id="sd4">5</div><div class="step-label" id="sl4"><b>Arrive:</b> c₁b₁ + c₂b₂ reaches v exactly</div></div>
+                <div class="mbx" id="eqMath"><span class="empty">Press ▶ Start to begin</span></div>
+                <div class="coord-compare" id="coordCompare" style="display:none">
+                    <div class="coord-card std">
+                        <div class="cc-title" style="color:var(--deep)">Standard Basis</div>
+                        <div class="cc-math" id="stdCoordMath"></div>
+                    </div>
+                    <div class="coord-card cus">
+                        <div class="cc-title" style="color:var(--teal)">Custom Basis ℬ</div>
+                        <div class="cc-math" id="cusCoordMath"></div>
+                    </div>
+                </div>
+                <div class="result-box hide" id="resultBox"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="chd bl">What This Means</div>
+            <div class="cbd">
+                <div class="mbx" id="meaningMath"></div>
+                <div style="font-size:11px;color:#666;line-height:1.6;margin-top:4px" id="meaningText">
+                    The point <b>v</b> has not moved — only the <b>description</b> changed. Standard coordinates say "go 3 along e₁, 2 along e₂." The new basis says "go c₁ along b₁, c₂ along b₂." Same destination, different directions.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="cbd" style="padding:0">
+                <div class="ins">
+                    <div class="it">Key Insight</div>
+                    <p id="insP">A <b>basis</b> is a choice of <b>coordinate system</b>. Changing the basis changes <em>how we describe</em> vectors, not what they <em>are</em>. In ML, <b>PCA</b> finds a basis aligned with variance — making patterns visible that were hidden in the standard basis. <b>Learned embeddings</b> find a basis where semantic relationships become geometric.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="fl"><div class="flb">M</div><div class="flt"><strong>MathSphere</strong> · Created by <strong>Anupam Nigam</strong></div></div>
+    <div class="fr">Mathematics for Machine Learning · Chapter 1 · Animation 1.5</div>
+</footer>
+
+<script>
+// ================================================================
+const ORA='#E07A3A',BLU='#2563EB',DEEP='#1B2A4A',PUR='#7C3AED',GRN='#22C55E',RED='#EF4444',TEAL='#06B6D4';
+const GS=48;
+
+// ================================================================
+// STATE
+// ================================================================
+let VV={x:3,y:2}, B1={x:1,y:1}, B2={x:1,y:-1};
+let anim=null;
+let dragWhat=null, hoverWhat=null;
+let pcaMode=false;
+let pcaPoints=[];
+let pcaB1=null, pcaB2=null, pcaMean=null;
+
+const cv=document.getElementById('cv'), cx=cv.getContext('2d');
+let CW,CH,ox,oy;
+const dpr=window.devicePixelRatio||1;
+
+function resize(){
+    const r=cv.parentElement.getBoundingClientRect();
+    CW=r.width; CH=Math.max(460,Math.min(560,innerHeight*.5));
+    cv.style.width=CW+'px'; cv.style.height=CH+'px';
+    cv.width=CW*dpr; cv.height=CH*dpr;
+    cx.setTransform(dpr,0,0,dpr,0,0);
+    ox=Math.round(CW/2); oy=Math.round(CH/2);
+}
+resize(); addEventListener('resize',resize);
+
+// ================================================================
+// MATH
+// ================================================================
+function snap(v){return Math.round(v*2)/2}
+function mag(x,y){return Math.sqrt(x*x+y*y)}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2}
+function rgba(hex,a){let h=hex.replace('#','');return`rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`}
+
+function basisDet(){return B1.x*B2.y - B1.y*B2.x}
+function basisValid(){return Math.abs(basisDet())>0.05}
+
+// Solve c1*B1 + c2*B2 = VV
+function solveCoords(){
+    let det=basisDet();
+    if(Math.abs(det)<0.01) return null;
+    let c1=(VV.x*B2.y - VV.y*B2.x)/det;
+    let c2=(B1.x*VV.y - B1.y*VV.x)/det;
+    return {c1,c2};
+}
+
+// ================================================================
+// PCA
+// ================================================================
+function generatePCAData(){
+    pcaPoints=[];
+    let angle=0.55, spread1=2.8, spread2=0.6;
+    let cos=Math.cos(angle), sin=Math.sin(angle);
+    for(let i=0;i<80;i++){
+        let g1=(Math.random()+Math.random()+Math.random()-1.5)*spread1;
+        let g2=(Math.random()+Math.random()+Math.random()-1.5)*spread2;
+        let px=g1*cos - g2*sin;
+        let py=g1*sin + g2*cos;
+        pcaPoints.push({x:px,y:py});
+    }
+    // Compute PCA
+    let mx=0,my=0;
+    for(let p of pcaPoints){mx+=p.x;my+=p.y}
+    mx/=pcaPoints.length;my/=pcaPoints.length;
+    pcaMean={x:mx,y:my};
+
+    let cxx=0,cxy=0,cyy=0;
+    for(let p of pcaPoints){
+        let dx=p.x-mx,dy=p.y-my;
+        cxx+=dx*dx;cxy+=dx*dy;cyy+=dy*dy;
+    }
+    cxx/=pcaPoints.length;cxy/=pcaPoints.length;cyy/=pcaPoints.length;
+
+    // Eigenvalues of 2x2 covariance
+    let tr=cxx+cyy, det=cxx*cyy-cxy*cxy;
+    let disc=Math.sqrt(Math.max(tr*tr-4*det,0));
+    let lam1=(tr+disc)/2, lam2=(tr-disc)/2;
+
+    // Eigenvectors
+    let e1x,e1y,e2x,e2y;
+    if(Math.abs(cxy)>1e-8){
+        e1x=lam1-cyy;e1y=cxy;
+        let m1=mag(e1x,e1y);e1x/=m1;e1y/=m1;
+        e2x=lam2-cyy;e2y=cxy;
+        let m2=mag(e2x,e2y);e2x/=m2;e2y/=m2;
+    } else {
+        e1x=1;e1y=0;e2x=0;e2y=1;
+    }
+    // Scale by sqrt(eigenvalue) for visual
+    let s1=Math.sqrt(lam1)*1.5, s2=Math.sqrt(lam2)*1.5;
+    pcaB1={x:e1x*s1,y:e1y*s1};
+    pcaB2={x:e2x*s2,y:e2y*s2};
+}
+
+function togglePCA(){
+    pcaMode=!pcaMode;
+    let btn=document.getElementById('btnPCA');
+    if(pcaMode){
+        btn.classList.add('on');btn.textContent='✕ Exit PCA';
+        generatePCAData();
+        B1.x=snap(pcaB1.x);B1.y=snap(pcaB1.y);
+        B2.x=snap(pcaB2.x);B2.y=snap(pcaB2.y);
+        // Pick a point near the cloud as v
+        let pi=pcaPoints[Math.floor(Math.random()*pcaPoints.length)];
+        VV.x=snap(pi.x);VV.y=snap(pi.y);
+        if(mag(VV.x,VV.y)<.2){VV.x=2;VV.y=1}
+        syncSliders();
+        document.getElementById('hintBar').innerHTML='<span><b>PCA View:</b> A scattered cloud of data. In the <b>standard basis</b>, the spread looks random. The <span style="color:#E07A3A;font-weight:700">orange</span> and <span style="color:#06B6D4;font-weight:700">teal</span> axes are now the <b>principal components</b> — aligned with maximum variance.</span>';
+        document.getElementById('insP').innerHTML='<b>PCA in action!</b> The principal components (eigenvectors of the covariance matrix) form a new basis aligned with the data\'s natural axes. In this basis, the first coordinate captures the most variance, the second captures the rest. This is why PCA "reveals hidden structure" — it\'s a <b>change of basis</b>.';
+    } else {
+        btn.classList.remove('on');btn.textContent='☁ PCA View';
+        pcaPoints=[];
+        document.getElementById('hintBar').innerHTML='<span><b>Step 1:</b> Drag the <span style="color:#E07A3A;font-weight:700">orange</span> and <span style="color:#06B6D4;font-weight:700">teal</span> basis vector tips. <b>Step 2:</b> Press <span class="hl">▶ Start</span> to see the decomposition.</span>';
+        document.getElementById('insP').innerHTML='A <b>basis</b> is a choice of <b>coordinate system</b>. Changing the basis changes <em>how we describe</em> vectors, not what they <em>are</em>. In ML, <b>PCA</b> finds a basis aligned with variance — making patterns visible that were hidden in the standard basis. <b>Learned embeddings</b> find a basis where semantic relationships become geometric.';
+    }
+    anim=null;resetSteps();
+    document.getElementById('resultBox').className='result-box hide';
+    document.getElementById('coordCompare').style.display='none';
+    document.getElementById('btnStart').disabled=false;
+}
+
+// ================================================================
+// DRAWING PRIMITIVES
+// ================================================================
+function drawGrid(){
+    cx.strokeStyle='#E8EAEF';cx.lineWidth=.5;
+    for(let x=ox%GS;x<CW;x+=GS){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,CH);cx.stroke()}
+    for(let y=oy%GS;y<CH;y+=GS){cx.beginPath();cx.moveTo(0,y);cx.lineTo(CW,y);cx.stroke()}
+    cx.strokeStyle='#C8CDD6';cx.lineWidth=1.5;
+    cx.beginPath();cx.moveTo(ox,0);cx.lineTo(ox,CH);cx.stroke();
+    cx.beginPath();cx.moveTo(0,oy);cx.lineTo(CW,oy);cx.stroke();
+    cx.fillStyle='#AAB0BE';cx.font='500 9px JetBrains Mono';
+    cx.textAlign='center';cx.textBaseline='top';
+    for(let i=-10;i<=10;i++){if(!i)continue;let px=ox+i*GS;if(px>14&&px<CW-14)cx.fillText(i,px,oy+5)}
+    cx.textAlign='right';cx.textBaseline='middle';
+    for(let i=-10;i<=10;i++){if(!i)continue;let py=oy-i*GS;if(py>14&&py<CH-14)cx.fillText(i,ox-7,py)}
+    cx.fillStyle=DEEP;cx.font='600 12px Inter';
+    cx.textAlign='center';cx.textBaseline='bottom';cx.fillText('x₁',CW-16,oy-8);
+    cx.textAlign='left';cx.textBaseline='middle';cx.fillText('x₂',ox+8,14);
+}
+
+function drawArrow(x1,y1,x2,y2,col,lw,alpha,hs){
+    if(Math.abs(x2-x1)<.5&&Math.abs(y2-y1)<.5)return;
+    cx.save();cx.globalAlpha=alpha;hs=hs||12;
+    cx.strokeStyle=col;cx.lineWidth=lw;cx.lineCap='round';
+    cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x2,y2);cx.stroke();
+    let ang=Math.atan2(y2-y1,x2-x1),ha=.38;
+    cx.fillStyle=col;cx.beginPath();
+    cx.moveTo(x2,y2);
+    cx.lineTo(x2-hs*Math.cos(ang-ha),y2-hs*Math.sin(ang-ha));
+    cx.lineTo(x2-hs*Math.cos(ang+ha),y2-hs*Math.sin(ang+ha));
+    cx.closePath();cx.fill();
+    cx.restore();
+}
+
+function drawVec(vx,vy,col,label,hov){
+    let px=ox+vx*GS,py=oy-vy*GS,lw=hov?3.5:2.8;
+    cx.save();cx.strokeStyle=rgba(col,.1);cx.lineWidth=lw+6;cx.lineCap='round';
+    cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(px,py);cx.stroke();cx.restore();
+    drawArrow(ox,oy,px,py,col,lw,1);
+    cx.beginPath();cx.arc(px,py,hov?5:4,0,Math.PI*2);cx.fillStyle=col;cx.fill();
+    if(hov){cx.save();cx.strokeStyle=rgba(col,.3);cx.lineWidth=2;cx.beginPath();cx.arc(px,py,16,0,Math.PI*2);cx.stroke();cx.restore()}
+    if(hov){
+        cx.save();cx.strokeStyle=rgba(col,.2);cx.lineWidth=1;cx.setLineDash([5,4]);
+        cx.beginPath();cx.moveTo(px,oy);cx.lineTo(px,py);cx.stroke();
+        cx.beginPath();cx.moveTo(ox,py);cx.lineTo(px,py);cx.stroke();
+        cx.setLineDash([]);cx.restore();
+    }
+    cx.save();cx.font='700 13px Inter';cx.fillStyle=col;cx.textAlign='left';cx.textBaseline='bottom';
+    cx.fillText(label,px+12,py-8);
+    cx.font='500 10px JetBrains Mono';cx.fillStyle=rgba(col,.7);cx.textBaseline='top';
+    cx.fillText(`(${vx.toFixed(1)}, ${vy.toFixed(1)})`,px+12,py+4);
+    cx.restore();
+}
+
+function drawBasisLine(bx,by,col){
+    let m=mag(bx,by);if(m<.01)return;
+    let dx=bx/m,dy=by/m;
+    let ext=Math.max(CW,CH);
+    cx.save();cx.strokeStyle=rgba(col,.08);cx.lineWidth=1.5;cx.setLineDash([6,6]);
+    cx.beginPath();cx.moveTo(ox-dx*ext,oy+dy*ext);cx.lineTo(ox+dx*ext,oy-dy*ext);cx.stroke();
+    cx.setLineDash([]);cx.restore();
+}
+
+function drawOrigin(){
+    cx.beginPath();cx.arc(ox,oy,4,0,Math.PI*2);cx.fillStyle=DEEP;cx.fill();
+    cx.font='500 9px JetBrains Mono';cx.fillStyle='#999';cx.textAlign='left';cx.textBaseline='top';cx.fillText('O',ox+6,oy+5);
+}
+
+function drawPCACloud(){
+    if(!pcaPoints.length)return;
+    for(let p of pcaPoints){
+        let px=ox+p.x*GS,py=oy-p.y*GS;
+        cx.beginPath();cx.arc(px,py,3.5,0,Math.PI*2);
+        cx.fillStyle=rgba(DEEP,.18);cx.fill();
+        cx.strokeStyle=rgba(DEEP,.08);cx.lineWidth=1;cx.stroke();
+    }
+}
+
+// ================================================================
+// STANDARD BASIS (faded reference)
+// ================================================================
+function drawStdBasis(){
+    let len=2.5;
+    // e1
+    cx.save();cx.globalAlpha=.2;
+    drawArrow(ox,oy,ox+len*GS,oy,'#999',.8,.2,8);
+    cx.font='500 10px Inter';cx.fillStyle=rgba('#999',.5);cx.textAlign='left';cx.textBaseline='top';
+    cx.fillText('e₁',ox+len*GS+4,oy+6);
+    cx.restore();
+    // e2
+    cx.save();cx.globalAlpha=.2;
+    drawArrow(ox,oy,ox,oy-len*GS,'#999',.8,.2,8);
+    cx.font='500 10px Inter';cx.fillStyle=rgba('#999',.5);cx.textAlign='left';cx.textBaseline='bottom';
+    cx.fillText('e₂',ox+6,oy-len*GS-4);
+    cx.restore();
+}
+
+// ================================================================
+// ANIMATION
+// ================================================================
+// Steps:
+//  0 = Check if b1,b2 form a basis (independent)
+//  1 = Solve c1,c2 (the coordinates in basis B)
+//  2 = Scale b1 by c1
+//  3 = Scale b2 by c2, place at tip of c1*b1
+//  4 = Arrive: c1*b1 + c2*b2 = v
+
+function startAnim(){
+    let valid=basisValid();
+    let sol=valid?solveCoords():null;
+    let c1=sol?sol.c1:0, c2=sol?sol.c2:0;
+    let sb1x=B1.x*c1, sb1y=B1.y*c1;
+    let sb2x=B2.x*c2, sb2y=B2.y*c2;
+
+    anim={step:0, t:0, c1, c2, sb1x, sb1y, sb2x, sb2y, valid};
+    resetSteps();
+    document.getElementById('resultBox').className='result-box hide';
+    document.getElementById('coordCompare').style.display='none';
+    document.getElementById('btnStart').disabled=true;
+    setStepState(0,'active');
+}
+
+function advanceAnim(){
+    if(!anim)return;
+    anim.t+=.008;
+
+    let dur=[0.7, 0.8, 1.2, 1.2, 1.6][anim.step];
+
+    if(!anim.valid && anim.step>=0){
+        if(anim.t>=1.0){
+            finishAnim('invalid');
+            return;
+        }
+        return;
+    }
+
+    if(anim.t>=dur){
+        setStepState(anim.step,'done');
+
+        if(anim.step>=4){
+            finishAnim('success');
+            return;
+        }
+        anim.step++;
+        anim.t=0;
+        setStepState(anim.step,'active');
+        updateStepLabels();
+    }
+}
+
+function finishAnim(result){
+    let rb=document.getElementById('resultBox');
+    document.getElementById('btnStart').disabled=false;
+
+    if(result==='success'){
+        rb.className='result-box suc';
+        rb.innerHTML='✓ Same point, different coordinates! The basis is just a choice of language.';
+        updateStepLabels();
+        updateEqMath();
+        updateMeaningMath();
+
+        // Show coordinate comparison
+        document.getElementById('coordCompare').style.display='grid';
+        let stdTex=`[\\mathbf{v}]_{\\mathcal{E}} = \\begin{bmatrix} ${VV.x.toFixed(1)} \\\\ ${VV.y.toFixed(1)} \\end{bmatrix}`;
+        let cusTex=`[\\mathbf{v}]_{\\mathcal{B}} = \\begin{bmatrix} ${anim.c1.toFixed(2)} \\\\ ${anim.c2.toFixed(2)} \\end{bmatrix}`;
+        try{
+            katex.render(stdTex,document.getElementById('stdCoordMath'),{displayMode:false,throwOnError:false});
+            katex.render(cusTex,document.getElementById('cusCoordMath'),{displayMode:false,throwOnError:false});
+        }catch(e){}
+
+        document.getElementById('meaningText').innerHTML=`The point <b>v = (${VV.x.toFixed(1)}, ${VV.y.toFixed(1)})</b> hasn't moved. But in basis ℬ, its address is <b>(${anim.c1.toFixed(2)}, ${anim.c2.toFixed(2)})</b>. Different numbers, same geometric object. This is exactly what happens in <b>PCA</b>: the data doesn't change — only the coordinate system does.`;
+
+    } else if(result==='invalid'){
+        rb.className='result-box hide';
+        setStepState(0,'fail');
+        document.getElementById('sl0').innerHTML='<b>Problem:</b> b₁ and b₂ are <span style="color:var(--red);font-weight:700">parallel (or zero)</span> — they do not form a basis!';
+        for(let i=1;i<=4;i++){setStepState(i,'fail');document.getElementById('sl'+i).innerHTML='<span style="color:var(--red)">Skipped — not a valid basis</span>'}
+        document.getElementById('insP').innerHTML='<b>Not a basis!</b> Two parallel vectors only span a line — they cannot reach every point in ℝ². A basis requires <b>linearly independent</b> vectors. Try <b>⟳ Random Basis</b> to get a valid one.';
+        document.getElementById('meaningText').innerHTML='A basis must be linearly independent <em>and</em> spanning. Parallel vectors fail both — they span only a 1D line, not the full 2D plane.';
+    }
+}
+
+function updateEqMath(){
+    let el=document.getElementById('eqMath');
+    if(!anim){el.innerHTML='<span class="empty">Press ▶ Start to begin</span>';return}
+    if(anim.valid){
+        let tex=`\\mathbf{v}=\\underbrace{${anim.c1.toFixed(2)}}_{c_1}\\mathbf{b_1}+\\underbrace{${anim.c2.toFixed(2)}}_{c_2}\\mathbf{b_2}`;
+        try{katex.render(tex,el,{displayMode:true,throwOnError:false})}catch(e){el.textContent=tex}
+    } else {
+        let tex=`\\mathbf{b_1}\\parallel\\mathbf{b_2}\\text{ — not a basis}`;
+        try{katex.render(tex,el,{displayMode:true,throwOnError:false})}catch(e){el.textContent=tex}
+    }
+}
+
+function updateMeaningMath(){
+    let el=document.getElementById('meaningMath');
+    if(!anim||!anim.valid){el.innerHTML='';return}
+    let tex=`[\\mathbf{v}]_{\\mathcal{B}} = \\begin{bmatrix} ${anim.c1.toFixed(2)} \\\\ ${anim.c2.toFixed(2)} \\end{bmatrix} \\quad\\text{where }\\mathcal{B}=(\\mathbf{b_1},\\mathbf{b_2})`;
+    try{katex.render(tex,el,{displayMode:true,throwOnError:false})}catch(e){el.textContent=tex}
+}
+
+// ================================================================
+// ANIMATION DRAWING
+// ================================================================
+function drawAnimState(){
+    if(!anim)return;
+    let{step,t,c1,c2,sb1x,sb1y,sb2x,sb2y,valid}=anim;
+    let e=ease(Math.min(t,1));
+
+    // Draw basis lines (extended, faint)
+    drawBasisLine(B1.x,B1.y,ORA);
+    drawBasisLine(B2.x,B2.y,TEAL);
+
+    // Dim basis vectors
+    cx.save();cx.globalAlpha=.2;
+    drawArrow(ox,oy,ox+B1.x*GS,oy-B1.y*GS,ORA,1.5,.2);
+    drawArrow(ox,oy,ox+B2.x*GS,oy-B2.y*GS,TEAL,1.5,.2);
+    cx.font='500 9px Inter';
+    cx.fillStyle=rgba(ORA,.4);cx.textAlign='left';cx.textBaseline='bottom';cx.fillText('b₁',ox+B1.x*GS+6,oy-B1.y*GS-4);
+    cx.fillStyle=rgba(TEAL,.4);cx.fillText('b₂',ox+B2.x*GS+6,oy-B2.y*GS-4);
+    cx.restore();
+
+    // Target v — always visible, pulsing
+    let vpx=ox+VV.x*GS, vpy=oy-VV.y*GS;
+    let time=performance.now()/1000;
+    let pulse=5+2*Math.sin(time*3);
+    cx.save();cx.globalAlpha=.12;cx.beginPath();cx.arc(vpx,vpy,pulse+8,0,Math.PI*2);cx.fillStyle=PUR;cx.fill();cx.restore();
+    drawArrow(ox,oy,vpx,vpy,PUR,2.5,.6);
+    cx.beginPath();cx.arc(vpx,vpy,5,0,Math.PI*2);cx.fillStyle=PUR;cx.fill();
+    cx.save();cx.font='700 13px Inter';cx.fillStyle=PUR;cx.textAlign='left';cx.textBaseline='bottom';
+    cx.fillText('v',vpx+12,vpy-8);
+    cx.font='500 10px JetBrains Mono';cx.fillStyle=rgba(PUR,.7);cx.textBaseline='top';
+    cx.fillText(`(${VV.x.toFixed(1)}, ${VV.y.toFixed(1)})`,vpx+12,vpy+4);
+    cx.restore();
+
+    // Invalid basis case
+    if(!valid){
+        let ea=Math.min(t*1.5,1);
+        let ref=mag(B1.x,B1.y)>mag(B2.x,B2.y)?B1:B2;
+        let m=mag(ref.x,ref.y);
+        if(m>.01){
+            let dx=ref.x/m,dy=ref.y/m,ext=Math.max(CW,CH);
+            cx.save();
+            cx.strokeStyle=rgba(RED,.12*ea);cx.lineWidth=20;
+            cx.beginPath();cx.moveTo(ox-dx*ext,oy+dy*ext);cx.lineTo(ox+dx*ext,oy-dy*ext);cx.stroke();
+            cx.strokeStyle=rgba(RED,.4*ea);cx.lineWidth=2.5;
+            cx.beginPath();cx.moveTo(ox-dx*ext,oy+dy*ext);cx.lineTo(ox+dx*ext,oy-dy*ext);cx.stroke();
+            cx.font='600 11px Inter';cx.fillStyle=rgba(RED,.6*ea);cx.textAlign='center';cx.textBaseline='bottom';
+            cx.fillText('b₁ ∥ b₂ — not a basis!',ox+dx*3*GS+20,oy-dy*3*GS-10);
+            cx.restore();
+        }
+        if(ea>.5){
+            cx.save();cx.globalAlpha=Math.min((ea-.5)*3,1);
+            cx.font='800 28px Inter';cx.fillStyle=RED;cx.textAlign='center';cx.textBaseline='middle';
+            cx.fillText('✗',vpx-22,vpy);
+            cx.restore();
+        }
+        return;
+    }
+
+    // Step 2: Scale b1 by c1
+    if(step>=2){
+        let t2=step===2?e:1;
+        let curX=sb1x*t2,curY=sb1y*t2;
+        let px=ox+curX*GS,py=oy-curY*GS;
+
+        if(step===2&&t2<1){
+            cx.save();cx.globalAlpha=.06;cx.fillStyle=ORA;
+            let ang1=Math.atan2(-B1.y,B1.x);
+            let len=mag(curX,curY)*GS;
+            cx.beginPath();cx.moveTo(ox,oy);
+            cx.arc(ox,oy,Math.max(len,1),ang1-.08,ang1+.08);
+            cx.closePath();cx.fill();cx.restore();
+        }
+
+        drawArrow(ox,oy,px,py,ORA,3,Math.min(t2*1.5,1),14);
+        cx.beginPath();cx.arc(px,py,4,0,Math.PI*2);cx.fillStyle=ORA;cx.fill();
+        cx.save();cx.font='700 12px Inter';cx.fillStyle=ORA;cx.textAlign='left';cx.textBaseline='bottom';
+        cx.fillText('c₁b₁',px+10,py-10);
+        cx.font='500 10px JetBrains Mono';cx.fillStyle=rgba(ORA,.7);cx.textBaseline='top';
+        cx.fillText(`${c1.toFixed(2)} × (${B1.x.toFixed(1)}, ${B1.y.toFixed(1)})`,px+10,py+2);
+        cx.fillText(`= (${sb1x.toFixed(1)}, ${sb1y.toFixed(1)})`,px+10,py+15);
+        cx.restore();
+    }
+
+    // Step 3: Scale b2 by c2, place at tip of c1*b1
+    if(step>=3){
+        let t3=step===3?e:1;
+        let bx=ox+sb1x*GS,by=oy-sb1y*GS;
+        let curX=sb2x*t3,curY=sb2y*t3;
+        let tipX=bx+curX*GS,tipY=by-curY*GS;
+
+        cx.save();cx.globalAlpha=.6;cx.beginPath();cx.arc(bx,by,3,0,Math.PI*2);cx.fillStyle=ORA;cx.fill();cx.restore();
+
+        if(step===3&&t3<1){
+            cx.save();cx.globalAlpha=.06;cx.fillStyle=TEAL;
+            let ang2=Math.atan2(-B2.y,B2.x);
+            let len=mag(curX,curY)*GS;
+            cx.beginPath();cx.moveTo(bx,by);
+            cx.arc(bx,by,Math.max(len,1),ang2-.08,ang2+.08);
+            cx.closePath();cx.fill();cx.restore();
+        }
+
+        drawArrow(bx,by,tipX,tipY,TEAL,3,Math.min(t3*1.5,1),14);
+        cx.beginPath();cx.arc(tipX,tipY,4,0,Math.PI*2);cx.fillStyle=TEAL;cx.fill();
+        cx.save();cx.font='700 12px Inter';cx.fillStyle=TEAL;cx.textAlign='left';cx.textBaseline='bottom';
+        cx.fillText('c₂b₂',tipX+10,tipY-10);
+        cx.font='500 10px JetBrains Mono';cx.fillStyle=rgba(TEAL,.7);cx.textBaseline='top';
+        cx.fillText(`${c2.toFixed(2)} × (${B2.x.toFixed(1)}, ${B2.y.toFixed(1)})`,tipX+10,tipY+2);
+        cx.fillText(`= (${sb2x.toFixed(1)}, ${sb2y.toFixed(1)})`,tipX+10,tipY+15);
+        cx.restore();
+
+        // Parallelogram
+        if(t3>.2){
+            let pa=Math.min((t3-.2)*1.5,1)*.07;
+            cx.save();cx.globalAlpha=pa;cx.fillStyle=PUR;
+            cx.beginPath();cx.moveTo(ox,oy);
+            cx.lineTo(ox+sb1x*GS,oy-sb1y*GS);
+            cx.lineTo(ox+(sb1x+sb2x)*GS,oy-(sb1y+sb2y)*GS);
+            cx.lineTo(ox+sb2x*GS,oy-sb2y*GS);
+            cx.closePath();cx.fill();cx.restore();
+            cx.save();cx.globalAlpha=pa*3;cx.strokeStyle=rgba(PUR,.3);cx.lineWidth=1;cx.setLineDash([5,5]);
+            cx.beginPath();cx.moveTo(ox+sb2x*GS,oy-sb2y*GS);cx.lineTo(ox+(sb1x+sb2x)*GS,oy-(sb1y+sb2y)*GS);cx.stroke();
+            cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(ox+sb2x*GS,oy-sb2y*GS);cx.stroke();
+            cx.setLineDash([]);cx.restore();
+        }
+    }
+
+    // Step 4: Arrive — confirm match
+    if(step>=4){
+        let t4=step===4?e:1;
+        let tipX=ox+(sb1x+sb2x)*GS, tipY=oy-(sb1y+sb2y)*GS;
+
+        // Green pulsing rings at v
+        let p2=10+6*Math.sin(performance.now()/120);
+        cx.save();cx.globalAlpha=.25*t4;
+        cx.strokeStyle=GRN;cx.lineWidth=3;cx.beginPath();cx.arc(vpx,vpy,p2,0,Math.PI*2);cx.stroke();
+        cx.strokeStyle=GRN;cx.lineWidth=1.5;cx.beginPath();cx.arc(vpx,vpy,p2+14,0,Math.PI*2);cx.stroke();
+        cx.restore();
+
+        // Green dashed from origin
+        if(t4>.2){
+            let la=Math.min((t4-.2)*2,1);
+            cx.save();cx.globalAlpha=la*.4;cx.setLineDash([8,5]);cx.strokeStyle=GRN;cx.lineWidth=2;
+            cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(vpx,vpy);cx.stroke();cx.setLineDash([]);
+            cx.restore();
+        }
+
+        // Check mark
+        if(t4>.4){
+            cx.save();cx.globalAlpha=Math.min((t4-.4)*3,1);
+            cx.font='800 28px Inter';cx.fillStyle=GRN;cx.textAlign='center';cx.textBaseline='middle';
+            cx.fillText('✓',tipX-24,tipY);
+            cx.restore();
+        }
+
+        // Label
+        if(t4>.6){
+            cx.save();cx.globalAlpha=Math.min((t4-.6)*3,1);
+            cx.font='600 11px Inter';cx.fillStyle=GRN;cx.textAlign='center';cx.textBaseline='top';
+            let mx=(ox+vpx)/2, my=(oy+vpy)/2;
+            cx.fillText('c₁b₁ + c₂b₂ = v  ✓  Same point!',mx,my+8);
+            cx.font='500 10px Inter';cx.fillStyle=rgba(DEEP,.5);
+            cx.fillText('The vector hasn\'t moved — only the description changed',mx,my+24);
+            cx.restore();
+        }
+
+        // Coordinate label at v
+        if(t4>.8){
+            cx.save();cx.globalAlpha=Math.min((t4-.8)*5,1);
+            // Standard coords
+            cx.font='600 10px JetBrains Mono';cx.fillStyle=rgba(DEEP,.5);cx.textAlign='right';cx.textBaseline='top';
+            cx.fillText(`Standard: (${VV.x.toFixed(1)}, ${VV.y.toFixed(1)})`,vpx-14,vpy+18);
+            // Basis B coords
+            cx.fillStyle=rgba(TEAL,.8);cx.font='700 10px JetBrains Mono';
+            cx.fillText(`Basis ℬ: (${anim.c1.toFixed(2)}, ${anim.c2.toFixed(2)})`,vpx-14,vpy+32);
+            cx.restore();
+        }
+    }
+}
+
+// ================================================================
+// STEP UI
+// ================================================================
+function setStepState(idx,state){
+    if(idx<0||idx>4)return;
+    let row=document.getElementById('sr'+idx);
+    let dot=document.getElementById('sd'+idx);
+    row.className='step-row '+state;
+    dot.className='step-dot '+state;
+    if(state==='done')dot.textContent='✓';
+    else if(state==='fail')dot.textContent='✗';
+    else if(state==='active')dot.textContent=(idx+1);
+    else dot.textContent=(idx+1);
+}
+
+function updateStepLabels(){
+    if(!anim)return;
+    let{c1,c2,sb1x,sb1y,sb2x,sb2y,valid}=anim;
+
+    if(anim.step>=0){
+        document.getElementById('sl0').innerHTML=valid
+            ?'<b>Check basis:</b> det(B) ≠ 0 → b₁, b₂ are <span style="color:#22C55E;font-weight:700">independent ✓ Valid basis!</span>'
+            :'<b>Check basis:</b> det(B) ≈ 0 → <span style="color:#EF4444;font-weight:700">b₁ ∥ b₂ — NOT a basis ✗</span>';
+    }
+    if(anim.step>=1 && valid){
+        document.getElementById('sl1').innerHTML=`<b>Solve:</b> c₁ = <span style="color:var(--ora);font-weight:700">${c1.toFixed(2)}</span>, c₂ = <span style="color:var(--teal);font-weight:700">${c2.toFixed(2)}</span>`;
+    }
+    if(anim.step>=2 && valid){
+        document.getElementById('sl2').innerHTML=`<b>Scale b₁:</b> <span style="color:var(--ora)">${c1.toFixed(2)}</span> × b₁ = <span style="color:var(--ora)">(${sb1x.toFixed(1)}, ${sb1y.toFixed(1)})</span>`;
+    }
+    if(anim.step>=3 && valid){
+        document.getElementById('sl3').innerHTML=`<b>Scale b₂:</b> <span style="color:var(--teal)">${c2.toFixed(2)}</span> × b₂ = <span style="color:var(--teal)">(${sb2x.toFixed(1)}, ${sb2y.toFixed(1)})</span> → tip-to-tail`;
+    }
+    if(anim.step>=4 && valid){
+        document.getElementById('sl4').innerHTML='<b>Arrive:</b> c₁b₁ + c₂b₂ lands exactly on v → <span style="color:#22C55E;font-weight:700">Same point, new coordinates ✓</span>';
+    }
+    updateEqMath();
+}
+
+function resetSteps(){
+    for(let i=0;i<5;i++)setStepState(i,'wait');
+    document.getElementById('sl0').innerHTML='<b>Check basis:</b> Are b₁ and b₂ linearly independent?';
+    document.getElementById('sl1').innerHTML='<b>Solve:</b> Find c₁, c₂ such that v = c₁b₁ + c₂b₂';
+    document.getElementById('sl2').innerHTML='<b>Scale b₁:</b> Multiply b₁ by c₁';
+    document.getElementById('sl3').innerHTML='<b>Scale b₂:</b> Multiply b₂ by c₂, place at tip of c₁b₁';
+    document.getElementById('sl4').innerHTML='<b>Arrive:</b> c₁b₁ + c₂b₂ reaches v exactly';
+    document.getElementById('eqMath').innerHTML='<span class="empty">Press ▶ Start to begin</span>';
+    document.getElementById('meaningMath').innerHTML='';
+}
+
+// ================================================================
+// MAIN LOOP
+// ================================================================
+function frame(){
+    cx.clearRect(0,0,CW,CH);
+    cx.fillStyle='#FAFBFD';cx.fillRect(0,0,CW,CH);
+
+    advanceAnim();
+    drawGrid();
+    drawStdBasis();
+
+    if(pcaMode) drawPCACloud();
+
+    if(!anim){
+        drawBasisLine(B1.x,B1.y,ORA);
+        drawBasisLine(B2.x,B2.y,TEAL);
+        drawVec(B1.x,B1.y,ORA,'b₁',hoverWhat==='b1');
+        drawVec(B2.x,B2.y,TEAL,'b₂',hoverWhat==='b2');
+        drawVec(VV.x,VV.y,PUR,'v',hoverWhat==='v');
+
+        // Live coordinate display
+        let sol=solveCoords();
+        if(sol){
+            let vpx=ox+VV.x*GS, vpy=oy-VV.y*GS;
+            cx.save();cx.globalAlpha=.7;
+            cx.font='600 10px JetBrains Mono';cx.fillStyle=rgba(DEEP,.4);cx.textAlign='right';cx.textBaseline='top';
+            cx.fillText(`Standard: (${VV.x.toFixed(1)}, ${VV.y.toFixed(1)})`,vpx-14,vpy+18);
+            cx.fillStyle=rgba(TEAL,.7);cx.font='700 10px JetBrains Mono';
+            cx.fillText(`Basis ℬ: (${sol.c1.toFixed(2)}, ${sol.c2.toFixed(2)})`,vpx-14,vpy+32);
+            cx.restore();
+        } else {
+            let vpx=ox+VV.x*GS, vpy=oy-VV.y*GS;
+            cx.save();cx.globalAlpha=.6;
+            cx.font='600 10px JetBrains Mono';cx.fillStyle=rgba(RED,.6);cx.textAlign='right';cx.textBaseline='top';
+            cx.fillText('b₁ ∥ b₂ — not a basis',vpx-14,vpy+18);
+            cx.restore();
+        }
+    } else {
+        drawAnimState();
+    }
+
+    drawOrigin();
+    requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ================================================================
+// SLIDERS
+// ================================================================
+function onSlider(){
+    VV.x=parseFloat(document.getElementById('vx').value);
+    VV.y=parseFloat(document.getElementById('vy').value);
+    B1.x=parseFloat(document.getElementById('b1x').value);
+    B1.y=parseFloat(document.getElementById('b1y').value);
+    B2.x=parseFloat(document.getElementById('b2x').value);
+    B2.y=parseFloat(document.getElementById('b2y').value);
+    document.getElementById('vxV').textContent=VV.x.toFixed(1);
+    document.getElementById('vyV').textContent=VV.y.toFixed(1);
+    document.getElementById('b1xV').textContent=B1.x.toFixed(1);
+    document.getElementById('b1yV').textContent=B1.y.toFixed(1);
+    document.getElementById('b2xV').textContent=B2.x.toFixed(1);
+    document.getElementById('b2yV').textContent=B2.y.toFixed(1);
+    document.getElementById('cVCoord').textContent=`(${VV.x.toFixed(1)}, ${VV.y.toFixed(1)})`;
+    document.getElementById('cB1Coord').textContent=`(${B1.x.toFixed(1)}, ${B1.y.toFixed(1)})`;
+    document.getElementById('cB2Coord').textContent=`(${B2.x.toFixed(1)}, ${B2.y.toFixed(1)})`;
+    anim=null;resetSteps();
+    document.getElementById('resultBox').className='result-box hide';
+    document.getElementById('coordCompare').style.display='none';
+    document.getElementById('btnStart').disabled=false;
+}
+
+function syncSliders(){
+    document.getElementById('vx').value=VV.x;document.getElementById('vy').value=VV.y;
+    document.getElementById('b1x').value=B1.x;document.getElementById('b1y').value=B1.y;
+    document.getElementById('b2x').value=B2.x;document.getElementById('b2y').value=B2.y;
+    onSlider();
+}
+
+// ================================================================
+// ACTIONS
+// ================================================================
+function pickRandomBasis(){
+    // Generate a random non-degenerate basis
+    do{
+        B1.x=snap(Math.random()*8-4);B1.y=snap(Math.random()*8-4);
+        B2.x=snap(Math.random()*8-4);B2.y=snap(Math.random()*8-4);
+    } while(Math.abs(B1.x*B2.y-B1.y*B2.x)<0.3 || mag(B1.x,B1.y)<.3 || mag(B2.x,B2.y)<.3);
+    VV.x=snap(Math.random()*6-3);VV.y=snap(Math.random()*6-3);
+    if(mag(VV.x,VV.y)<.3){VV.x=2;VV.y=1.5}
+    syncSliders();
+    if(pcaMode){pcaMode=false;document.getElementById('btnPCA').classList.remove('on');document.getElementById('btnPCA').textContent='☁ PCA View'}
+}
+
+function presetRotated(){
+    // 45-degree rotated basis (orthonormal scaled by sqrt(2) for nice grid alignment)
+    B1.x=1;B1.y=1;B2.x=1;B2.y=-1;
+    VV.x=3;VV.y=1;
+    syncSliders();
+    if(pcaMode){pcaMode=false;document.getElementById('btnPCA').classList.remove('on');document.getElementById('btnPCA').textContent='☁ PCA View'}
+    document.getElementById('hintBar').innerHTML='<span><b>45° Rotated Basis:</b> b₁ = (1,1) and b₂ = (1,−1) — the classic example from the textbook. Press <span class="hl">▶ Start</span> to see v decomposed.</span>';
+}
+
+function resetAll(){
+    VV={x:3,y:2};B1={x:1,y:1};B2={x:1,y:-1};
+    anim=null;
+    if(pcaMode){pcaMode=false;document.getElementById('btnPCA').classList.remove('on');document.getElementById('btnPCA').textContent='☁ PCA View';pcaPoints=[]}
+    syncSliders();
+    document.getElementById('hintBar').innerHTML='<span><b>Step 1:</b> Drag the <span style="color:#E07A3A;font-weight:700">orange</span> and <span style="color:#06B6D4;font-weight:700">teal</span> basis vector tips. <b>Step 2:</b> Press <span class="hl">▶ Start</span> to see the decomposition.</span>';
+    document.getElementById('insP').innerHTML='A <b>basis</b> is a choice of <b>coordinate system</b>. Changing the basis changes <em>how we describe</em> vectors, not what they <em>are</em>. In ML, <b>PCA</b> finds a basis aligned with variance — making patterns visible that were hidden in the standard basis. <b>Learned embeddings</b> find a basis where semantic relationships become geometric.';
+    document.getElementById('meaningText').innerHTML='The point <b>v</b> has not moved — only the <b>description</b> changed. Standard coordinates say "go 3 along e₁, 2 along e₂." The new basis says "go c₁ along b₁, c₂ along b₂." Same destination, different directions.';
+}
+
+// ================================================================
+// MOUSE / TOUCH
+// ================================================================
+function findNearest(mx,my){
+    let items=[
+        {key:'v',px:ox+VV.x*GS,py:oy-VV.y*GS},
+        {key:'b1',px:ox+B1.x*GS,py:oy-B1.y*GS},
+        {key:'b2',px:ox+B2.x*GS,py:oy-B2.y*GS}
+    ];
+    let best=null,bd=24;
+    for(let it of items){let d=Math.hypot(mx-it.px,my-it.py);if(d<bd){bd=d;best=it.key}}
+    return best;
+}
+
+cv.addEventListener('mousedown',e=>{
+    let r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    dragWhat=findNearest(mx,my);
+    if(dragWhat){
+        anim=null;resetSteps();
+        document.getElementById('resultBox').className='result-box hide';
+        document.getElementById('coordCompare').style.display='none';
+        document.getElementById('btnStart').disabled=false;
+        cv.style.cursor='grabbing';
+    }
+});
+
+cv.addEventListener('mousemove',e=>{
+    let r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+    if(dragWhat){
+        let gx=snap((mx-ox)/GS),gy=snap(-(my-oy)/GS);
+        gx=Math.max(-5,Math.min(5,gx));gy=Math.max(-5,Math.min(5,gy));
+        if(dragWhat==='v'){VV.x=gx;VV.y=gy}
+        else if(dragWhat==='b1'){B1.x=gx;B1.y=gy}
+        else if(dragWhat==='b2'){B2.x=gx;B2.y=gy}
+        syncSliders();
+    }
+    hoverWhat=findNearest(mx,my);
+    cv.style.cursor=dragWhat?'grabbing':(hoverWhat?'grab':'default');
+});
+
+cv.addEventListener('mouseup',()=>{dragWhat=null});
+cv.addEventListener('mouseleave',()=>{dragWhat=null;hoverWhat=null});
+
+cv.addEventListener('touchstart',e=>{e.preventDefault();let t=e.touches[0];cv.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY}))},{passive:false});
+cv.addEventListener('touchmove',e=>{e.preventDefault();let t=e.touches[0];cv.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}))},{passive:false});
+cv.addEventListener('touchend',e=>{e.preventDefault();cv.dispatchEvent(new MouseEvent('mouseup'))},{passive:false});
+
+// ================================================================
+// INIT
+// ================================================================
+syncSliders();
+</script>
+</body>
+</html>

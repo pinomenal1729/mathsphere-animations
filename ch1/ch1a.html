@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vector Playground | MathSphere</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        :root {
+            --deep:#1B2A4A; --orange:#E07A3A; --gray:#F2F2F2; --med:#B0B0B0;
+            --txt:#2C2C2C; --purple:#7C3AED; --green:#22C55E; --blue:#2563EB;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#EDEEF2;color:var(--txt);overflow-x:hidden}
+
+        /* === HEADER === */
+        header{background:var(--deep);padding:11px 22px;display:flex;justify-content:space-between;align-items:center}
+        .logo-a{display:flex;align-items:center;gap:9px}
+        .logo-b{width:32px;height:32px;background:var(--orange);border-radius:6px;display:grid;place-items:center;font-weight:800;font-size:16px;color:#fff}
+        .logo-n{font-weight:700;font-size:14px;color:#fff}
+        .logo-s{font-size:9px;color:#8899B0;letter-spacing:.7px;text-transform:uppercase}
+        .hdr-r{text-align:right}
+        .hdr-c{font-size:10px;color:var(--orange);font-weight:600}
+        .hdr-a{font-size:9.5px;color:#8899B0}
+
+        /* === TITLE === */
+        .titl{background:#fff;border-bottom:3px solid var(--orange);padding:14px 22px}
+        .titl .r{font-size:10px;color:var(--orange);font-weight:700;text-transform:uppercase;letter-spacing:1px}
+        .titl h1{font-size:20px;color:var(--deep);margin:3px 0 2px}
+        .titl p{font-size:12px;color:var(--med);line-height:1.5;max-width:640px}
+
+        /* === LAYOUT === */
+        .app{display:flex;max-width:1340px;margin:14px auto;padding:0 14px;gap:14px}
+        .left{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+        .right{width:310px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+
+        /* === CANVAS === */
+        .ccard{background:#fff;border-radius:10px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 2px 8px rgba(27,42,74,.06)}
+        .tbar{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid #EEF0F4;background:#FAFBFD;flex-wrap:wrap;gap:5px}
+        .tgrp{display:flex;gap:5px;flex-wrap:wrap}
+        .tb{padding:4px 11px;border:1.5px solid var(--deep);border-radius:5px;background:#fff;color:var(--deep);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
+        .tb:hover,.tb.on{background:var(--deep);color:#fff}
+        .tb.sec{border-color:#DDE1E8;color:var(--txt);font-weight:500}
+        .tb.sec:hover{border-color:#EF4444;color:#EF4444;background:#FEF2F2}
+        .tb.anim{border-color:var(--orange);color:var(--orange)}
+        .tb.anim:hover,.tb.anim.on{background:var(--orange);color:#fff}
+        canvas#cv{display:block;cursor:crosshair;width:100%}
+        .hint{padding:5px 12px;background:#FAFBFD;border-top:1px solid #EEF0F4;font-size:10px;color:var(--med);text-align:center}
+        .hint b{color:var(--orange)}
+
+        /* === OPERATIONS BAR === */
+        .ops{background:#fff;border-radius:10px;border:1px solid #DDE1E8;padding:10px 14px;display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;box-shadow:0 2px 8px rgba(27,42,74,.04)}
+        .op-section{flex:1;min-width:200px}
+        .op-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--deep);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+        .op-title .dot{width:8px;height:8px;border-radius:50%}
+        .sl-row{display:flex;align-items:center;gap:8px}
+        .sl-row label{font-size:11px;font-weight:600;color:var(--deep);white-space:nowrap}
+        .sl-row .val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--orange);min-width:42px;text-align:right}
+        input[type=range]{-webkit-appearance:none;flex:1;height:5px;border-radius:3px;background:#E0E4EA;outline:none}
+        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--deep);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+        .mbx{background:var(--gray);border-radius:6px;padding:8px;text-align:center;min-height:32px;display:flex;align-items:center;justify-content:center;margin-top:6px}
+        .mbx .ph{font-size:10.5px;color:var(--med)}
+        .op-divider{width:1px;background:#EEF0F4;margin:0 4px}
+
+        /* === CARDS === */
+        .card{background:#fff;border-radius:10px;border:1px solid #DDE1E8;overflow:hidden;box-shadow:0 1px 5px rgba(27,42,74,.04)}
+        .chd{padding:8px 12px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid #EEF0F4}
+        .chd.bl{background:var(--deep);color:#fff}
+        .chd.or{background:var(--orange);color:#fff}
+        .chd.gy{background:#F4F5F7;color:var(--deep)}
+        .chd.pr{background:var(--purple);color:#fff}
+        .cbd{padding:10px 12px}
+        .empty{text-align:center;font-size:11px;color:var(--med);padding:8px 0;line-height:1.6}
+
+        .vi{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid #F4F5F7;cursor:pointer;transition:.1s}
+        .vi:last-child{border-bottom:none}
+        .vi:hover{background:#F8FAFC;margin:0 -12px;padding:6px 12px}
+        .vi.sel{background:#F0F4FF;margin:0 -12px;padding:6px 12px}
+        .vd{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+        .vl{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:11.5px;color:var(--deep)}
+        .vc{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#555;margin-left:auto}
+        .vmag{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--orange);margin-left:4px}
+        .vx{width:17px;height:17px;border:none;background:none;color:var(--med);cursor:pointer;font-size:12px;border-radius:3px;display:grid;place-items:center;flex-shrink:0;transition:.1s;margin-left:3px}
+        .vx:hover{background:#FEE2E2;color:#DC2626}
+
+        /* comm */
+        .cr{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:6px;margin-top:7px;font-size:11px;font-weight:600;transition:.3s}
+        .cr.off{background:var(--gray);color:var(--med)}
+        .cr.on{background:#F0FDF4;color:#16A34A}
+        .cdot{width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font-size:10px;flex-shrink:0}
+        .cdot.off{background:#E0E4EA;color:var(--med)}
+        .cdot.on{background:#22C55E;color:#fff}
+
+        /* toggles */
+        .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0}
+        .toggle-row label{font-size:11px;color:var(--deep);font-weight:500}
+        .toggle{position:relative;width:36px;height:20px;cursor:pointer}
+        .toggle input{opacity:0;width:0;height:0}
+        .toggle .slider{position:absolute;inset:0;background:#D0D4DD;border-radius:10px;transition:.2s}
+        .toggle .slider:before{content:'';position:absolute;width:16px;height:16px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.2s}
+        .toggle input:checked+.slider{background:var(--orange)}
+        .toggle input:checked+.slider:before{transform:translateX(16px)}
+
+        /* insight */
+        .ins{background:linear-gradient(135deg,#FFF7ED,#FFFBF5);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:10px 12px}
+        .ins .it{font-size:9.5px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+        .ins p{font-size:11px;line-height:1.6;color:var(--txt)}
+
+        /* footer */
+        footer{background:var(--deep);padding:11px 22px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+        .fl{display:flex;align-items:center;gap:7px}
+        .flb{width:20px;height:20px;background:var(--orange);border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+        .flt{font-size:10px;color:#8899B0}
+        .flt strong{color:#fff}
+        .fr{font-size:9px;color:#667799}
+
+        @media(max-width:900px){.app{flex-direction:column}.right{width:100%}}
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-a">
+        <div class="logo-b">M</div>
+        <div><div class="logo-n">MathSphere</div><div class="logo-s">Mathematics for Machine Learning</div></div>
+    </div>
+    <div class="hdr-r">
+        <div class="hdr-c">Chapter 1 · Vectors and Vector Spaces</div>
+        <div class="hdr-a">by Anupam Nigam</div>
+    </div>
+</header>
+
+<div class="titl">
+    <div class="r">Interactive Animation 1.1</div>
+    <h1>The Vector Playground</h1>
+    <p>Create, move, scale, add, and decompose vectors. Watch the mathematics happen geometrically in real time.</p>
+</div>
+
+<div class="app">
+    <div class="left">
+        <!-- Canvas -->
+        <div class="ccard">
+            <div class="tbar">
+                <div class="tgrp">
+                    <button class="tb on" id="bCreate" onclick="setMode('create')">✦ Create</button>
+                    <button class="tb" id="bMove" onclick="setMode('move')">↔ Move</button>
+                    <button class="tb" id="bAdd" onclick="setMode('add')">＋ Add</button>
+                    <button class="tb" id="bSub" onclick="setMode('sub')">− Subtract</button>
+                </div>
+                <div class="tgrp">
+                    <button class="tb anim" id="bAnimate" onclick="playTipToTail()">▶ Animate Sum</button>
+                    <button class="tb sec" onclick="clearAll()">Clear All</button>
+                </div>
+            </div>
+            <canvas id="cv"></canvas>
+            <div class="hint" id="hint"><b>Create:</b> Click anywhere on the grid to place a new vector from the origin</div>
+        </div>
+
+        <!-- Operations Bar -->
+        <div class="ops">
+            <div class="op-section">
+                <div class="op-title"><div class="dot" style="background:var(--orange)"></div> Scalar Multiplication</div>
+                <div class="sl-row">
+                    <label>c =</label>
+                    <input type="range" id="sSlider" min="-3" max="3" step="0.05" value="1" oninput="onScalar(this.value)">
+                    <span class="val" id="sVal">1.00</span>
+                </div>
+                <div class="mbx" id="sMath"><span class="ph">Select a vector, then drag the slider</span></div>
+            </div>
+            <div class="op-divider"></div>
+            <div class="op-section">
+                <div class="op-title"><div class="dot" style="background:var(--purple)"></div> Operation Result</div>
+                <div class="mbx" id="opMath"><span class="ph">Use Add or Subtract mode</span></div>
+                <div class="cr off" id="commR"><div class="cdot off" id="commD">○</div><span id="commT">Commutativity — waiting</span></div>
+            </div>
+            <div class="op-divider"></div>
+            <div class="op-section">
+                <div class="op-title"><div class="dot" style="background:var(--green)"></div> Display Options</div>
+                <div class="toggle-row">
+                    <label>Show components</label>
+                    <label class="toggle"><input type="checkbox" id="tComp" onchange="updateToggles()"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <label>Show magnitude</label>
+                    <label class="toggle"><input type="checkbox" id="tMag" checked onchange="updateToggles()"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <label>Show unit vector</label>
+                    <label class="toggle"><input type="checkbox" id="tUnit" onchange="updateToggles()"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <label>Snap to grid</label>
+                    <label class="toggle"><input type="checkbox" id="tSnap" checked onchange="updateToggles()"><span class="slider"></span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right">
+        <!-- Vectors List -->
+        <div class="card">
+            <div class="chd bl">Vectors on Canvas</div>
+            <div class="cbd" id="vList"><div class="empty">Click on the canvas to create<br>your first vector ✦</div></div>
+        </div>
+
+        <!-- Selected Vector Info -->
+        <div class="card">
+            <div class="chd or">Selected Vector Details</div>
+            <div class="cbd" id="selInfo"><div class="empty">Select a vector to see its properties</div></div>
+        </div>
+
+        <!-- Insight -->
+        <div class="card">
+            <div class="cbd" style="padding:0">
+                <div class="ins">
+                    <div class="it">Key Insight</div>
+                    <p id="insP">Vectors have <b>magnitude</b> (length) and <b>direction</b>. Every vector can be decomposed into components along the coordinate axes. Create a vector and toggle "Show components" to see this.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="fl">
+        <div class="flb">M</div>
+        <div class="flt"><strong>MathSphere</strong> · Created by <strong>Anupam Nigam</strong></div>
+    </div>
+    <div class="fr">Mathematics for Machine Learning · Chapter 1 · Animation 1.1</div>
+</footer>
+
+<script>
+// ============================================================
+//  CONSTANTS & STATE
+// ============================================================
+const COLS = ['#E07A3A','#2563EB','#22C55E','#EC4899','#F59E0B','#06B6D4','#8B5CF6','#EF4444'];
+const DEEP='#1B2A4A', ORA='#E07A3A', PUR='#7C3AED', GRN='#22C55E';
+const G = 40; // grid spacing
+
+let vecs = [];
+let sel = -1;
+let mode = 'create';
+let addSel = [];
+let opResult = null;
+let drag = false;
+let hover = -1;
+let ghost = null;
+let scalar = 1;
+let showComp = false, showMag = true, showUnit = false, doSnap = true;
+
+// Tip-to-tail animation state
+let ttAnim = null; // {stage, progress, v0idx, v1idx}
+
+// Canvas
+const cv = document.getElementById('cv');
+const cx = cv.getContext('2d');
+let W, H, ox, oy;
+const dpr = window.devicePixelRatio || 1;
+
+function resize(){
+    const r = cv.parentElement.getBoundingClientRect();
+    W = r.width; H = Math.max(440, Math.min(540, innerHeight*.48));
+    cv.style.width = W+'px'; cv.style.height = H+'px';
+    cv.width = W*dpr; cv.height = H*dpr;
+    cx.setTransform(dpr,0,0,dpr,0,0);
+    ox = Math.round(W/2); oy = Math.round(H/2);
+}
+resize(); addEventListener('resize', resize);
+
+// ============================================================
+//  UTILITY
+// ============================================================
+function snap(v){ return doSnap ? Math.round(v*2)/2 : Math.round(v*10)/10; }
+function mag(x,y){ return Math.sqrt(x*x+y*y); }
+function lerp(a,b,t){ return a+(b-a)*t; }
+function hexRGB(hex){
+    hex = hex.replace('#','');
+    return [parseInt(hex.substring(0,2),16), parseInt(hex.substring(2,4),16), parseInt(hex.substring(4,6),16)];
+}
+function rgba(hex,a){ let c=hexRGB(hex); return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+
+// ============================================================
+//  RENDER LOOP
+// ============================================================
+let paraAlpha = 0, resAnim = 0;
+
+function frame(){
+    cx.clearRect(0,0,W,H);
+    cx.fillStyle = '#FAFBFD'; cx.fillRect(0,0,W,H);
+    drawGrid(); drawAxes();
+
+    // Parallelogram
+    if(opResult && addSel.length===2){
+        paraAlpha += (0.22-paraAlpha)*0.06;
+        drawPara();
+    } else paraAlpha *= 0.9;
+
+    // Ghost
+    if(ghost && mode==='create')
+        drawArrow(ghost.x, ghost.y, COLS[vecs.length%COLS.length], '', false, false, 0.25);
+
+    // Vectors
+    for(let i=0;i<vecs.length;i++){
+        let v = vecs[i];
+        let vx = v.x, vy = v.y;
+        if(i===sel && mode!=='add' && mode!=='sub') { vx *= scalar; vy *= scalar; }
+        let hi = (i===sel || addSel.includes(i));
+        drawArrow(vx, vy, v.color, v.label, hi, i===hover, 1);
+        if(hi && showComp) drawComponents(vx, vy, v.color);
+        if(hi && showUnit) drawUnitVec(vx, vy, v.color);
+    }
+
+    // Tip-to-tail animation
+    if(ttAnim) drawTipToTail();
+
+    // Result
+    if(opResult && addSel.length===2 && !ttAnim){
+        resAnim += (1-resAnim)*0.055;
+        drawArrow(opResult.x*resAnim, opResult.y*resAnim, PUR, 'r', true, false, Math.min(resAnim*1.5,1));
+    } else if(!opResult) resAnim = 0;
+
+    // Origin
+    cx.beginPath(); cx.arc(ox,oy,3.5,0,Math.PI*2); cx.fillStyle=DEEP; cx.fill();
+    cx.font='500 9px JetBrains Mono'; cx.fillStyle='#999'; cx.textAlign='left'; cx.textBaseline='top'; cx.fillText('O',ox+5,oy+4);
+
+    requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ============================================================
+//  DRAW FUNCTIONS
+// ============================================================
+function drawGrid(){
+    cx.strokeStyle='#E6E8EE'; cx.lineWidth=0.5;
+    for(let x=ox%G;x<W;x+=G){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke();}
+    for(let y=oy%G;y<H;y+=G){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+    cx.strokeStyle='#D0D4DD'; cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(ox,0);cx.lineTo(ox,H);cx.stroke();
+    cx.beginPath();cx.moveTo(0,oy);cx.lineTo(W,oy);cx.stroke();
+}
+
+function drawAxes(){
+    cx.fillStyle='#AAB0BE'; cx.font='500 9px JetBrains Mono';
+    cx.textAlign='center'; cx.textBaseline='top';
+    for(let i=-15;i<=15;i++){
+        if(!i) continue;
+        let px=ox+i*G; if(px>10&&px<W-10) cx.fillText(i,px,oy+5);
+    }
+    cx.textAlign='right'; cx.textBaseline='middle';
+    for(let i=-15;i<=15;i++){
+        if(!i) continue;
+        let py=oy-i*G; if(py>10&&py<H-10) cx.fillText(i,ox-7,py);
+    }
+    cx.fillStyle=DEEP; cx.font='600 12px Inter';
+    cx.textAlign='center'; cx.textBaseline='bottom'; cx.fillText('x₁',W-16,oy-8);
+    cx.textAlign='left'; cx.textBaseline='middle'; cx.fillText('x₂',ox+8,14);
+    // Arrow tips
+    cx.strokeStyle=DEEP; cx.lineWidth=1.2;
+    cx.beginPath();cx.moveTo(W-24,oy);cx.lineTo(W-10,oy);cx.stroke();
+    cx.beginPath();cx.moveTo(W-10,oy);cx.lineTo(W-15,oy-3.5);cx.stroke();
+    cx.beginPath();cx.moveTo(W-10,oy);cx.lineTo(W-15,oy+3.5);cx.stroke();
+    cx.beginPath();cx.moveTo(ox,24);cx.lineTo(ox,10);cx.stroke();
+    cx.beginPath();cx.moveTo(ox,10);cx.lineTo(ox-3.5,15);cx.stroke();
+    cx.beginPath();cx.moveTo(ox,10);cx.lineTo(ox+3.5,15);cx.stroke();
+}
+
+function drawArrow(vx,vy,col,label,hi,hov,alpha){
+    let px=ox+vx*G, py=oy-vy*G;
+    cx.save(); cx.globalAlpha=alpha;
+
+    // Projections
+    if(hi||hov){
+        cx.setLineDash([5,4]); cx.strokeStyle=rgba(col,.2); cx.lineWidth=1;
+        cx.beginPath();cx.moveTo(px,oy);cx.lineTo(px,py);cx.stroke();
+        cx.beginPath();cx.moveTo(ox,py);cx.lineTo(px,py);cx.stroke();
+        cx.setLineDash([]);
+    }
+
+    // Shaft
+    let lw = hi?3:(hov?2.5:2);
+    cx.strokeStyle=col; cx.lineWidth=lw; cx.lineCap='round';
+    cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(px,py);cx.stroke();
+
+    // Head
+    let ang=Math.atan2(oy-py,px-ox), hl=hi?13:10, ha=0.42;
+    cx.fillStyle=col; cx.beginPath();
+    cx.moveTo(px,py);
+    cx.lineTo(px-hl*Math.cos(ang-ha), py+hl*Math.sin(ang-ha));
+    cx.lineTo(px-hl*Math.cos(ang+ha), py+hl*Math.sin(ang+ha));
+    cx.closePath(); cx.fill();
+
+    // Tip dot
+    cx.beginPath();cx.arc(px,py,hi?4:3,0,Math.PI*2);cx.fill();
+
+    // Label
+    if(label){
+        cx.font=(hi?'700 13px':'600 11px')+' Inter';
+        cx.textAlign='left';cx.textBaseline='bottom';
+        cx.fillText(label,px+8,py-6);
+    }
+
+    // Coord tooltip
+    if(hi||hov){
+        cx.font='500 9.5px JetBrains Mono'; cx.fillStyle='#666';
+        cx.textAlign='left';cx.textBaseline='top';
+        cx.fillText(`(${vx.toFixed(1)}, ${vy.toFixed(1)})`,px+8,py+4);
+        // Magnitude
+        if(showMag){
+            let m = mag(vx,vy);
+            cx.fillStyle=ORA;
+            cx.fillText(`|v|=${m.toFixed(2)}`,px+8,py+16);
+        }
+    }
+
+    cx.restore();
+}
+
+function drawComponents(vx,vy,col){
+    let px=ox+vx*G, py=oy-vy*G;
+    cx.save();
+    // X component
+    cx.strokeStyle=rgba(col,.6); cx.lineWidth=2.5; cx.setLineDash([8,5]);
+    cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(px,oy);cx.stroke();
+    // Y component
+    cx.beginPath();cx.moveTo(px,oy);cx.lineTo(px,py);cx.stroke();
+    cx.setLineDash([]);
+
+    // Labels
+    cx.font='600 10px JetBrains Mono'; cx.fillStyle=rgba(col,.8);
+    cx.textAlign='center';cx.textBaseline='top';
+    cx.fillText(vx.toFixed(1), (ox+px)/2, oy+6);
+    cx.textAlign='left';cx.textBaseline='middle';
+    cx.fillText(vy.toFixed(1), px+5, (oy+py)/2);
+
+    // Right angle marker
+    let s=8;
+    cx.strokeStyle=rgba(col,.4); cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(px-s,oy);cx.lineTo(px-s,oy-(vy>0?s:-s));cx.lineTo(px,oy-(vy>0?s:-s));cx.stroke();
+    cx.restore();
+}
+
+function drawUnitVec(vx,vy,col){
+    let m = mag(vx,vy);
+    if(m<0.01) return;
+    let ux=vx/m, uy=vy/m;
+    let px=ox+ux*G, py=oy-uy*G;
+    cx.save(); cx.globalAlpha=0.5;
+    cx.strokeStyle=GRN; cx.lineWidth=2; cx.lineCap='round';
+    cx.beginPath();cx.moveTo(ox,oy);cx.lineTo(px,py);cx.stroke();
+    let ang=Math.atan2(oy-py,px-ox);
+    cx.fillStyle=GRN; cx.beginPath();
+    cx.moveTo(px,py);
+    cx.lineTo(px-9*Math.cos(ang-.42),py+9*Math.sin(ang-.42));
+    cx.lineTo(px-9*Math.cos(ang+.42),py+9*Math.sin(ang+.42));
+    cx.closePath();cx.fill();
+    cx.font='600 10px Inter';cx.textAlign='left';cx.textBaseline='bottom';
+    cx.fillText('û',px+6,py-4);
+    cx.restore();
+}
+
+function drawPara(){
+    if(addSel.length<2) return;
+    let a=vecs[addSel[0]], b=vecs[addSel[1]];
+    let isS = mode==='sub';
+    let bx=isS?-b.x:b.x, by=isS?-b.y:b.y;
+    let p1x=ox+a.x*G, p1y=oy-a.y*G;
+    let p2x=ox+bx*G, p2y=oy-by*G;
+    let p3x=ox+(a.x+bx)*G, p3y=oy-(a.y+by)*G;
+
+    cx.save(); cx.globalAlpha=paraAlpha;
+    cx.fillStyle=PUR; cx.beginPath();
+    cx.moveTo(ox,oy);cx.lineTo(p1x,p1y);cx.lineTo(p3x,p3y);cx.lineTo(p2x,p2y);
+    cx.closePath();cx.fill();
+    cx.globalAlpha=paraAlpha+0.2;
+    cx.strokeStyle=PUR;cx.lineWidth=1.2;cx.setLineDash([7,5]);
+    cx.beginPath();cx.moveTo(p1x,p1y);cx.lineTo(p3x,p3y);cx.stroke();
+    cx.beginPath();cx.moveTo(p2x,p2y);cx.lineTo(p3x,p3y);cx.stroke();
+    cx.setLineDash([]);
+    cx.restore();
+}
+
+// ============================================================
+//  TIP-TO-TAIL ANIMATION
+// ============================================================
+function playTipToTail(){
+    if(addSel.length!==2) return;
+    ttAnim = { stage:0, t:0, v0:addSel[0], v1:addSel[1] };
+    opResult = null; resAnim = 0;
+    updateInsight('Watch the <b>tip-to-tail</b> construction: the second vector is placed at the tip of the first, and the sum goes from the origin to the new tip.');
+}
+
+function drawTipToTail(){
+    if(!ttAnim) return;
+    let a=vecs[ttAnim.v0], b=vecs[ttAnim.v1];
+    let speed = 0.018;
+    ttAnim.t += speed;
+
+    if(ttAnim.stage===0){
+        // Stage 0: animate second vector sliding to tip of first
+        let t = Math.min(ttAnim.t, 1);
+        let ease = t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; // ease in-out
+        let startX=ox, startY=oy;
+        let endX=ox+a.x*G, endY=oy-a.y*G;
+        let baseX=lerp(startX,endX,ease), baseY=lerp(startY,endY,ease);
+
+        // Draw the translating vector
+        cx.save(); cx.globalAlpha=0.7;
+        cx.strokeStyle=b.color; cx.lineWidth=2.5; cx.lineCap='round'; cx.setLineDash([6,4]);
+        let tipX=baseX+b.x*G, tipY=baseY-b.y*G;
+        cx.beginPath();cx.moveTo(baseX,baseY);cx.lineTo(tipX,tipY);cx.stroke();
+        cx.setLineDash([]);
+        // Head
+        let ang=Math.atan2(baseY-tipY,tipX-baseX);
+        cx.fillStyle=b.color; cx.beginPath();
+        cx.moveTo(tipX,tipY);
+        cx.lineTo(tipX-10*Math.cos(ang-.42),tipY+10*Math.sin(ang-.42));
+        cx.lineTo(tipX-10*Math.cos(ang+.42),tipY+10*Math.sin(ang+.42));
+        cx.closePath();cx.fill();
+        // Label
+        cx.font='600 11px Inter'; cx.textAlign='left'; cx.textBaseline='bottom';
+        cx.fillText(b.label, tipX+7, tipY-5);
+        cx.restore();
+
+        if(ttAnim.t >= 1){ ttAnim.stage=1; ttAnim.t=0; }
+    }
+
+    if(ttAnim.stage===1){
+        // Draw translated vector (static now)
+        let baseX=ox+a.x*G, baseY=oy-a.y*G;
+        let tipX=baseX+b.x*G, tipY=baseY-b.y*G;
+        cx.save(); cx.globalAlpha=0.7;
+        cx.strokeStyle=b.color; cx.lineWidth=2.5; cx.lineCap='round'; cx.setLineDash([6,4]);
+        cx.beginPath();cx.moveTo(baseX,baseY);cx.lineTo(tipX,tipY);cx.stroke();
+        cx.setLineDash([]);
+        let ang=Math.atan2(baseY-tipY,tipX-baseX);
+        cx.fillStyle=b.color; cx.beginPath();
+        cx.moveTo(tipX,tipY);
+        cx.lineTo(tipX-10*Math.cos(ang-.42),tipY+10*Math.sin(ang-.42));
+        cx.lineTo(tipX-10*Math.cos(ang+.42),tipY+10*Math.sin(ang+.42));
+        cx.closePath();cx.fill();
+        cx.font='600 11px Inter';cx.textAlign='left';cx.textBaseline='bottom';cx.fillText(b.label,tipX+7,tipY-5);
+        cx.restore();
+
+        // Animate result vector growing
+        let t = Math.min(ttAnim.t, 1);
+        let ease = t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+        let rx=(a.x+b.x)*ease, ry=(a.y+b.y)*ease;
+        drawArrow(rx, ry, PUR, 'a+b', true, false, Math.min(t*2,1));
+
+        if(ttAnim.t >= 1){
+            ttAnim = null;
+            opResult = {x:a.x+b.x, y:a.y+b.y};
+            resAnim = 1;
+            updateOp();
+        }
+    }
+}
+
+// ============================================================
+//  MOUSE / TOUCH
+// ============================================================
+function getPos(e){
+    let r=cv.getBoundingClientRect();
+    let mx=e.clientX-r.left, my=e.clientY-r.top;
+    return {px:mx, py:my, gx:(mx-ox)/G, gy:-(my-oy)/G};
+}
+
+function findTip(px,py,th){
+    let best=-1,bd=th||24;
+    for(let i=0;i<vecs.length;i++){
+        let d=Math.hypot(px-(ox+vecs[i].x*G), py-(oy-vecs[i].y*G));
+        if(d<bd){bd=d;best=i;}
+    } return best;
+}
+function findNear(px,py){
+    let best=-1,bd=30;
+    for(let i=0;i<vecs.length;i++){
+        let tx=ox+vecs[i].x*G, ty=oy-vecs[i].y*G;
+        let dx=tx-ox,dy=ty-oy,A=px-ox,B=py-oy;
+        let t=Math.max(0,Math.min(1,(A*dx+B*dy)/(dx*dx+dy*dy||1)));
+        let d=Math.hypot(px-(ox+t*dx),py-(oy+t*dy));
+        if(d<bd){bd=d;best=i;}
+    } return best;
+}
+
+cv.addEventListener('mousedown',e=>{
+    let{px,py,gx,gy}=getPos(e);
+    ttAnim = null; // cancel animation on click
+
+    if(mode==='create'){
+        if(vecs.length>=8)return;
+        let i=vecs.length;
+        vecs.push({x:snap(gx),y:snap(gy),color:COLS[i%COLS.length],label:String.fromCharCode(97+i)});
+        sel=i; scalar=1; document.getElementById('sSlider').value=1; updateUI();
+    } else if(mode==='move'){
+        let i=findTip(px,py);
+        if(i>=0){sel=i;drag=true;scalar=1;document.getElementById('sSlider').value=1;updateUI();}
+    } else if(mode==='add'||mode==='sub'){
+        let i=findNear(px,py);
+        if(i>=0){
+            if(addSel.includes(i)) addSel=addSel.filter(x=>x!==i);
+            else{addSel.push(i);if(addSel.length>2)addSel.shift();}
+            if(addSel.length===2){
+                let a=vecs[addSel[0]],b=vecs[addSel[1]];
+                let bx=mode==='sub'?-b.x:b.x, by=mode==='sub'?-b.y:b.y;
+                opResult={x:a.x+bx, y:a.y+by};
+                resAnim=0;
+            } else {opResult=null;}
+            updateUI();
+        }
+    }
+});
+
+cv.addEventListener('mousemove',e=>{
+    let{px,py,gx,gy}=getPos(e);
+    if(drag&&mode==='move'&&sel>=0){
+        vecs[sel].x=snap(gx); vecs[sel].y=snap(gy);
+        if(opResult&&addSel.length===2){
+            let a=vecs[addSel[0]],b=vecs[addSel[1]];
+            let bx=mode==='sub'?-b.x:b.x,by=mode==='sub'?-b.y:b.y;
+            opResult={x:a.x+bx,y:a.y+by};
+        }
+        updateUI();
+    } else {
+        hover=findTip(px,py);
+        ghost=mode==='create'?{x:snap(gx),y:snap(gy)}:null;
+    }
+    cv.style.cursor = mode==='create'?'crosshair': mode==='move'?(hover>=0||drag?'grab':'default'): findNear(px,py)>=0?'pointer':'default';
+});
+
+cv.addEventListener('mouseup',()=>{drag=false;});
+cv.addEventListener('mouseleave',()=>{hover=-1;ghost=null;drag=false;});
+
+// Touch
+cv.addEventListener('touchstart',e=>{e.preventDefault();let t=e.touches[0];cv.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+cv.addEventListener('touchmove',e=>{e.preventDefault();drag=true;let t=e.touches[0];cv.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+cv.addEventListener('touchend',e=>{e.preventDefault();cv.dispatchEvent(new MouseEvent('mouseup'));},{passive:false});
+
+// ============================================================
+//  UI UPDATES
+// ============================================================
+function setMode(m){
+    mode=m; ttAnim=null;
+    document.querySelectorAll('.tbar .tb:not(.sec):not(.anim)').forEach(b=>b.classList.remove('on'));
+    let id = {create:'bCreate',move:'bMove',add:'bAdd',sub:'bSub'}[m];
+    if(id) document.getElementById(id).classList.add('on');
+    if(m!=='add'&&m!=='sub'){addSel=[];opResult=null;}
+    let hints={
+        create:'<b>Create:</b> Click on the grid to place a new vector',
+        move:'<b>Move:</b> Drag any vector tip to reposition it',
+        add:'<b>Add:</b> Click two vectors to compute <b>u + v</b>',
+        sub:'<b>Subtract:</b> Click two vectors to compute <b>u − v</b>'
+    };
+    document.getElementById('hint').innerHTML=hints[m];
+    if(m==='add') updateInsight('Click two vectors to add them. The <b>parallelogram rule</b> shows that <b>u+v = v+u</b>. Then press <b>▶ Animate Sum</b> to see the tip-to-tail construction.');
+    else if(m==='sub') updateInsight('Subtraction <b>u − v</b> is the same as <b>u + (−v)</b>. The result points from the tip of <b>v</b> to the tip of <b>u</b>.');
+    else if(m==='create') updateInsight('Each vector is an <b>arrow from the origin</b> with a magnitude and direction. Toggle "Show components" to see how it decomposes along the axes.');
+    else updateInsight('Drag vector tips to reshape them. Watch how <b>coordinates</b>, <b>magnitude</b>, and <b>direction</b> all change together.');
+    updateUI();
+}
+
+function clearAll(){
+    vecs=[];sel=-1;addSel=[];opResult=null;scalar=1;ttAnim=null;
+    document.getElementById('sSlider').value=1;updateUI();
+}
+
+function delVec(i){
+    vecs.splice(i,1);
+    for(let j=0;j<vecs.length;j++){vecs[j].label=String.fromCharCode(97+j);vecs[j].color=COLS[j%COLS.length];}
+    sel=-1;addSel=[];opResult=null;ttAnim=null;updateUI();
+}
+function selVec(i){sel=i;scalar=1;document.getElementById('sSlider').value=1;updateUI();}
+
+function onScalar(v){
+    scalar=parseFloat(v);
+    document.getElementById('sVal').textContent=scalar.toFixed(2);
+    updateScalar();
+}
+
+function updateToggles(){
+    showComp=document.getElementById('tComp').checked;
+    showMag=document.getElementById('tMag').checked;
+    showUnit=document.getElementById('tUnit').checked;
+    doSnap=document.getElementById('tSnap').checked;
+}
+
+function updateInsight(html){ document.getElementById('insP').innerHTML=html; }
+
+function updateUI(){updateVecList();updateSelInfo();updateScalar();updateOp();}
+
+function updateVecList(){
+    let el=document.getElementById('vList');
+    if(!vecs.length){el.innerHTML='<div class="empty">Click on the canvas to create<br>your first vector ✦</div>';return;}
+    let h='';
+    for(let i=0;i<vecs.length;i++){
+        let v=vecs[i], cls=i===sel?'vi sel':'vi';
+        let m=mag(v.x,v.y).toFixed(2);
+        h+=`<div class="${cls}" onclick="selVec(${i})"><div class="vd" style="background:${v.color}"></div><span class="vl">${v.label}</span><span class="vc">(${v.x.toFixed(1)}, ${v.y.toFixed(1)})</span><span class="vmag">|${v.label}|=${m}</span><button class="vx" onclick="event.stopPropagation();delVec(${i})">×</button></div>`;
+    }
+    el.innerHTML=h;
+}
+
+function updateSelInfo(){
+    let el=document.getElementById('selInfo');
+    if(sel<0||sel>=vecs.length){el.innerHTML='<div class="empty">Select a vector to see its properties</div>';return;}
+    let v=vecs[sel], c=scalar;
+    let vx=v.x*c, vy=v.y*c, m=mag(vx,vy);
+    let ang = Math.atan2(vy,vx)*180/Math.PI;
+    let ux=m>0?vx/m:0, uy=m>0?vy/m:0;
+
+    let html=`<div style="margin-bottom:8px"><b style="color:${v.color};font-family:'JetBrains Mono',monospace;font-size:14px">${v.label}</b><span style="color:var(--med);font-size:11px;margin-left:8px">${c!==1?'(scaled by '+c.toFixed(2)+')':''}</span></div>`;
+    html+=`<div class="mbx" id="selMath"></div>`;
+    html+=`<div style="margin-top:8px;font-size:11px;color:#555;line-height:1.7">`;
+    html+=`<b>Magnitude:</b> <span style="color:var(--orange);font-family:'JetBrains Mono',monospace">${m.toFixed(3)}</span><br>`;
+    html+=`<b>Direction:</b> <span style="font-family:'JetBrains Mono',monospace">${ang.toFixed(1)}°</span><br>`;
+    if(showUnit) html+=`<b>Unit vector:</b> <span style="font-family:'JetBrains Mono',monospace;color:var(--green)">(${ux.toFixed(3)}, ${uy.toFixed(3)})</span>`;
+    html+=`</div>`;
+    el.innerHTML=html;
+
+    let mathEl=document.getElementById('selMath');
+    if(mathEl){
+        let tex=`\\mathbf{${v.label}} = \\begin{bmatrix}${vx.toFixed(1)}\\\\${vy.toFixed(1)}\\end{bmatrix},\\quad \\|\\mathbf{${v.label}}\\| = ${m.toFixed(3)}`;
+        try{katex.render(tex,mathEl,{displayMode:true,throwOnError:false});}catch(e){mathEl.textContent=tex;}
+    }
+}
+
+function updateScalar(){
+    let el=document.getElementById('sMath');
+    document.getElementById('sVal').textContent=scalar.toFixed(2);
+    if(sel<0||sel>=vecs.length){el.innerHTML='<span class="ph">Select a vector, then drag the slider</span>';return;}
+    let v=vecs[sel],c=scalar;
+    let tex=`${c.toFixed(2)}\\begin{bmatrix}${v.x.toFixed(1)}\\\\${v.y.toFixed(1)}\\end{bmatrix}=\\begin{bmatrix}${(v.x*c).toFixed(1)}\\\\${(v.y*c).toFixed(1)}\\end{bmatrix}`;
+    el.innerHTML='';
+    try{katex.render(tex,el,{displayMode:true,throwOnError:false});}catch(e){el.textContent=tex;}
+}
+
+function updateOp(){
+    let el=document.getElementById('opMath');
+    let cr=document.getElementById('commR'),cd=document.getElementById('commD'),ct=document.getElementById('commT');
+
+    if(addSel.length<2||!opResult){
+        el.innerHTML='<span class="ph">Use Add or Subtract mode</span>';
+        cr.className='cr off';cd.className='cdot off';cd.textContent='○';ct.textContent='Commutativity — waiting';
+        return;
+    }
+    let a=vecs[addSel[0]],b=vecs[addSel[1]];
+    let op=mode==='sub'?'-':'+';
+    let bx=mode==='sub'?-b.x:b.x, by=mode==='sub'?-b.y:b.y;
+    let tex=`\\mathbf{${a.label}}${op}\\mathbf{${b.label}}=\\begin{bmatrix}${a.x.toFixed(1)}\\\\${a.y.toFixed(1)}\\end{bmatrix}${op}\\begin{bmatrix}${b.x.toFixed(1)}\\\\${b.y.toFixed(1)}\\end{bmatrix}=\\begin{bmatrix}${opResult.x.toFixed(1)}\\\\${opResult.y.toFixed(1)}\\end{bmatrix}`;
+    el.innerHTML='';
+    try{katex.render(tex,el,{displayMode:true,throwOnError:false});}catch(e){el.textContent=tex;}
+
+    if(mode==='add'){
+        cr.className='cr on';cd.className='cdot on';cd.textContent='✓';
+        ct.innerHTML=`<b>${a.label}+${b.label} = ${b.label}+${a.label}</b> ✓ Verified`;
+    } else {
+        cr.className='cr off';cd.className='cdot off';cd.textContent='≠';
+        ct.innerHTML=`Subtraction is <b>not</b> commutative in general`;
+    }
+}
+</script>
+</body>
+</html>

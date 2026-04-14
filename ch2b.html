@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Animation 2.2 — The Basis Image Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+:root{
+    --deep:#1B2A4A;
+    --ora:#E07A3A;
+    --gray:#F2F2F2;
+    --med:#B0B0B0;
+    --txt:#2C2C2C;
+    --pur:#7C3AED;
+    --grn:#22C55E;
+    --blu:#2563EB;
+    --red:#EF4444;
+    --teal:#06B6D4;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#FAFBFD;color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+header{background:var(--deep);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.la{display:flex;align-items:center;gap:10px;}
+.lb{width:32px;height:32px;background:var(--ora);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px;font-family:'Inter',sans-serif;}
+.ln{font-size:14px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.ls{font-size:10px;color:rgba(255,255,255,0.6);letter-spacing:0.3px;}
+.hr{text-align:right;}
+.hc{font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;}
+.ha{font-size:10px;color:rgba(255,255,255,0.5);}
+
+.titl{background:#fff;border-bottom:3px solid var(--ora);padding:20px 24px;text-align:center;}
+.titl .r{font-size:11px;font-weight:700;color:var(--ora);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.titl h1{font-size:24px;font-weight:800;color:var(--deep);margin-bottom:4px;}
+.titl p{font-size:13px;color:var(--med);max-width:640px;margin:0 auto;}
+
+.app{display:flex;gap:14px;max-width:1360px;margin:18px auto;padding:0 16px;}
+.left{flex:1;min-width:0;}
+.right{width:340px;display:flex;flex-direction:column;gap:12px;}
+
+.ccard,.controls,.card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.06);overflow:hidden;}
+
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;gap:6px;}
+.tgrp{display:flex;gap:6px;flex-wrap:wrap;}
+.tb{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:2px solid var(--med);background:#fff;color:var(--txt);transition:all 0.2s;}
+.tb:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.tb:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.tb.go{border-color:var(--grn);color:var(--grn);}
+.tb.go:hover:not(:disabled){background:var(--grn);color:#fff;}
+.tb.ora{border-color:var(--ora);color:var(--ora);}
+.tb.ora:hover:not(:disabled){background:var(--ora);color:#fff;}
+.tb.pur{border-color:var(--pur);color:var(--pur);}
+.tb.pur:hover:not(:disabled){background:var(--pur);color:#fff;}
+.tb.teal{border-color:var(--teal);color:var(--teal);}
+.tb.teal:hover:not(:disabled){background:var(--teal);color:#fff;}
+.tb.sec{border-color:var(--med);color:var(--med);}
+.tb.sec:hover:not(:disabled){border-color:var(--red);color:var(--red);background:rgba(239,68,68,0.06);}
+
+.ccard canvas{display:block;width:100%;cursor:crosshair;}
+.hint-bar{padding:8px 14px;background:var(--gray);font-size:11px;color:var(--med);text-align:center;font-style:italic;}
+
+.controls{padding:14px;}
+.ctrl-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--med);margin-bottom:10px;}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.vc{border:2px solid var(--med);border-radius:10px;padding:10px;}
+.vc-name{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;margin-bottom:2px;}
+.vc-coord{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--med);margin-bottom:8px;}
+.sl-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.sl-row label{font-size:11px;font-weight:600;width:16px;text-align:right;color:var(--txt);}
+.sl-row input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:#e0e0e0;border-radius:2px;outline:none;}
+.sl-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;background:var(--deep);border-radius:50%;cursor:pointer;}
+.sl-row .val{font-family:'JetBrains Mono',monospace;font-size:11px;width:32px;text-align:left;color:var(--txt);}
+
+.card{margin:0;}
+.chd{padding:10px 14px;font-size:12px;font-weight:700;letter-spacing:0.5px;color:#fff;}
+.chd.bl{background:var(--deep);}
+.chd.or{background:var(--ora);}
+.chd.pr{background:var(--pur);}
+.chd.tl{background:var(--teal);}
+.chd.gn{background:var(--grn);}
+.cbd{padding:14px;}
+
+.step-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;transition:all 0.3s;}
+.step-row:last-child{border-bottom:none;}
+.step-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all 0.3s;}
+.step-row.wait .step-dot{background:var(--gray);color:var(--med);}
+.step-row.active .step-dot{background:var(--ora);color:#fff;animation:pulse 1.2s infinite;}
+.step-row.done .step-dot{background:var(--grn);color:#fff;}
+.step-row.fail .step-dot{background:var(--red);color:#fff;}
+.step-label{font-size:12px;color:var(--txt);padding-top:2px;line-height:1.5;}
+.step-label b{font-weight:700;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(224,122,58,0.4)}50%{box-shadow:0 0 0 8px rgba(224,122,58,0)}}
+
+.mbx{background:var(--gray);border-radius:8px;padding:10px 14px;margin:10px 0;text-align:center;min-height:24px;overflow-x:auto;}
+.result-box{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;margin-top:8px;}
+.result-box.suc{background:rgba(34,197,94,0.1);color:var(--grn);}
+.result-box.dep{background:rgba(239,68,68,0.1);color:var(--red);}
+.result-box.hide{display:none;}
+
+.ins{border-left:4px solid var(--ora);background:linear-gradient(135deg,rgba(224,122,58,0.06),rgba(224,122,58,0.02));border-radius:0 8px 8px 0;padding:14px;margin:10px 14px 14px 14px;}
+.it{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--ora);margin-bottom:6px;}
+.ins p{font-size:12px;line-height:1.6;color:var(--txt);}
+
+.mat-display{background:var(--gray);border-radius:10px;padding:14px;margin:10px 0;text-align:center;}
+.mat-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--med);margin-bottom:6px;text-transform:uppercase;}
+
+.det-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--gray);border-radius:8px;margin:8px 0;font-size:12px;}
+.det-bar .det-label{font-weight:600;color:var(--txt);}
+.det-bar .det-val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;}
+
+footer{background:var(--deep);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.fl{display:flex;align-items:center;gap:10px;}
+.flb{width:20px;height:20px;background:var(--ora);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:11px;}
+.flt{font-size:11px;color:rgba(255,255,255,0.6);}
+.fr{font-size:11px;color:rgba(255,255,255,0.4);text-align:right;}
+
+@media(max-width:900px){
+    .app{flex-direction:column;}
+    .right{width:100%;}
+    .ctrl-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="la">
+        <div class="lb">M</div>
+        <div>
+            <div class="ln">MathSphere</div>
+            <div class="ls">Mathematics for Machine Learning</div>
+        </div>
+    </div>
+    <div class="hr">
+        <div class="hc">Chapter 2 · Linear Transformations</div>
+        <div class="ha">by Anupam Nigam</div>
+    </div>
+</header>
+
+<div class="titl">
+    <div class="r">INTERACTIVE ANIMATION 2.2</div>
+    <h1>The Basis Image Builder</h1>
+    <p>Choose where to send the two basis vectors e₁ and e₂, and watch the entire transformation unfold. Every point in the plane is determined by your two choices.</p>
+</div>
+
+<div class="app">
+    <div class="left">
+        <div class="ccard">
+            <div class="tbar">
+                <div class="tgrp">
+                    <button class="tb go" id="btnGo">▶ Animate Transformation</button>
+                    <button class="tb ora" id="btnRandom">⟳ Random</button>
+                    <button class="tb pur" id="btnRotation">🔄 Rotation 60°</button>
+                    <button class="tb teal" id="btnShear">⬱ Shear</button>
+                </div>
+                <div class="tgrp">
+                    <button class="tb sec" id="btnReset">Reset All</button>
+                </div>
+            </div>
+            <canvas id="cv"></canvas>
+            <div class="hint-bar" id="hintBar">Drag the <b>blue</b> and <b>orange</b> arrowheads to set where e₁ and e₂ are sent. Then press Animate.</div>
+        </div>
+
+        <div class="controls" style="margin-top:12px;">
+            <div class="ctrl-title">Basis Images (drag vectors or use sliders)</div>
+            <div class="ctrl-grid">
+                <div class="vc" style="border-color:var(--deep);">
+                    <div class="vc-name" style="color:var(--deep);">T(e₁)</div>
+                    <div class="vc-coord" id="te1Coord">(1.0, 0.0)</div>
+                    <div class="sl-row">
+                        <label>x₁</label>
+                        <input type="range" id="slT1x" min="-4" max="4" step="0.5" value="1">
+                        <span class="val" id="valT1x">1.0</span>
+                    </div>
+                    <div class="sl-row">
+                        <label>x₂</label>
+                        <input type="range" id="slT1y" min="-4" max="4" step="0.5" value="0">
+                        <span class="val" id="valT1y">0.0</span>
+                    </div>
+                </div>
+                <div class="vc" style="border-color:var(--ora);">
+                    <div class="vc-name" style="color:var(--ora);">T(e₂)</div>
+                    <div class="vc-coord" id="te2Coord">(0.0, 1.0)</div>
+                    <div class="sl-row">
+                        <label>x₁</label>
+                        <input type="range" id="slT2x" min="-4" max="4" step="0.5" value="0">
+                        <span class="val" id="valT2x">0.0</span>
+                    </div>
+                    <div class="sl-row">
+                        <label>x₂</label>
+                        <input type="range" id="slT2y" min="-4" max="4" step="0.5" value="1">
+                        <span class="val" id="valT2y">1.0</span>
+                    </div>
+                </div>
+                <div class="vc" style="border-color:var(--pur);">
+                    <div class="vc-name" style="color:var(--pur);">Test v</div>
+                    <div class="vc-coord" id="vCoord">(2.0, 1.0)</div>
+                    <div class="sl-row">
+                        <label>x₁</label>
+                        <input type="range" id="slVx" min="-4" max="4" step="0.5" value="2">
+                        <span class="val" id="valVx">2.0</span>
+                    </div>
+                    <div class="sl-row">
+                        <label>x₂</label>
+                        <input type="range" id="slVy" min="-4" max="4" step="0.5" value="1">
+                        <span class="val" id="valVy">1.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right">
+        <!-- STEP-BY-STEP -->
+        <div class="card">
+            <div class="chd bl">STEP-BY-STEP: THEOREM 2.1 IN ACTION</div>
+            <div class="cbd">
+                <div class="step-row wait" id="sr0">
+                    <div class="step-dot">1</div>
+                    <div class="step-label" id="sl0">Show original basis <b>e₁, e₂</b> and grid</div>
+                </div>
+                <div class="step-row wait" id="sr1">
+                    <div class="step-dot">2</div>
+                    <div class="step-label" id="sl1">Move <b>e₁</b> → <b>T(e₁)</b></div>
+                </div>
+                <div class="step-row wait" id="sr2">
+                    <div class="step-dot">3</div>
+                    <div class="step-label" id="sl2">Move <b>e₂</b> → <b>T(e₂)</b> and deform grid</div>
+                </div>
+                <div class="step-row wait" id="sr3">
+                    <div class="step-dot">4</div>
+                    <div class="step-label" id="sl3">Decompose <b>v</b> = c₁<b>e₁</b> + c₂<b>e₂</b></div>
+                </div>
+                <div class="step-row wait" id="sr4">
+                    <div class="step-dot">5</div>
+                    <div class="step-label" id="sl4">Compute <b>T(v)</b> = c₁<b>T(e₁)</b> + c₂<b>T(e₂)</b></div>
+                </div>
+            </div>
+            <div class="mbx" id="mathBox"></div>
+            <div class="result-box hide" id="resultBox"></div>
+        </div>
+
+        <!-- MATRIX DISPLAY -->
+        <div class="card">
+            <div class="chd tl">THE MATRIX OF T</div>
+            <div class="cbd">
+                <div class="mat-label">Columns = basis images</div>
+                <div class="mbx" id="matBox"></div>
+                <div class="det-bar">
+                    <span class="det-label">Determinant:</span>
+                    <span class="det-val" id="detVal">1.00</span>
+                </div>
+                <div class="det-bar">
+                    <span class="det-label">Rank:</span>
+                    <span class="det-val" id="rankVal">2</span>
+                </div>
+                <p id="matMeaning" style="font-size:11px;line-height:1.5;color:var(--med);margin-top:6px;">
+                    The matrix is the identity — T does nothing.
+                </p>
+            </div>
+        </div>
+
+        <!-- KEY INSIGHT -->
+        <div class="card">
+            <div class="chd or">KEY INSIGHT</div>
+            <div class="cbd">
+                <div class="ins">
+                    <div class="it">KEY INSIGHT</div>
+                    <p id="insP">A linear map on ℝ² is <b>completely determined</b> by the images of e₁ and e₂. These two choices fix the entire transformation — every other vector's image follows from linearity: T(c₁e₁ + c₂e₂) = c₁T(e₁) + c₂T(e₂).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="fl">
+        <div class="flb">M</div>
+        <span class="flt">MathSphere · Created by Anupam Nigam</span>
+    </div>
+    <div class="fr">Mathematics for Machine Learning · Chapter 2 · Animation 2.2</div>
+</footer>
+
+<script>
+// ===== CONSTANTS =====
+const GS=48, dpr=window.devicePixelRatio||1;
+const cvs=document.getElementById('cv'), ctx=cvs.getContext('2d');
+let W,H,ox,oy;
+
+const COL={deep:'#1B2A4A',ora:'#E07A3A',gray:'#F2F2F2',med:'#B0B0B0',txt:'#2C2C2C',pur:'#7C3AED',grn:'#22C55E',blu:'#2563EB',red:'#EF4444',teal:'#06B6D4'};
+
+// T(e1) = (t1x, t1y), T(e2) = (t2x, t2y)
+let t1x=1, t1y=0;   // image of e1
+let t2x=0, t2y=1;   // image of e2
+let pvx=2, pvy=1;    // test vector v
+
+let anim=null, dragWhat=null, hoverWhat=null;
+
+// ===== UTILITY =====
+function rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
+function snap(v){return Math.round(v*2)/2;}
+function mag(x,y){return Math.sqrt(x*x+y*y);}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function mx2math(px,py){return[(px-ox)/GS,-(py-oy)/GS];}
+function math2px(vx,vy){return[ox+vx*GS,oy-vy*GS];}
+
+// Apply current transformation
+function applyT(x,y){return[x*t1x+y*t2x, x*t1y+y*t2y];}
+
+// Determinant
+function det(){return t1x*t2y - t2x*t1y;}
+
+// ===== RESIZE =====
+function resize(){
+    const rect=cvs.parentElement.getBoundingClientRect();
+    W=rect.width; H=540;
+    cvs.style.width=W+'px'; cvs.style.height=H+'px';
+    cvs.width=W*dpr; cvs.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ox=W/2; oy=H/2;
+}
+
+// ===== DRAW GRID (with interpolation) =====
+function drawGrid(frac){
+    const ext=6, steps=50;
+    const f=ease(Math.max(0,Math.min(1,frac)));
+
+    // Grid lines
+    for(let i=-ext;i<=ext;i++){
+        // Vertical lines (x = i, y varies)
+        ctx.beginPath();
+        ctx.strokeStyle=i===0?rgba(COL.deep,0.25):rgba(COL.med,0.15);
+        ctx.lineWidth=i===0?1.2:0.7;
+        for(let j=0;j<=steps;j++){
+            const ry=-ext+(2*ext)*j/steps;
+            const rx=i;
+            // Interpolate between identity and T
+            const [tx,ty]=applyT(rx,ry);
+            const dx=rx+(tx-rx)*f;
+            const dy=ry+(ty-ry)*f;
+            const[px,py]=math2px(dx,dy);
+            if(j===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+        }
+        ctx.stroke();
+
+        // Horizontal lines (y = i, x varies)
+        ctx.beginPath();
+        ctx.strokeStyle=i===0?rgba(COL.deep,0.25):rgba(COL.med,0.15);
+        ctx.lineWidth=i===0?1.2:0.7;
+        for(let j=0;j<=steps;j++){
+            const rx=-ext+(2*ext)*j/steps;
+            const ry=i;
+            const[tx,ty]=applyT(rx,ry);
+            const dx=rx+(tx-rx)*f;
+            const dy=ry+(ty-ry)*f;
+            const[px,py]=math2px(dx,dy);
+            if(j===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+        }
+        ctx.stroke();
+    }
+
+    // Tick labels (only at low deformation)
+    if(f<0.15){
+        ctx.font="9px 'JetBrains Mono',monospace";
+        ctx.fillStyle=rgba(COL.med,0.7);
+        ctx.textAlign='center';
+        for(let i=-ext;i<=ext;i++){
+            if(i===0)continue;
+            const[px,py]=math2px(i,0);
+            if(px>10&&px<W-10)ctx.fillText(i,px,oy+16);
+            const[px2,py2]=math2px(0,i);
+            if(py2>10&&py2<H-10){ctx.textAlign='right';ctx.fillText(i,ox-8,py2+4);ctx.textAlign='center';}
+        }
+        ctx.font="11px 'Inter',sans-serif";
+        ctx.fillStyle=rgba(COL.deep,0.5);
+        ctx.textAlign='left'; ctx.fillText('x₁',W-25,oy-8);
+        ctx.textAlign='center'; ctx.fillText('x₂',ox+14,16);
+    }
+}
+
+// ===== DRAW ARROW =====
+function drawArrow(x1,y1,x2,y2,col,lw,alpha,hs){
+    hs=hs||12;
+    const a=0.38;
+    ctx.save();
+    ctx.globalAlpha=alpha!==undefined?alpha:1;
+    ctx.strokeStyle=col; ctx.fillStyle=col;
+    ctx.lineWidth=lw||2.5; ctx.lineCap='round';
+    const dx=x2-x1,dy=y2-y1;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    if(len<1){ctx.restore();return;}
+    const ang=Math.atan2(dy,dx);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2-Math.cos(ang)*hs*0.5,y2-Math.sin(ang)*hs*0.5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-hs*Math.cos(ang-a),y2-hs*Math.sin(ang-a));
+    ctx.lineTo(x2-hs*Math.cos(ang+a),y2-hs*Math.sin(ang+a));
+    ctx.closePath();ctx.fill();
+    ctx.restore();
+}
+
+// ===== DRAW VECTOR =====
+function drawVec(vx2,vy2,col,label,hov,alpha){
+    const[px,py]=math2px(vx2,vy2);
+    const a=alpha!==undefined?alpha:1;
+    // Glow
+    if(hov){
+        ctx.save();ctx.globalAlpha=0.15*a;ctx.strokeStyle=col;ctx.lineWidth=12;ctx.lineCap='round';
+        ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(px,py);ctx.stroke();ctx.restore();
+    }
+    drawArrow(ox,oy,px,py,col,2.8,a);
+    // Tip
+    ctx.save();ctx.globalAlpha=a;ctx.fillStyle=col;
+    ctx.beginPath();ctx.arc(px,py,4.5,0,Math.PI*2);ctx.fill();ctx.restore();
+    // Hover ring
+    if(hov){
+        ctx.save();ctx.globalAlpha=0.5*a;ctx.strokeStyle=col;ctx.lineWidth=2;
+        ctx.beginPath();ctx.arc(px,py,14,0,Math.PI*2);ctx.stroke();ctx.restore();
+        // Dashed projections
+        ctx.save();ctx.globalAlpha=0.2*a;ctx.strokeStyle=col;ctx.lineWidth=1;ctx.setLineDash([4,3]);
+        ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,oy);ctx.moveTo(px,py);ctx.lineTo(ox,py);ctx.stroke();ctx.restore();
+    }
+    // Label
+    ctx.save();ctx.globalAlpha=a;
+    ctx.font="700 13px 'Inter',sans-serif";ctx.fillStyle=col;
+    const offX=vx2>=0?10:-10,offY=vy2>=0?-14:18;
+    ctx.textAlign=vx2>=0?'left':'right';
+    ctx.fillText(label,px+offX,py+offY);
+    ctx.font="10px 'JetBrains Mono',monospace";ctx.fillStyle=rgba(col,0.7);
+    ctx.fillText(`(${vx2.toFixed(1)}, ${vy2.toFixed(1)})`,px+offX,py+offY+14);
+    ctx.restore();
+}
+
+// ===== DRAW ORIGIN =====
+function drawOrigin(){
+    ctx.fillStyle=COL.deep;ctx.beginPath();ctx.arc(ox,oy,4,0,Math.PI*2);ctx.fill();
+    ctx.font="700 11px 'Inter',sans-serif";ctx.fillStyle=rgba(COL.deep,0.6);ctx.textAlign='right';ctx.fillText('O',ox-8,oy+4);
+}
+
+// ===== DRAW PARALLELOGRAM =====
+function drawParallelogram(ax,ay,bx,by,col,alpha){
+    const[p0x,p0y]=math2px(0,0);
+    const[p1x,p1y]=math2px(ax,ay);
+    const[p2x,p2y]=math2px(ax+bx,ay+by);
+    const[p3x,p3y]=math2px(bx,by);
+    ctx.save();ctx.globalAlpha=alpha||0.1;ctx.fillStyle=col;
+    ctx.beginPath();ctx.moveTo(p0x,p0y);ctx.lineTo(p1x,p1y);ctx.lineTo(p2x,p2y);ctx.lineTo(p3x,p3y);ctx.closePath();ctx.fill();
+    ctx.restore();
+}
+
+// ===== DRAW DECOMPOSITION (scaled basis vectors) =====
+function drawDecomp(c1,c2,col1,col2,alpha){
+    const a=alpha||0.6;
+    // c1 * e1 component
+    if(Math.abs(c1)>0.01){
+        const[sx,sy]=math2px(c1*t1x,c1*t1y);
+        ctx.save();ctx.globalAlpha=a*0.5;ctx.strokeStyle=col1;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(sx,sy);ctx.stroke();ctx.restore();
+    }
+    // c2 * e2 component from tip of c1*T(e1)
+    if(Math.abs(c2)>0.01){
+        const[sx,sy]=math2px(c1*t1x,c1*t1y);
+        const[ex,ey]=math2px(c1*t1x+c2*t2x,c1*t1y+c2*t2y);
+        ctx.save();ctx.globalAlpha=a*0.5;ctx.strokeStyle=col2;ctx.lineWidth=2;ctx.setLineDash([6,4]);
+        ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore();
+    }
+}
+
+// ===== ANIMATION STATE =====
+const stepDurs=[0.6,1.0,1.2,1.0,1.2];
+
+function advanceAnim(){
+    if(!anim)return;
+    anim.t+=0.008;
+    if(anim.t>=stepDurs[anim.step]){
+        setStepState(anim.step,'done');
+        anim.step++;anim.t=0;
+        if(anim.step>=5){finishAnim();return;}
+        setStepState(anim.step,'active');
+    }
+}
+
+function finishAnim(){
+    const d=det();
+    const rb=document.getElementById('resultBox');
+    rb.classList.remove('hide','suc','dep');
+    if(Math.abs(d)>0.01){
+        rb.classList.add('suc');
+        rb.textContent=`✓ T is invertible (det = ${d.toFixed(2)} ≠ 0). No information lost!`;
+    } else {
+        rb.classList.add('dep');
+        rb.textContent=`✗ T is NOT invertible (det ≈ 0). The plane collapses — information is lost!`;
+    }
+    document.getElementById('btnGo').disabled=false;
+    anim=null;
+}
+
+function setStepState(idx,state){
+    const row=document.getElementById('sr'+idx);
+    row.className='step-row '+state;
+    const dot=row.querySelector('.step-dot');
+    if(state==='done')dot.textContent='✓';
+    else if(state==='fail')dot.textContent='✗';
+    else dot.textContent=(idx+1);
+}
+function resetSteps(){
+    for(let i=0;i<5;i++)setStepState(i,'wait');
+    document.getElementById('resultBox').classList.add('hide');
+    document.getElementById('mathBox').innerHTML='';
+    // Reset labels
+    document.getElementById('sl0').innerHTML='Show original basis <b>e₁, e₂</b> and grid';
+    document.getElementById('sl1').innerHTML='Move <b>e₁</b> → <b>T(e₁)</b>';
+    document.getElementById('sl2').innerHTML='Move <b>e₂</b> → <b>T(e₂)</b> and deform grid';
+    document.getElementById('sl3').innerHTML='Decompose <b>v</b> = c₁<b>e₁</b> + c₂<b>e₂</b>';
+    document.getElementById('sl4').innerHTML='Compute <b>T(v)</b> = c₁<b>T(e₁)</b> + c₂<b>T(e₂)</b>';
+}
+
+// ===== MAIN FRAME =====
+function frame(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#FAFBFD';ctx.fillRect(0,0,W,H);
+    advanceAnim();
+
+    if(!anim){
+        // Idle mode: show transformed grid, basis images, test vector
+        drawGrid(1);
+
+        // Original basis (faded)
+        drawVec(1,0,COL.deep,'e₁',hoverWhat==='e1',0.2);
+        drawVec(0,1,COL.ora,'e₂',hoverWhat==='e2',0.2);
+
+        // Basis images
+        drawVec(t1x,t1y,COL.deep,'T(e₁)',hoverWhat==='t1');
+        drawVec(t2x,t2y,COL.ora,'T(e₂)',hoverWhat==='t2');
+
+        // Test vector (original, faded)
+        drawVec(pvx,pvy,COL.pur,'v',hoverWhat==='v',0.35);
+
+        // Transformed test vector
+        const[tvx,tvy]=applyT(pvx,pvy);
+        drawVec(tvx,tvy,COL.pur,'T(v)',false,0.85);
+
+        // Decomposition lines
+        drawDecomp(pvx,pvy,COL.deep,COL.ora,0.35);
+
+        // Parallelogram
+        drawParallelogram(t1x,t1y,t2x,t2y,COL.teal,0.08);
+
+    } else {
+        const step=anim.step;
+        const t=anim.t;
+        const dur=stepDurs[step];
+        const p=Math.min(t/dur,1);
+        const ep=ease(p);
+
+        if(step===0){
+            // Show original grid + basis
+            drawGrid(0);
+            drawVec(1,0,COL.deep,'e₁',false,ep);
+            drawVec(0,1,COL.ora,'e₂',false,ep);
+            drawVec(pvx,pvy,COL.pur,'v',false,ep*0.4);
+            drawParallelogram(1,0,0,1,COL.teal,0.06*ep);
+        }
+        else if(step===1){
+            // Move e1 to T(e1)
+            drawGrid(0);
+            const cx=1+(t1x-1)*ep, cy=0+(t1y-0)*ep;
+            drawVec(cx,cy,COL.deep,'T(e₁)',false);
+            drawVec(0,1,COL.ora,'e₂',false,0.5);
+            drawVec(pvx,pvy,COL.pur,'v',false,0.3);
+            // Ghost original e1
+            drawVec(1,0,COL.deep,'e₁',false,0.15*(1-ep));
+            // Update math
+            try{katex.render(`T(\\mathbf{e}_1) = \\begin{pmatrix}${t1x.toFixed(1)}\\\\${t1y.toFixed(1)}\\end{pmatrix}`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+        }
+        else if(step===2){
+            // Move e2 to T(e2) + deform grid
+            drawGrid(ep);
+            drawVec(t1x,t1y,COL.deep,'T(e₁)',false);
+            const cx=0+(t2x-0)*ep, cy=1+(t2y-1)*ep;
+            drawVec(cx,cy,COL.ora,'T(e₂)',false);
+            drawVec(pvx,pvy,COL.pur,'v',false,0.25);
+            // Ghost original e2
+            drawVec(0,1,COL.ora,'e₂',false,0.15*(1-ep));
+            // Parallelogram grows
+            const pa=t1x, pb=t1y;
+            const qa=t2x*ep, qb=(1+(t2y-1)*ep);
+            drawParallelogram(pa,pb,qa,qb,COL.teal,0.08*ep);
+            try{katex.render(`T(\\mathbf{e}_2) = \\begin{pmatrix}${t2x.toFixed(1)}\\\\${t2y.toFixed(1)}\\end{pmatrix}`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+        }
+        else if(step===3){
+            // Decompose v = c1*e1 + c2*e2
+            drawGrid(1);
+            drawVec(t1x,t1y,COL.deep,'T(e₁)',false,0.4);
+            drawVec(t2x,t2y,COL.ora,'T(e₂)',false,0.4);
+
+            // Show v with decomposition growing
+            drawVec(pvx,pvy,COL.pur,'v',false,0.3+0.5*ep);
+
+            // Scale bars for c1*e1 and c2*e2 in original space
+            const c1=pvx, c2=pvy;
+            // c1*e1 segment
+            const seg1x=c1*ep, seg1y=0;
+            if(Math.abs(c1)>0.01){
+                const[sx,sy]=math2px(seg1x,seg1y);
+                ctx.save();ctx.globalAlpha=0.6*ep;ctx.strokeStyle=COL.deep;ctx.lineWidth=3;
+                ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(sx,sy);ctx.stroke();ctx.restore();
+                // Label
+                ctx.save();ctx.globalAlpha=ep;ctx.font="600 11px 'JetBrains Mono',monospace";ctx.fillStyle=COL.deep;
+                ctx.textAlign='center';ctx.fillText(`${c1.toFixed(1)}·e₁`,(ox+sx)/2,Math.max(sy,oy)+20);ctx.restore();
+            }
+            // c2*e2 segment from tip
+            if(Math.abs(c2)>0.01){
+                const[sx,sy]=math2px(c1*ep,0);
+                const[ex,ey]=math2px(c1*ep,c2*ep);
+                ctx.save();ctx.globalAlpha=0.6*ep;ctx.strokeStyle=COL.ora;ctx.lineWidth=3;
+                ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore();
+                ctx.save();ctx.globalAlpha=ep;ctx.font="600 11px 'JetBrains Mono',monospace";ctx.fillStyle=COL.ora;
+                ctx.textAlign='left';ctx.fillText(`${c2.toFixed(1)}·e₂`,ex+8,(sy+ey)/2+4);ctx.restore();
+            }
+
+            drawParallelogram(t1x,t1y,t2x,t2y,COL.teal,0.06);
+            try{katex.render(`\\mathbf{v} = ${c1.toFixed(1)}\\,\\mathbf{e}_1 + ${c2.toFixed(1)}\\,\\mathbf{e}_2`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+        }
+        else if(step===4){
+            // Show T(v) = c1*T(e1) + c2*T(e2)
+            drawGrid(1);
+            drawVec(t1x,t1y,COL.deep,'T(e₁)',false,0.3);
+            drawVec(t2x,t2y,COL.ora,'T(e₂)',false,0.3);
+            drawVec(pvx,pvy,COL.pur,'v',false,0.2);
+
+            const c1=pvx, c2=pvy;
+            const[tvx,tvy]=applyT(pvx,pvy);
+
+            // Decomposition in output space
+            // c1*T(e1) segment
+            const s1x=c1*t1x*ep, s1y=c1*t1y*ep;
+            if(Math.abs(c1)>0.01){
+                const[sx,sy]=math2px(s1x,s1y);
+                ctx.save();ctx.globalAlpha=0.6*ep;ctx.strokeStyle=COL.deep;ctx.lineWidth=3;
+                ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(sx,sy);ctx.stroke();ctx.restore();
+            }
+            // c2*T(e2) from tip
+            if(Math.abs(c2)>0.01){
+                const[sx,sy]=math2px(s1x,s1y);
+                const fx=s1x+c2*t2x*ep, fy=s1y+c2*t2y*ep;
+                const[ex,ey]=math2px(fx,fy);
+                ctx.save();ctx.globalAlpha=0.6*ep;ctx.strokeStyle=COL.ora;ctx.lineWidth=3;
+                ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore();
+            }
+
+            // T(v) growing
+            const cvx=tvx*ep, cvy=tvy*ep;
+            drawVec(cvx,cvy,COL.pur,'T(v)',false,ep);
+
+            // Pulsing glow at final position
+            if(ep>0.8){
+                const pulse=0.5+0.5*Math.sin(Date.now()*0.006);
+                const[fpx,fpy]=math2px(cvx,cvy);
+                ctx.save();ctx.globalAlpha=0.2*pulse*(ep-0.8)/0.2;ctx.strokeStyle=COL.pur;ctx.lineWidth=3;
+                ctx.beginPath();ctx.arc(fpx,fpy,18+6*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
+            }
+
+            drawParallelogram(t1x,t1y,t2x,t2y,COL.teal,0.06);
+            try{
+                const tex=`T(\\mathbf{v}) = ${c1.toFixed(1)}\\begin{pmatrix}${t1x.toFixed(1)}\\\\${t1y.toFixed(1)}\\end{pmatrix} + ${c2.toFixed(1)}\\begin{pmatrix}${t2x.toFixed(1)}\\\\${t2y.toFixed(1)}\\end{pmatrix} = \\begin{pmatrix}${tvx.toFixed(2)}\\\\${tvy.toFixed(2)}\\end{pmatrix}`;
+                katex.render(tex,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});
+            }catch(e){}
+        }
+    }
+
+    drawOrigin();
+    requestAnimationFrame(frame);
+}
+
+// ===== INTERACTION =====
+function findNearest(mx,my){
+    const pts=[
+        {id:'t1',x:t1x,y:t1y},
+        {id:'t2',x:t2x,y:t2y},
+        {id:'v',x:pvx,y:pvy}
+    ];
+    let best=null, bestD=24;
+    for(const pt of pts){
+        const[px,py]=math2px(pt.x,pt.y);
+        const d=Math.sqrt((mx-px)**2+(my-py)**2);
+        if(d<bestD){bestD=d;best=pt.id;}
+    }
+    return best;
+}
+
+cvs.addEventListener('mousedown',(e)=>{
+    const rect=cvs.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const hit=findNearest(mx,my);
+    if(hit){
+        dragWhat=hit;cvs.style.cursor='grabbing';
+        if(anim){anim=null;document.getElementById('btnGo').disabled=false;}
+        resetSteps();
+    }
+});
+
+cvs.addEventListener('mousemove',(e)=>{
+    const rect=cvs.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    if(dragWhat){
+        const[mvx,mvy]=mx2math(mx,my);
+        const sx=snap(Math.max(-4,Math.min(4,mvx)));
+        const sy=snap(Math.max(-4,Math.min(4,mvy)));
+        if(dragWhat==='t1'){t1x=sx;t1y=sy;}
+        else if(dragWhat==='t2'){t2x=sx;t2y=sy;}
+        else if(dragWhat==='v'){pvx=sx;pvy=sy;}
+        syncSliders();
+        updateMatrix();
+    } else {
+        const hit=findNearest(mx,my);
+        hoverWhat=hit;
+        cvs.style.cursor=hit?'grab':'crosshair';
+    }
+});
+
+cvs.addEventListener('mouseup',()=>{dragWhat=null;cvs.style.cursor='crosshair';});
+cvs.addEventListener('mouseleave',()=>{dragWhat=null;hoverWhat=null;cvs.style.cursor='crosshair';});
+
+// Touch
+cvs.addEventListener('touchstart',(e)=>{e.preventDefault();const t=e.touches[0];cvs.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+cvs.addEventListener('touchmove',(e)=>{e.preventDefault();const t=e.touches[0];cvs.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+cvs.addEventListener('touchend',(e)=>{e.preventDefault();cvs.dispatchEvent(new MouseEvent('mouseup'));},{passive:false});
+
+// ===== SLIDERS =====
+function syncSliders(){
+    document.getElementById('slT1x').value=t1x;document.getElementById('slT1y').value=t1y;
+    document.getElementById('slT2x').value=t2x;document.getElementById('slT2y').value=t2y;
+    document.getElementById('slVx').value=pvx;document.getElementById('slVy').value=pvy;
+    document.getElementById('valT1x').textContent=t1x.toFixed(1);document.getElementById('valT1y').textContent=t1y.toFixed(1);
+    document.getElementById('valT2x').textContent=t2x.toFixed(1);document.getElementById('valT2y').textContent=t2y.toFixed(1);
+    document.getElementById('valVx').textContent=pvx.toFixed(1);document.getElementById('valVy').textContent=pvy.toFixed(1);
+    document.getElementById('te1Coord').textContent=`(${t1x.toFixed(1)}, ${t1y.toFixed(1)})`;
+    document.getElementById('te2Coord').textContent=`(${t2x.toFixed(1)}, ${t2y.toFixed(1)})`;
+    document.getElementById('vCoord').textContent=`(${pvx.toFixed(1)}, ${pvy.toFixed(1)})`;
+}
+
+function onSlider(){
+    t1x=parseFloat(document.getElementById('slT1x').value);
+    t1y=parseFloat(document.getElementById('slT1y').value);
+    t2x=parseFloat(document.getElementById('slT2x').value);
+    t2y=parseFloat(document.getElementById('slT2y').value);
+    pvx=parseFloat(document.getElementById('slVx').value);
+    pvy=parseFloat(document.getElementById('slVy').value);
+    syncSliders();updateMatrix();
+    if(anim){anim=null;document.getElementById('btnGo').disabled=false;}
+    resetSteps();
+}
+['slT1x','slT1y','slT2x','slT2y','slVx','slVy'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',onSlider);
+});
+
+// ===== UPDATE MATRIX DISPLAY =====
+function updateMatrix(){
+    const d=det();
+    try{
+        katex.render(`A = \\begin{pmatrix} ${t1x.toFixed(1)} & ${t2x.toFixed(1)} \\\\ ${t1y.toFixed(1)} & ${t2y.toFixed(1)} \\end{pmatrix}`,
+            document.getElementById('matBox'),{displayMode:true,throwOnError:false});
+    }catch(e){document.getElementById('matBox').textContent=`[[${t1x},${t2x}],[${t1y},${t2y}]]`;}
+
+    const detEl=document.getElementById('detVal');
+    detEl.textContent=d.toFixed(2);
+    detEl.style.color=Math.abs(d)<0.01?COL.red:(d<0?COL.ora:COL.grn);
+
+    const rankEl=document.getElementById('rankVal');
+    if(Math.abs(d)<0.01){
+        // Check if both columns are zero
+        if(mag(t1x,t1y)<0.01&&mag(t2x,t2y)<0.01){
+            rankEl.textContent='0';rankEl.style.color=COL.red;
+        } else {
+            rankEl.textContent='1';rankEl.style.color=COL.ora;
+        }
+    } else {
+        rankEl.textContent='2';rankEl.style.color=COL.grn;
+    }
+
+    // Meaning
+    const mm=document.getElementById('matMeaning');
+    if(Math.abs(d)<0.01){
+        if(mag(t1x,t1y)<0.01&&mag(t2x,t2y)<0.01){
+            mm.textContent='Both basis images are zero — the entire plane maps to the origin. This is the zero transformation.';
+        } else {
+            mm.textContent='The columns are linearly dependent (det ≈ 0). The plane collapses to a line. Rank = 1, nullity = 1. Information is lost!';
+        }
+    } else if(Math.abs(d-1)<0.01&&Math.abs(t1x-1)<0.01&&Math.abs(t1y)<0.01&&Math.abs(t2x)<0.01&&Math.abs(t2y-1)<0.01){
+        mm.textContent='The matrix is the identity — T does nothing. Every vector maps to itself.';
+    } else if(d<0){
+        mm.textContent=`Determinant is negative (${d.toFixed(2)}): T reverses orientation. The transformation "flips" the plane. Still invertible (rank 2).`;
+    } else {
+        mm.textContent=`Determinant is positive (${d.toFixed(2)}): T preserves orientation. Areas scale by factor |det| = ${Math.abs(d).toFixed(2)}. Invertible (rank 2).`;
+    }
+
+    // Update insight based on state
+    const insP=document.getElementById('insP');
+    if(Math.abs(d)<0.01){
+        insP.innerHTML='When the columns of the matrix are <b>linearly dependent</b>, the transformation <b>collapses a dimension</b>. The null space is nontrivial — some nonzero vectors map to zero. This is exactly what happens in a <b>projection</b> or a <b>rank-deficient neural network layer</b>.';
+    } else {
+        insP.innerHTML='A linear map on ℝ² is <b>completely determined</b> by the images of e₁ and e₂. These two choices fix the entire transformation — every other vector\'s image follows from linearity: T(c₁e₁ + c₂e₂) = c₁T(e₁) + c₂T(e₂). The <b>columns of the matrix</b> are exactly these basis images.';
+    }
+}
+
+// ===== BUTTONS =====
+document.getElementById('btnGo').addEventListener('click',()=>{
+    resetSteps();
+    anim={step:0,t:0};
+    setStepState(0,'active');
+    document.getElementById('btnGo').disabled=true;
+
+    // Update step labels
+    document.getElementById('sl1').innerHTML=`Move <b style="color:${COL.deep}">e₁</b> → <b style="color:${COL.deep}">T(e₁) = (${t1x.toFixed(1)}, ${t1y.toFixed(1)})</b>`;
+    document.getElementById('sl2').innerHTML=`Move <b style="color:${COL.ora}">e₂</b> → <b style="color:${COL.ora}">T(e₂) = (${t2x.toFixed(1)}, ${t2y.toFixed(1)})</b> + deform grid`;
+    document.getElementById('sl3').innerHTML=`Decompose <b style="color:${COL.pur}">v = ${pvx.toFixed(1)}·e₁ + ${pvy.toFixed(1)}·e₂</b>`;
+    const[tvx,tvy]=applyT(pvx,pvy);
+    document.getElementById('sl4').innerHTML=`Compute <b style="color:${COL.pur}">T(v) = (${tvx.toFixed(2)}, ${tvy.toFixed(2)})</b>`;
+});
+
+document.getElementById('btnRandom').addEventListener('click',()=>{
+    t1x=snap(Math.random()*6-3);t1y=snap(Math.random()*6-3);
+    t2x=snap(Math.random()*6-3);t2y=snap(Math.random()*6-3);
+    pvx=snap(Math.random()*6-3);pvy=snap(Math.random()*6-3);
+    if(pvx===0&&pvy===0)pvx=1;
+    syncSliders();updateMatrix();
+    if(anim){anim=null;document.getElementById('btnGo').disabled=false;}
+    resetSteps();
+});
+
+document.getElementById('btnRotation').addEventListener('click',()=>{
+    const a=Math.PI/3; // 60 degrees
+    t1x=snap(Math.cos(a));t1y=snap(Math.sin(a));
+    t2x=snap(-Math.sin(a));t2y=snap(Math.cos(a));
+    pvx=2;pvy=1;
+    syncSliders();updateMatrix();
+    if(anim){anim=null;document.getElementById('btnGo').disabled=false;}
+    resetSteps();
+});
+
+document.getElementById('btnShear').addEventListener('click',()=>{
+    t1x=1;t1y=0;t2x=1.5;t2y=1;
+    pvx=1;pvy=2;
+    syncSliders();updateMatrix();
+    if(anim){anim=null;document.getElementById('btnGo').disabled=false;}
+    resetSteps();
+});
+
+document.getElementById('btnReset').addEventListener('click',()=>{
+    t1x=1;t1y=0;t2x=0;t2y=1;pvx=2;pvy=1;
+    syncSliders();updateMatrix();
+    anim=null;document.getElementById('btnGo').disabled=false;
+    resetSteps();
+});
+
+// ===== INIT =====
+window.addEventListener('resize',resize);
+resize();
+syncSliders();
+updateMatrix();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

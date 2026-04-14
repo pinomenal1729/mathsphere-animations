@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Animation 2.3 — Null Space & Range Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+:root{--deep:#1B2A4A;--ora:#E07A3A;--gray:#F2F2F2;--med:#B0B0B0;--txt:#2C2C2C;--pur:#7C3AED;--grn:#22C55E;--blu:#2563EB;--red:#EF4444;--teal:#06B6D4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#FAFBFD;color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased;}
+header{background:var(--deep);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.la{display:flex;align-items:center;gap:10px;}
+.lb{width:32px;height:32px;background:var(--ora);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px;font-family:'Inter',sans-serif;}
+.ln{font-size:14px;font-weight:700;color:#fff;letter-spacing:.5px;}
+.ls{font-size:10px;color:rgba(255,255,255,.6);letter-spacing:.3px;}
+.hr{text-align:right;}.hc{font-size:12px;color:rgba(255,255,255,.85);font-weight:600;}.ha{font-size:10px;color:rgba(255,255,255,.5);}
+.titl{background:#fff;border-bottom:3px solid var(--ora);padding:20px 24px;text-align:center;}
+.titl .r{font-size:11px;font-weight:700;color:var(--ora);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.titl h1{font-size:24px;font-weight:800;color:var(--deep);margin-bottom:4px;}
+.titl p{font-size:13px;color:var(--med);max-width:660px;margin:0 auto;}
+.app{display:flex;gap:14px;max-width:1360px;margin:18px auto;padding:0 16px;}
+.left{flex:1;min-width:0;}.right{width:340px;display:flex;flex-direction:column;gap:12px;}
+.ccard,.controls,.card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden;}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;gap:6px;}
+.tgrp{display:flex;gap:6px;flex-wrap:wrap;}
+.tb{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:2px solid var(--med);background:#fff;color:var(--txt);transition:all .2s;}
+.tb:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.tb:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.tb.go{border-color:var(--grn);color:var(--grn);}.tb.go:hover:not(:disabled){background:var(--grn);color:#fff;}
+.tb.ora{border-color:var(--ora);color:var(--ora);}.tb.ora:hover:not(:disabled){background:var(--ora);color:#fff;}
+.tb.pur{border-color:var(--pur);color:var(--pur);}.tb.pur:hover:not(:disabled){background:var(--pur);color:#fff;}
+.tb.teal{border-color:var(--teal);color:var(--teal);}.tb.teal:hover:not(:disabled){background:var(--teal);color:#fff;}
+.tb.sec{border-color:var(--med);color:var(--med);}.tb.sec:hover:not(:disabled){border-color:var(--red);color:var(--red);background:rgba(239,68,68,.06);}
+.ccard canvas{display:block;width:100%;cursor:crosshair;}
+.hint-bar{padding:8px 14px;background:var(--gray);font-size:11px;color:var(--med);text-align:center;font-style:italic;}
+.controls{padding:14px;}
+.ctrl-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--med);margin-bottom:10px;}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.vc{border:2px solid var(--med);border-radius:10px;padding:10px;}
+.vc-name{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;margin-bottom:2px;}
+.vc-coord{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--med);margin-bottom:8px;}
+.sl-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.sl-row label{font-size:11px;font-weight:600;width:20px;text-align:right;color:var(--txt);}
+.sl-row input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:#e0e0e0;border-radius:2px;outline:none;}
+.sl-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;background:var(--deep);border-radius:50%;cursor:pointer;}
+.sl-row .val{font-family:'JetBrains Mono',monospace;font-size:11px;width:36px;text-align:left;color:var(--txt);}
+.card{margin:0;}.chd{padding:10px 14px;font-size:12px;font-weight:700;letter-spacing:.5px;color:#fff;}
+.chd.bl{background:var(--deep);}.chd.or{background:var(--ora);}.chd.pr{background:var(--pur);}.chd.tl{background:var(--teal);}.chd.gn{background:var(--grn);}
+.cbd{padding:14px;}
+.step-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;transition:all .3s;}
+.step-row:last-child{border-bottom:none;}
+.step-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .3s;}
+.step-row.wait .step-dot{background:var(--gray);color:var(--med);}
+.step-row.active .step-dot{background:var(--ora);color:#fff;animation:pulse 1.2s infinite;}
+.step-row.done .step-dot{background:var(--grn);color:#fff;}
+.step-row.fail .step-dot{background:var(--red);color:#fff;}
+.step-label{font-size:12px;color:var(--txt);padding-top:2px;line-height:1.5;}
+.step-label b{font-weight:700;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(224,122,58,.4)}50%{box-shadow:0 0 0 8px rgba(224,122,58,0)}}
+.mbx{background:var(--gray);border-radius:8px;padding:10px 14px;margin:10px 0;text-align:center;min-height:24px;overflow-x:auto;}
+.result-box{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;margin-top:8px;}
+.result-box.suc{background:rgba(34,197,94,.1);color:var(--grn);}
+.result-box.dep{background:rgba(239,68,68,.1);color:var(--red);}
+.result-box.neu{background:rgba(37,99,235,.1);color:var(--blu);}
+.result-box.hide{display:none;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+.stat-card{background:var(--gray);border-radius:8px;padding:10px;text-align:center;}
+.stat-card .stat-num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;}
+.stat-card .stat-lbl{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--med);margin-top:2px;}
+.ins{border-left:4px solid var(--ora);background:linear-gradient(135deg,rgba(224,122,58,.06),rgba(224,122,58,.02));border-radius:0 8px 8px 0;padding:14px;margin:10px 14px 14px 14px;}
+.it{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--ora);margin-bottom:6px;}
+.ins p{font-size:12px;line-height:1.6;color:var(--txt);}
+footer{background:var(--deep);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.fl{display:flex;align-items:center;gap:10px;}
+.flb{width:20px;height:20px;background:var(--ora);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:11px;}
+.flt{font-size:11px;color:rgba(255,255,255,.6);}
+.fr{font-size:11px;color:rgba(255,255,255,.4);text-align:right;}
+@media(max-width:900px){.app{flex-direction:column;}.right{width:100%;}.ctrl-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="la"><div class="lb">M</div><div><div class="ln">MathSphere</div><div class="ls">Mathematics for Machine Learning</div></div></div>
+<div class="hr"><div class="hc">Chapter 2 · Linear Transformations</div><div class="ha">by Anupam Nigam</div></div>
+</header>
+
+<div class="titl">
+<div class="r">INTERACTIVE ANIMATION 2.3</div>
+<h1>Null Space & Range Explorer</h1>
+<p>See which vectors get crushed to zero (null space) and what the transformation can produce (range). Watch the Rank–Nullity Theorem come to life: dim V = nullity + rank.</p>
+</div>
+
+<div class="app">
+<div class="left">
+<div class="ccard">
+<div class="tbar">
+<div class="tgrp">
+<button class="tb go" id="btnGo">▶ Flow Vectors Through T</button>
+<button class="tb ora" id="btnRandom">⟳ Random Matrix</button>
+</div>
+<div class="tgrp">
+<button class="tb pur" id="btnProjection">⤓ Projection</button>
+<button class="tb teal" id="btnRank1">▬ Rank 1</button>
+<button class="tb sec" id="btnReset">Reset All</button>
+</div>
+</div>
+<canvas id="cv"></canvas>
+<div class="hint-bar" id="hintBar">Drag the <b>purple test vector</b> to see if it's in the null space. Adjust the matrix with sliders below.</div>
+</div>
+
+<div class="controls" style="margin-top:12px;">
+<div class="ctrl-title">Matrix A (defines T: ℝ² → ℝ²)</div>
+<div class="ctrl-grid">
+<div class="vc" style="border-color:var(--deep);">
+<div class="vc-name" style="color:var(--deep);">Column 1 = T(e₁)</div>
+<div class="vc-coord" id="c1Coord">(1.0, 0.5)</div>
+<div class="sl-row"><label>a₁₁</label><input type="range" id="slA11" min="-4" max="4" step="0.5" value="1"><span class="val" id="valA11">1.0</span></div>
+<div class="sl-row"><label>a₂₁</label><input type="range" id="slA21" min="-4" max="4" step="0.5" value="0.5"><span class="val" id="valA21">0.5</span></div>
+</div>
+<div class="vc" style="border-color:var(--ora);">
+<div class="vc-name" style="color:var(--ora);">Column 2 = T(e₂)</div>
+<div class="vc-coord" id="c2Coord">(0.5, 1.0)</div>
+<div class="sl-row"><label>a₁₂</label><input type="range" id="slA12" min="-4" max="4" step="0.5" value="0.5"><span class="val" id="valA12">0.5</span></div>
+<div class="sl-row"><label>a₂₂</label><input type="range" id="slA22" min="-4" max="4" step="0.5" value="1"><span class="val" id="valA22">1.0</span></div>
+</div>
+</div>
+<div style="margin-top:10px;">
+<div class="ctrl-title">Test Vector v</div>
+<div class="ctrl-grid">
+<div class="vc" style="border-color:var(--pur);">
+<div class="vc-name" style="color:var(--pur);">v</div>
+<div class="vc-coord" id="vCoord">(2.0, 1.0)</div>
+<div class="sl-row"><label>v₁</label><input type="range" id="slVx" min="-4" max="4" step="0.5" value="2"><span class="val" id="valVx">2.0</span></div>
+<div class="sl-row"><label>v₂</label><input type="range" id="slVy" min="-4" max="4" step="0.5" value="1"><span class="val" id="valVy">1.0</span></div>
+</div>
+<div class="vc" style="border-color:var(--grn);">
+<div class="vc-name" style="color:var(--grn);">T(v) = Av</div>
+<div class="vc-coord" id="tvCoord">(2.5, 2.0)</div>
+<div style="font-size:11px;color:var(--med);margin-top:4px;line-height:1.4;">Computed automatically.<br>If T(v) ≈ 0, then v is in null(T).</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="right">
+<!-- STEP BY STEP -->
+<div class="card">
+<div class="chd bl">STEP-BY-STEP: NULL SPACE & RANGE</div>
+<div class="cbd">
+<div class="step-row wait" id="sr0"><div class="step-dot">1</div><div class="step-label" id="sl0">Show the <b>matrix A</b> and input space</div></div>
+<div class="step-row wait" id="sr1"><div class="step-dot">2</div><div class="step-label" id="sl1">Highlight the <b>null space</b> (vectors → 0)</div></div>
+<div class="step-row wait" id="sr2"><div class="step-dot">3</div><div class="step-label" id="sl2">Flow sample vectors through <b>T</b></div></div>
+<div class="step-row wait" id="sr3"><div class="step-dot">4</div><div class="step-label" id="sl3">Highlight the <b>range</b> (reachable outputs)</div></div>
+<div class="step-row wait" id="sr4"><div class="step-dot">5</div><div class="step-label" id="sl4">Verify <b>Rank–Nullity</b>: dim = nullity + rank</div></div>
+</div>
+<div class="mbx" id="mathBox"></div>
+<div class="result-box hide" id="resultBox"></div>
+</div>
+
+<!-- RANK-NULLITY -->
+<div class="card">
+<div class="chd tl">RANK–NULLITY THEOREM</div>
+<div class="cbd">
+<div class="mbx" id="rnBox"></div>
+<div class="stat-grid">
+<div class="stat-card"><div class="stat-num" id="dimVal" style="color:var(--deep);">2</div><div class="stat-lbl">dim V</div></div>
+<div class="stat-card"><div class="stat-num" id="nullityVal" style="color:var(--red);">0</div><div class="stat-lbl">Nullity</div></div>
+<div class="stat-card"><div class="stat-num" id="rankVal" style="color:var(--grn);">2</div><div class="stat-lbl">Rank</div></div>
+<div class="stat-card"><div class="stat-num" id="detVal" style="color:var(--blu);">0.75</div><div class="stat-lbl">det(A)</div></div>
+</div>
+<p id="rnMeaning" style="font-size:11px;line-height:1.5;color:var(--med);margin-top:4px;">Rank 2: T is invertible. Null space = {0}. Range = all of ℝ². No information lost.</p>
+</div>
+</div>
+
+<!-- KEY INSIGHT -->
+<div class="card">
+<div class="chd or">KEY INSIGHT</div>
+<div class="cbd">
+<div class="ins">
+<div class="it">KEY INSIGHT</div>
+<p id="insP">The null space measures <b>information loss</b>. The range measures <b>what T can produce</b>. The Rank–Nullity Theorem says these always add up: what is destroyed + what survives = what you started with.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<footer>
+<div class="fl"><div class="flb">M</div><span class="flt">MathSphere · Created by Anupam Nigam</span></div>
+<div class="fr">Mathematics for Machine Learning · Chapter 2 · Animation 2.3</div>
+</footer>
+
+<script>
+const GS=48,dpr=window.devicePixelRatio||1;
+const cvs=document.getElementById('cv'),ctx=cvs.getContext('2d');
+let W,H,ox,oy;
+const C={deep:'#1B2A4A',ora:'#E07A3A',gray:'#F2F2F2',med:'#B0B0B0',txt:'#2C2C2C',pur:'#7C3AED',grn:'#22C55E',blu:'#2563EB',red:'#EF4444',teal:'#06B6D4'};
+
+// Matrix entries
+let a11=1,a21=0.5,a12=0.5,a22=1;
+// Test vector
+let vx=2,vy=1;
+// State
+let anim=null,dragWhat=null,hoverWhat=null;
+// Flowing particles
+let particles=[];
+
+function rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
+function snap(v){return Math.round(v*2)/2;}
+function mag(x,y){return Math.sqrt(x*x+y*y);}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function m2p(x,y){return[ox+x*GS,oy-y*GS];}
+function p2m(px,py){return[(px-ox)/GS,-(py-oy)/GS];}
+function applyT(x,y){return[a11*x+a12*y,a21*x+a22*y];}
+function det(){return a11*a22-a12*a21;}
+
+// Null space computation
+function getNullSpace(){
+    const d=det();
+    if(Math.abs(d)>0.01)return{type:'trivial',dim:0};
+    // Rank deficient — find null space direction
+    // Null(A) = {v : Av = 0}
+    // Row 1: a11*x + a12*y = 0
+    if(Math.abs(a11)>0.01){
+        // y = -a11/a12 * x ... wait: a11*x + a12*y=0 => y = -a11*x/a12
+        if(Math.abs(a12)>0.01) return{type:'line',dim:1,dx:a12,dy:-a11};
+        else return{type:'line',dim:1,dx:0,dy:1};
+    } else if(Math.abs(a12)>0.01){
+        return{type:'line',dim:1,dx:1,dy:0};
+    } else if(Math.abs(a21)>0.01){
+        if(Math.abs(a22)>0.01) return{type:'line',dim:1,dx:a22,dy:-a21};
+        else return{type:'line',dim:1,dx:0,dy:1};
+    } else if(Math.abs(a22)>0.01){
+        return{type:'line',dim:1,dx:1,dy:0};
+    }
+    return{type:'all',dim:2};
+}
+
+// Range computation
+function getRange(){
+    const d=det();
+    if(Math.abs(d)>0.01)return{type:'plane',dim:2};
+    // Range = column space
+    if(mag(a11,a21)>0.01) return{type:'line',dim:1,dx:a11,dy:a21};
+    if(mag(a12,a22)>0.01) return{type:'line',dim:1,dx:a12,dy:a22};
+    return{type:'origin',dim:0};
+}
+
+function isInNullSpace(x,y){
+    const[tx,ty]=applyT(x,y);
+    return mag(tx,ty)<0.05;
+}
+
+// Resize
+function resize(){
+    const rect=cvs.parentElement.getBoundingClientRect();
+    W=rect.width;H=560;
+    cvs.style.width=W+'px';cvs.style.height=H+'px';
+    cvs.width=W*dpr;cvs.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ox=W/2;oy=H/2;
+}
+
+// Grid
+function drawGrid(){
+    const ext=7;
+    ctx.lineWidth=0.6;
+    for(let i=-ext;i<=ext;i++){
+        ctx.beginPath();ctx.strokeStyle=i===0?rgba(C.deep,0.2):rgba(C.med,0.12);
+        ctx.lineWidth=i===0?1:0.6;
+        const[x1,y1]=m2p(i,-ext),[x2,y2]=m2p(i,ext);
+        ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+        ctx.beginPath();
+        const[x3,y3]=m2p(-ext,i),[x4,y4]=m2p(ext,i);
+        ctx.moveTo(x3,y3);ctx.lineTo(x4,y4);ctx.stroke();
+    }
+    // Ticks
+    ctx.font="9px 'JetBrains Mono',monospace";ctx.fillStyle=rgba(C.med,0.6);ctx.textAlign='center';
+    for(let i=-ext;i<=ext;i++){
+        if(i===0)continue;
+        const[px,py]=m2p(i,0);if(px>10&&px<W-10)ctx.fillText(i,px,oy+15);
+        const[px2,py2]=m2p(0,i);if(py2>10&&py2<H-10){ctx.textAlign='right';ctx.fillText(i,ox-7,py2+3);ctx.textAlign='center';}
+    }
+    ctx.font="11px 'Inter',sans-serif";ctx.fillStyle=rgba(C.deep,0.5);
+    ctx.textAlign='left';ctx.fillText('x₁',W-24,oy-8);
+    ctx.textAlign='center';ctx.fillText('x₂',ox+14,15);
+}
+
+// Arrow
+function drawArrow(x1,y1,x2,y2,col,lw,alpha,hs){
+    hs=hs||11;const a=0.38;
+    ctx.save();ctx.globalAlpha=alpha!=null?alpha:1;
+    ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=lw||2.5;ctx.lineCap='round';
+    const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+    if(len<1){ctx.restore();return;}
+    const ang=Math.atan2(dy,dx);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2-Math.cos(ang)*hs*.5,y2-Math.sin(ang)*hs*.5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hs*Math.cos(ang-a),y2-hs*Math.sin(ang-a));ctx.lineTo(x2-hs*Math.cos(ang+a),y2-hs*Math.sin(ang+a));ctx.closePath();ctx.fill();
+    ctx.restore();
+}
+
+// Vector
+function drawVec(vx2,vy2,col,label,hov,alpha){
+    const[px,py]=m2p(vx2,vy2);const a=alpha!=null?alpha:1;
+    if(hov){ctx.save();ctx.globalAlpha=.15*a;ctx.strokeStyle=col;ctx.lineWidth=12;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(px,py);ctx.stroke();ctx.restore();}
+    drawArrow(ox,oy,px,py,col,2.8,a);
+    ctx.save();ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();ctx.restore();
+    if(hov){ctx.save();ctx.globalAlpha=.5*a;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,13,0,Math.PI*2);ctx.stroke();ctx.restore();
+    ctx.save();ctx.globalAlpha=.2*a;ctx.strokeStyle=col;ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,oy);ctx.moveTo(px,py);ctx.lineTo(ox,py);ctx.stroke();ctx.restore();}
+    ctx.save();ctx.globalAlpha=a;ctx.font="700 13px 'Inter',sans-serif";ctx.fillStyle=col;
+    const oX=vx2>=0?10:-10,oY=vy2>=0?-14:18;
+    ctx.textAlign=vx2>=0?'left':'right';ctx.fillText(label,px+oX,py+oY);
+    ctx.font="10px 'JetBrains Mono',monospace";ctx.fillStyle=rgba(col,.7);
+    ctx.fillText(`(${vx2.toFixed(1)}, ${vy2.toFixed(1)})`,px+oX,py+oY+14);ctx.restore();
+}
+
+function drawOrigin(){
+    ctx.fillStyle=C.deep;ctx.beginPath();ctx.arc(ox,oy,4,0,Math.PI*2);ctx.fill();
+    ctx.font="700 11px 'Inter',sans-serif";ctx.fillStyle=rgba(C.deep,.6);ctx.textAlign='right';ctx.fillText('O',ox-8,oy+4);
+}
+
+// Draw null space line/highlight
+function drawNullSpaceLine(ns,alpha){
+    if(ns.type==='trivial')return;
+    const a=alpha!=null?alpha:1;
+    if(ns.type==='all'){
+        // Entire plane is null space
+        ctx.save();ctx.globalAlpha=0.08*a;ctx.fillStyle=C.red;ctx.fillRect(0,0,W,H);ctx.restore();
+        return;
+    }
+    // Line through origin in direction (dx,dy)
+    const len=mag(ns.dx,ns.dy);if(len<0.001)return;
+    const nx=ns.dx/len,ny=ns.dy/len;
+    const ext=8;
+    const[x1,y1]=m2p(-ext*nx,-ext*ny),[x2,y2]=m2p(ext*nx,ext*ny);
+    // Wide glow
+    ctx.save();ctx.globalAlpha=0.12*a;ctx.strokeStyle=C.red;ctx.lineWidth=28;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+    // Line
+    ctx.save();ctx.globalAlpha=0.6*a;ctx.strokeStyle=C.red;ctx.lineWidth=2.5;ctx.setLineDash([8,5]);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+    // Label
+    const[lx,ly]=m2p(nx*3.5,ny*3.5);
+    ctx.save();ctx.globalAlpha=a;ctx.font="700 12px 'Inter',sans-serif";ctx.fillStyle=C.red;
+    ctx.textAlign='center';ctx.fillText('null(T)',lx+20,ly-10);ctx.restore();
+}
+
+// Draw range line/highlight
+function drawRangeLine(rng,alpha){
+    if(rng.type==='plane')return; // full plane, nothing to highlight
+    const a=alpha!=null?alpha:1;
+    if(rng.type==='origin'){
+        // Only origin
+        ctx.save();ctx.globalAlpha=a;ctx.strokeStyle=C.grn;ctx.lineWidth=3;
+        ctx.beginPath();ctx.arc(ox,oy,10,0,Math.PI*2);ctx.stroke();ctx.restore();
+        ctx.save();ctx.font="700 12px 'Inter',sans-serif";ctx.fillStyle=C.grn;ctx.globalAlpha=a;
+        ctx.textAlign='left';ctx.fillText('range(T) = {0}',ox+16,oy-12);ctx.restore();
+        return;
+    }
+    const len=mag(rng.dx,rng.dy);if(len<0.001)return;
+    const nx=rng.dx/len,ny=rng.dy/len;
+    const ext=8;
+    const[x1,y1]=m2p(-ext*nx,-ext*ny),[x2,y2]=m2p(ext*nx,ext*ny);
+    ctx.save();ctx.globalAlpha=0.1*a;ctx.strokeStyle=C.grn;ctx.lineWidth=28;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+    ctx.save();ctx.globalAlpha=0.5*a;ctx.strokeStyle=C.grn;ctx.lineWidth=2.5;ctx.setLineDash([8,5]);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+    const[lx,ly]=m2p(-nx*3.5,-ny*3.5);
+    ctx.save();ctx.globalAlpha=a;ctx.font="700 12px 'Inter',sans-serif";ctx.fillStyle=C.grn;
+    ctx.textAlign='center';ctx.fillText('range(T)',lx-20,ly+18);ctx.restore();
+}
+
+// Particles for flowing animation
+function initParticles(){
+    particles=[];
+    const ns=getNullSpace();
+    for(let i=0;i<20;i++){
+        let px,py;
+        if(ns.type==='line'&&i<6){
+            // Some particles on null space
+            const len=mag(ns.dx,ns.dy);
+            const t=(Math.random()*6-3);
+            px=ns.dx/len*t;py=ns.dy/len*t;
+        } else {
+            px=(Math.random()*8-4);py=(Math.random()*8-4);
+        }
+        const[tx,ty]=applyT(px,py);
+        const inNull=mag(tx,ty)<0.1;
+        particles.push({sx:px,sy:py,tx:tx,ty:ty,inNull:inNull,t:0,delay:i*0.06});
+    }
+}
+
+function drawParticles(globalT){
+    for(const p of particles){
+        const lt=Math.max(0,globalT-p.delay);
+        if(lt<=0)continue;
+        const f=Math.min(1,lt/1.2);
+        const ef=ease(f);
+        const cx=p.sx+(p.tx-p.sx)*ef;
+        const cy=p.sy+(p.ty-p.sy)*ef;
+        const[px,py]=m2p(cx,cy);
+        const col=p.inNull?C.red:(mag(p.tx,p.ty)<0.1?C.red:C.grn);
+        const radius=p.inNull?5:3.5;
+        // Trail
+        if(f>0.05&&f<0.95){
+            const prevF=ease(Math.max(0,f-0.12));
+            const prevX=p.sx+(p.tx-p.sx)*prevF;
+            const prevY=p.sy+(p.ty-p.sy)*prevF;
+            const[ppx,ppy]=m2p(prevX,prevY);
+            ctx.save();ctx.globalAlpha=0.2;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.lineCap='round';
+            ctx.beginPath();ctx.moveTo(ppx,ppy);ctx.lineTo(px,py);ctx.stroke();ctx.restore();
+        }
+        // Dot
+        ctx.save();ctx.globalAlpha=0.8;ctx.fillStyle=col;
+        ctx.beginPath();ctx.arc(px,py,radius,0,Math.PI*2);ctx.fill();ctx.restore();
+        // At destination, show check or X
+        if(f>0.95){
+            ctx.save();ctx.globalAlpha=0.7;ctx.font="700 10px 'Inter',sans-serif";
+            ctx.fillStyle=col;ctx.textAlign='center';
+            if(p.inNull) ctx.fillText('→0',px+12,py-4);
+            ctx.restore();
+        }
+    }
+}
+
+// Animation state
+const stepDurs=[0.6,0.9,2.0,0.9,0.8];
+function advanceAnim(){
+    if(!anim)return;
+    anim.t+=0.008;
+    if(anim.t>=stepDurs[anim.step]){
+        setStepState(anim.step,'done');
+        anim.step++;anim.t=0;
+        if(anim.step>=5){finishAnim();return;}
+        setStepState(anim.step,'active');
+        if(anim.step===2)initParticles();
+    }
+}
+
+function finishAnim(){
+    const ns=getNullSpace(),rng=getRange();
+    const rb=document.getElementById('resultBox');
+    rb.classList.remove('hide','suc','dep','neu');
+    if(ns.dim===0){
+        rb.classList.add('suc');
+        rb.textContent='✓ Rank 2, Nullity 0 — T is invertible! No information lost.';
+    } else if(ns.dim===1){
+        rb.classList.add('dep');
+        rb.textContent='✗ Rank 1, Nullity 1 — T collapses one dimension. The null space is a line.';
+    } else {
+        rb.classList.add('dep');
+        rb.textContent='✗ Rank 0, Nullity 2 — T sends everything to zero! (Zero transformation)';
+    }
+    document.getElementById('btnGo').disabled=false;
+    anim=null;
+}
+
+function setStepState(i,s){
+    const row=document.getElementById('sr'+i);row.className='step-row '+s;
+    const dot=row.querySelector('.step-dot');
+    if(s==='done')dot.textContent='✓';else if(s==='fail')dot.textContent='✗';else dot.textContent=(i+1);
+}
+function resetSteps(){for(let i=0;i<5;i++)setStepState(i,'wait');document.getElementById('resultBox').classList.add('hide');document.getElementById('mathBox').innerHTML='';particles=[];}
+
+// Main frame
+function frame(){
+    ctx.clearRect(0,0,W,H);ctx.fillStyle='#FAFBFD';ctx.fillRect(0,0,W,H);
+    advanceAnim();
+    const ns=getNullSpace(),rng=getRange();
+    const[tvx,tvy]=applyT(vx,vy);
+    const inNull=isInNullSpace(vx,vy);
+
+    if(!anim){
+        drawGrid();
+        // Draw null space
+        drawNullSpaceLine(ns,0.5);
+        // Draw range
+        drawRangeLine(rng,0.5);
+        // Column vectors (faded)
+        drawVec(a11,a21,C.deep,'T(e₁)',false,0.35);
+        drawVec(a12,a22,C.ora,'T(e₂)',false,0.35);
+        // Test vector
+        drawVec(vx,vy,C.pur,'v',hoverWhat==='v');
+        // Output vector
+        if(mag(tvx,tvy)>0.05){
+            drawVec(tvx,tvy,C.grn,'T(v)',false,0.8);
+            // Dashed connector
+            const[p1x,p1y]=m2p(vx,vy),[p2x,p2y]=m2p(tvx,tvy);
+            ctx.save();ctx.globalAlpha=0.2;ctx.strokeStyle=C.med;ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+            ctx.beginPath();ctx.moveTo(p1x,p1y);ctx.lineTo(p2x,p2y);ctx.stroke();ctx.restore();
+        } else {
+            // v maps to ~0 — show red indicator
+            const pulse=0.5+0.5*Math.sin(Date.now()*0.005);
+            ctx.save();ctx.globalAlpha=0.3+0.2*pulse;ctx.strokeStyle=C.red;ctx.lineWidth=3;
+            ctx.beginPath();ctx.arc(ox,oy,12+4*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
+            ctx.save();ctx.font="700 12px 'Inter',sans-serif";ctx.fillStyle=C.red;ctx.globalAlpha=0.8;
+            ctx.textAlign='left';ctx.fillText('T(v) ≈ 0 !',ox+20,oy-16);ctx.restore();
+        }
+        // Update displays
+        document.getElementById('tvCoord').textContent=mag(tvx,tvy)<0.05?'≈ (0, 0)  ← null space!':`(${tvx.toFixed(2)}, ${tvy.toFixed(2)})`;
+        document.getElementById('tvCoord').style.color=inNull?C.red:C.grn;
+    } else {
+        const step=anim.step,t=anim.t,dur=stepDurs[step],p=Math.min(t/dur,1),ep=ease(p);
+
+        if(step===0){
+            // Show matrix and grid
+            ctx.globalAlpha=ep;drawGrid();ctx.globalAlpha=1;
+            drawVec(a11,a21,C.deep,'T(e₁)',false,ep*0.5);
+            drawVec(a12,a22,C.ora,'T(e₂)',false,ep*0.5);
+            drawVec(vx,vy,C.pur,'v',false,ep*0.4);
+            try{katex.render(`A = \\begin{pmatrix}${a11.toFixed(1)}&${a12.toFixed(1)}\\\\${a21.toFixed(1)}&${a22.toFixed(1)}\\end{pmatrix},\\quad\\det(A) = ${det().toFixed(2)}`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+        }
+        else if(step===1){
+            // Highlight null space
+            drawGrid();
+            drawNullSpaceLine(ns,ep);
+            drawVec(vx,vy,C.pur,'v',false,0.3);
+            drawVec(a11,a21,C.deep,'T(e₁)',false,0.3);
+            drawVec(a12,a22,C.ora,'T(e₂)',false,0.3);
+            if(ns.dim===0){
+                try{katex.render(`\\text{null}(T) = \\{\\mathbf{0}\\}\\quad(\\text{nullity} = 0)`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+            } else if(ns.dim===1){
+                const len=mag(ns.dx,ns.dy);
+                const nx=(ns.dx/len).toFixed(2),ny=(ns.dy/len).toFixed(2);
+                try{katex.render(`\\text{null}(T) = \\text{span}\\left\\{\\begin{pmatrix}${nx}\\\\${ny}\\end{pmatrix}\\right\\}\\quad(\\text{nullity} = 1)`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+            } else {
+                try{katex.render(`\\text{null}(T) = \\mathbb{R}^2\\quad(\\text{nullity} = 2)`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+            }
+        }
+        else if(step===2){
+            // Flow particles
+            drawGrid();
+            drawNullSpaceLine(ns,0.3);
+            drawRangeLine(rng,0.3);
+            drawVec(a11,a21,C.deep,'T(e₁)',false,0.2);
+            drawVec(a12,a22,C.ora,'T(e₂)',false,0.2);
+            drawParticles(t);
+            const flowCount=particles.filter(pp=>pp.t===0).length;
+            try{katex.render(`\\text{Flowing vectors through } T\\ldots`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+        }
+        else if(step===3){
+            // Highlight range
+            drawGrid();
+            drawNullSpaceLine(ns,0.3);
+            drawRangeLine(rng,ep);
+            drawVec(a11,a21,C.deep,'T(e₁)',false,0.3);
+            drawVec(a12,a22,C.ora,'T(e₂)',false,0.3);
+            // Show settled particles
+            for(const pp of particles){
+                const[px,py]=m2p(pp.tx,pp.ty);
+                const col=pp.inNull?C.red:C.grn;
+                ctx.save();ctx.globalAlpha=0.5;ctx.fillStyle=col;ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();ctx.restore();
+            }
+            if(rng.dim===2){
+                try{katex.render(`\\text{range}(T) = \\mathbb{R}^2\\quad(\\text{rank} = 2)`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+            } else if(rng.dim===1){
+                const len=mag(rng.dx,rng.dy);
+                const rx=(rng.dx/len).toFixed(2),ry=(rng.dy/len).toFixed(2);
+                try{katex.render(`\\text{range}(T) = \\text{span}\\left\\{\\begin{pmatrix}${rx}\\\\${ry}\\end{pmatrix}\\right\\}\\quad(\\text{rank} = 1)`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+            } else {
+                try{katex.render(`\\text{range}(T) = \\{\\mathbf{0}\\}\\quad(\\text{rank} = 0)`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+            }
+        }
+        else if(step===4){
+            // Rank-Nullity verification
+            drawGrid();
+            drawNullSpaceLine(ns,0.4);
+            drawRangeLine(rng,0.4);
+            drawVec(vx,vy,C.pur,'v',false,0.3);
+            if(mag(tvx,tvy)>0.05)drawVec(tvx,tvy,C.grn,'T(v)',false,ep*0.8);
+
+            // Pulsing equation
+            const pulse=0.5+0.5*Math.sin(Date.now()*0.005);
+            ctx.save();ctx.globalAlpha=0.06*pulse*ep;ctx.fillStyle=C.blu;ctx.fillRect(0,0,W,H);ctx.restore();
+
+            const nul=ns.dim,rnk=rng.dim;
+            try{katex.render(`\\underbrace{2}_{\\dim V} = \\underbrace{${nul}}_{\\text{nullity}} + \\underbrace{${rnk}}_{\\text{rank}} \\quad\\checkmark`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});}catch(e){}
+        }
+    }
+    drawOrigin();
+    requestAnimationFrame(frame);
+}
+
+// Interaction
+function findNearest(mx,my){
+    const[px,py]=m2p(vx,vy);
+    if(Math.sqrt((mx-px)**2+(my-py)**2)<24)return'v';
+    return null;
+}
+cvs.addEventListener('mousedown',e=>{
+    const rect=cvs.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    const hit=findNearest(mx,my);
+    if(hit){dragWhat=hit;cvs.style.cursor='grabbing';if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();}
+});
+cvs.addEventListener('mousemove',e=>{
+    const rect=cvs.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    if(dragWhat){
+        const[mvx,mvy]=p2m(mx,my);
+        vx=snap(Math.max(-4,Math.min(4,mvx)));vy=snap(Math.max(-4,Math.min(4,mvy)));
+        syncSliders();updateStats();
+    } else {hoverWhat=findNearest(mx,my);cvs.style.cursor=hoverWhat?'grab':'crosshair';}
+});
+cvs.addEventListener('mouseup',()=>{dragWhat=null;cvs.style.cursor='crosshair';});
+cvs.addEventListener('mouseleave',()=>{dragWhat=null;hoverWhat=null;cvs.style.cursor='crosshair';});
+cvs.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];cvs.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+cvs.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];cvs.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+cvs.addEventListener('touchend',e=>{e.preventDefault();cvs.dispatchEvent(new MouseEvent('mouseup'));},{passive:false});
+
+// Sliders
+function syncSliders(){
+    document.getElementById('slA11').value=a11;document.getElementById('slA21').value=a21;
+    document.getElementById('slA12').value=a12;document.getElementById('slA22').value=a22;
+    document.getElementById('slVx').value=vx;document.getElementById('slVy').value=vy;
+    document.getElementById('valA11').textContent=a11.toFixed(1);document.getElementById('valA21').textContent=a21.toFixed(1);
+    document.getElementById('valA12').textContent=a12.toFixed(1);document.getElementById('valA22').textContent=a22.toFixed(1);
+    document.getElementById('valVx').textContent=vx.toFixed(1);document.getElementById('valVy').textContent=vy.toFixed(1);
+    document.getElementById('c1Coord').textContent=`(${a11.toFixed(1)}, ${a21.toFixed(1)})`;
+    document.getElementById('c2Coord').textContent=`(${a12.toFixed(1)}, ${a22.toFixed(1)})`;
+    document.getElementById('vCoord').textContent=`(${vx.toFixed(1)}, ${vy.toFixed(1)})`;
+}
+function onSlider(){
+    a11=parseFloat(document.getElementById('slA11').value);a21=parseFloat(document.getElementById('slA21').value);
+    a12=parseFloat(document.getElementById('slA12').value);a22=parseFloat(document.getElementById('slA22').value);
+    vx=parseFloat(document.getElementById('slVx').value);vy=parseFloat(document.getElementById('slVy').value);
+    syncSliders();updateStats();
+    if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();
+}
+['slA11','slA21','slA12','slA22','slVx','slVy'].forEach(id=>document.getElementById(id).addEventListener('input',onSlider));
+
+// Update stats
+function updateStats(){
+    const ns=getNullSpace(),rng=getRange(),d=det();
+    document.getElementById('nullityVal').textContent=ns.dim;
+    document.getElementById('nullityVal').style.color=ns.dim>0?C.red:C.grn;
+    document.getElementById('rankVal').textContent=rng.dim;
+    document.getElementById('rankVal').style.color=rng.dim<2?C.ora:C.grn;
+    document.getElementById('detVal').textContent=d.toFixed(2);
+    document.getElementById('detVal').style.color=Math.abs(d)<0.01?C.red:(d<0?C.ora:C.blu);
+    try{katex.render(`\\underbrace{2}_{\\dim \\mathbb{R}^2}=\\underbrace{${ns.dim}}_{\\text{nullity}}+\\underbrace{${rng.dim}}_{\\text{rank}}`,document.getElementById('rnBox'),{displayMode:true,throwOnError:false});}catch(e){}
+
+    const mm=document.getElementById('rnMeaning');
+    if(ns.dim===0) mm.textContent='Rank 2: T is invertible. Null space = {0}. Range = all of ℝ². No information lost.';
+    else if(ns.dim===1) mm.textContent='Rank 1: T collapses one dimension to a line. Nullity = 1 means a line of vectors maps to zero. One dimension of information is destroyed.';
+    else mm.textContent='Rank 0: T is the zero map. Everything maps to the origin. All information is destroyed.';
+
+    const ins=document.getElementById('insP');
+    if(ns.dim===0) ins.innerHTML='The null space is <b>trivial</b> (just the zero vector). T is <b>injective</b>: distinct inputs produce distinct outputs. In ML terms, this layer loses <b>no information</b> — it is fully invertible.';
+    else if(ns.dim===1) ins.innerHTML='The null space is a <b>line</b>. Every vector on this line maps to zero. Any two vectors that differ by a null-space vector produce the <b>same output</b>. This is exactly what happens in a <b>projection</b> or a <b>rank-deficient weight matrix</b>.';
+    else ins.innerHTML='The null space is the <b>entire plane</b>. T maps everything to zero. This is the <b>zero transformation</b> — maximum information loss. In a neural network, this would be a completely dead layer.';
+
+    const[tvx,tvy]=applyT(vx,vy);
+    document.getElementById('tvCoord').textContent=mag(tvx,tvy)<0.05?'≈ (0, 0)  ← null space!':`(${tvx.toFixed(2)}, ${tvy.toFixed(2)})`;
+    document.getElementById('tvCoord').style.color=mag(tvx,tvy)<0.05?C.red:C.grn;
+}
+
+// Buttons
+document.getElementById('btnGo').addEventListener('click',()=>{
+    resetSteps();anim={step:0,t:0};setStepState(0,'active');document.getElementById('btnGo').disabled=true;
+    const ns=getNullSpace(),rng=getRange();
+    document.getElementById('sl1').innerHTML=ns.dim>0?`Highlight <b style="color:${C.red}">null space</b> (nullity = ${ns.dim})`:`Null space is <b style="color:${C.grn}">trivial</b> — only {0}`;
+    document.getElementById('sl3').innerHTML=rng.dim===2?`<b style="color:${C.grn}">Range = ℝ²</b> (rank = 2)`:`Highlight <b style="color:${C.grn}">range</b> (rank = ${rng.dim})`;
+    document.getElementById('sl4').innerHTML=`Verify: <b>2 = ${ns.dim} + ${rng.dim}</b> ✓`;
+});
+
+document.getElementById('btnRandom').addEventListener('click',()=>{
+    a11=snap(Math.random()*6-3);a21=snap(Math.random()*6-3);
+    a12=snap(Math.random()*6-3);a22=snap(Math.random()*6-3);
+    syncSliders();updateStats();if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();
+});
+
+document.getElementById('btnProjection').addEventListener('click',()=>{
+    // Projection onto x-axis
+    a11=1;a21=0;a12=0;a22=0;vx=1.5;vy=2;
+    syncSliders();updateStats();if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();
+});
+
+document.getElementById('btnRank1').addEventListener('click',()=>{
+    // Rank 1: columns are proportional
+    a11=2;a21=1;a12=1;a22=0.5;vx=-0.5;vy=1;
+    syncSliders();updateStats();if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();
+});
+
+document.getElementById('btnReset').addEventListener('click',()=>{
+    a11=1;a21=0.5;a12=0.5;a22=1;vx=2;vy=1;
+    syncSliders();updateStats();anim=null;document.getElementById('btnGo').disabled=false;resetSteps();
+});
+
+// Init
+window.addEventListener('resize',resize);
+resize();syncSliders();updateStats();requestAnimationFrame(frame);
+</script>
+</body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Animation 2.4 — Geometric Transformation Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+:root{--deep:#1B2A4A;--ora:#E07A3A;--gray:#F2F2F2;--med:#B0B0B0;--txt:#2C2C2C;--pur:#7C3AED;--grn:#22C55E;--blu:#2563EB;--red:#EF4444;--teal:#06B6D4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#FAFBFD;color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased;}
+header{background:var(--deep);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.la{display:flex;align-items:center;gap:10px;}
+.lb{width:32px;height:32px;background:var(--ora);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:18px;}
+.ln{font-size:14px;font-weight:700;color:#fff;letter-spacing:.5px;}
+.ls{font-size:10px;color:rgba(255,255,255,.6);}
+.hr{text-align:right;}.hc{font-size:12px;color:rgba(255,255,255,.85);font-weight:600;}.ha{font-size:10px;color:rgba(255,255,255,.5);}
+.titl{background:#fff;border-bottom:3px solid var(--ora);padding:20px 24px;text-align:center;}
+.titl .r{font-size:11px;font-weight:700;color:var(--ora);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.titl h1{font-size:24px;font-weight:800;color:var(--deep);margin-bottom:4px;}
+.titl p{font-size:13px;color:var(--med);max-width:660px;margin:0 auto;}
+.app{display:flex;gap:14px;max-width:1360px;margin:18px auto;padding:0 16px;}
+.left{flex:1;min-width:0;}.right{width:340px;display:flex;flex-direction:column;gap:12px;}
+.ccard,.controls,.card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden;}
+.tbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;gap:6px;}
+.tgrp{display:flex;gap:6px;flex-wrap:wrap;}
+.tb{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;border:2px solid var(--med);background:#fff;color:var(--txt);transition:all .2s;}
+.tb:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.tb:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.tb.go{border-color:var(--grn);color:var(--grn);}.tb.go:hover:not(:disabled){background:var(--grn);color:#fff;}
+.tb.ora{border-color:var(--ora);color:var(--ora);}.tb.ora:hover:not(:disabled){background:var(--ora);color:#fff;}
+.tb.sec{border-color:var(--med);color:var(--med);}.tb.sec:hover:not(:disabled){border-color:var(--red);color:var(--red);background:rgba(239,68,68,.06);}
+.ccard canvas{display:block;width:100%;cursor:crosshair;}
+.hint-bar{padding:8px 14px;background:var(--gray);font-size:11px;color:var(--med);text-align:center;font-style:italic;}
+.controls{padding:14px;}
+.ctrl-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--med);margin-bottom:10px;}
+.sl-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.sl-row label{font-size:12px;font-weight:600;width:90px;text-align:right;color:var(--txt);}
+.sl-row input[type=range]{flex:1;height:5px;-webkit-appearance:none;appearance:none;background:#e0e0e0;border-radius:3px;outline:none;}
+.sl-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;background:var(--deep);border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.sl-row .val{font-family:'JetBrains Mono',monospace;font-size:12px;width:48px;text-align:left;color:var(--txt);font-weight:600;}
+.param-section{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f0f0f0;}
+.param-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+
+/* Type selector */
+.type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px;}
+.type-btn{padding:10px 6px;border:2px solid #e0e0e0;border-radius:10px;background:#fff;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;text-align:center;transition:all .2s;color:var(--txt);}
+.type-btn:hover{border-color:var(--blu);color:var(--blu);transform:translateY(-1px);}
+.type-btn.active{border-color:var(--deep);background:var(--deep);color:#fff;box-shadow:0 2px 8px rgba(27,42,74,.3);}
+.type-btn .type-icon{font-size:20px;display:block;margin-bottom:3px;}
+.type-btn .type-name{font-size:10px;letter-spacing:.5px;}
+
+.card{margin:0;}.chd{padding:10px 14px;font-size:12px;font-weight:700;letter-spacing:.5px;color:#fff;}
+.chd.bl{background:var(--deep);}.chd.or{background:var(--ora);}.chd.tl{background:var(--teal);}.chd.gn{background:var(--grn);}
+.cbd{padding:14px;}
+.mbx{background:var(--gray);border-radius:8px;padding:10px 14px;margin:10px 0;text-align:center;min-height:24px;overflow-x:auto;}
+.step-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;transition:all .3s;}
+.step-row:last-child{border-bottom:none;}
+.step-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .3s;}
+.step-row.wait .step-dot{background:var(--gray);color:var(--med);}
+.step-row.active .step-dot{background:var(--ora);color:#fff;animation:pulse 1.2s infinite;}
+.step-row.done .step-dot{background:var(--grn);color:#fff;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(224,122,58,.4)}50%{box-shadow:0 0 0 8px rgba(224,122,58,0)}}
+.step-label{font-size:12px;color:var(--txt);padding-top:2px;line-height:1.5;}
+.step-label b{font-weight:700;}
+.result-box{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:700;text-align:center;margin-top:8px;}
+.result-box.suc{background:rgba(34,197,94,.1);color:var(--grn);}
+.result-box.hide{display:none;}
+
+.prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0;}
+.prop-item{background:var(--gray);border-radius:8px;padding:8px 10px;text-align:center;}
+.prop-item .prop-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--med);margin-bottom:2px;}
+.prop-item .prop-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;}
+
+.ins{border-left:4px solid var(--ora);background:linear-gradient(135deg,rgba(224,122,58,.06),rgba(224,122,58,.02));border-radius:0 8px 8px 0;padding:14px;margin:10px 14px 14px 14px;}
+.it{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--ora);margin-bottom:6px;}
+.ins p{font-size:12px;line-height:1.6;color:var(--txt);}
+
+footer{background:var(--deep);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.fl{display:flex;align-items:center;gap:10px;}
+.flb{width:20px;height:20px;background:var(--ora);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:11px;}
+.flt{font-size:11px;color:rgba(255,255,255,.6);}
+.fr{font-size:11px;color:rgba(255,255,255,.4);text-align:right;}
+@media(max-width:900px){.app{flex-direction:column;}.right{width:100%;}.type-grid{grid-template-columns:1fr 1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="la"><div class="lb">M</div><div><div class="ln">MathSphere</div><div class="ls">Mathematics for Machine Learning</div></div></div>
+<div class="hr"><div class="hc">Chapter 2 · Linear Transformations</div><div class="ha">by Anupam Nigam</div></div>
+</header>
+
+<div class="titl">
+<div class="r">INTERACTIVE ANIMATION 2.4</div>
+<h1>Geometric Transformation Gallery</h1>
+<p>Explore the five fundamental linear transformations of the plane. Adjust parameters in real time and watch the grid, basis vectors, and a test vector respond instantly.</p>
+</div>
+
+<div class="app">
+<div class="left">
+<div class="ccard">
+<div class="tbar">
+<div class="tgrp">
+<button class="tb go" id="btnGo">▶ Animate Transition</button>
+<button class="tb ora" id="btnRandomV">⟳ Random Vector</button>
+</div>
+<div class="tgrp">
+<button class="tb sec" id="btnReset">Reset All</button>
+</div>
+</div>
+<canvas id="cv"></canvas>
+<div class="hint-bar" id="hintBar">Select a transformation type above, adjust parameters, and drag the <b>purple test vector</b>.</div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls" style="margin-top:12px;">
+<div class="ctrl-title">Transformation Type</div>
+<div class="type-grid" id="typeGrid">
+<button class="type-btn active" data-type="rotation"><span class="type-icon">🔄</span><span class="type-name">Rotation</span></button>
+<button class="type-btn" data-type="reflection"><span class="type-icon">↕</span><span class="type-name">Reflection</span></button>
+<button class="type-btn" data-type="scaling"><span class="type-icon">↔</span><span class="type-name">Scaling</span></button>
+<button class="type-btn" data-type="shear"><span class="type-icon">⬱</span><span class="type-name">Shear</span></button>
+<button class="type-btn" data-type="projection"><span class="type-icon">⤓</span><span class="type-name">Projection</span></button>
+<button class="type-btn" data-type="custom"><span class="type-icon">✎</span><span class="type-name">Custom</span></button>
+</div>
+
+<!-- Parameter sliders — dynamically shown -->
+<div id="paramArea">
+<!-- Rotation params -->
+<div class="param-section" id="params-rotation">
+<div class="ctrl-title">Rotation Parameters</div>
+<div class="sl-row"><label>Angle θ</label><input type="range" id="slTheta" min="-180" max="180" step="5" value="45"><span class="val" id="valTheta">45°</span></div>
+</div>
+<!-- Reflection params -->
+<div class="param-section" id="params-reflection" style="display:none;">
+<div class="ctrl-title">Reflection Parameters</div>
+<div class="sl-row"><label>Mirror line α</label><input type="range" id="slAlpha" min="-90" max="90" step="5" value="0"><span class="val" id="valAlpha">0°</span></div>
+</div>
+<!-- Scaling params -->
+<div class="param-section" id="params-scaling" style="display:none;">
+<div class="ctrl-title">Scaling Parameters</div>
+<div class="sl-row"><label>s₁ (horiz.)</label><input type="range" id="slS1" min="-3" max="3" step="0.25" value="2"><span class="val" id="valS1">2.00</span></div>
+<div class="sl-row"><label>s₂ (vert.)</label><input type="range" id="slS2" min="-3" max="3" step="0.25" value="0.5"><span class="val" id="valS2">0.50</span></div>
+</div>
+<!-- Shear params -->
+<div class="param-section" id="params-shear" style="display:none;">
+<div class="ctrl-title">Shear Parameters</div>
+<div class="sl-row"><label>k (horiz.)</label><input type="range" id="slK" min="-3" max="3" step="0.25" value="1"><span class="val" id="valK">1.00</span></div>
+</div>
+<!-- Projection params -->
+<div class="param-section" id="params-projection" style="display:none;">
+<div class="ctrl-title">Projection Parameters</div>
+<div class="sl-row"><label>Line angle φ</label><input type="range" id="slPhi" min="-90" max="90" step="5" value="0"><span class="val" id="valPhi">0°</span></div>
+</div>
+<!-- Custom params -->
+<div class="param-section" id="params-custom" style="display:none;">
+<div class="ctrl-title">Custom Matrix Entries</div>
+<div class="sl-row"><label>a₁₁</label><input type="range" id="slC11" min="-3" max="3" step="0.25" value="1"><span class="val" id="valC11">1.00</span></div>
+<div class="sl-row"><label>a₁₂</label><input type="range" id="slC12" min="-3" max="3" step="0.25" value="0"><span class="val" id="valC12">0.00</span></div>
+<div class="sl-row"><label>a₂₁</label><input type="range" id="slC21" min="-3" max="3" step="0.25" value="0"><span class="val" id="valC21">0.00</span></div>
+<div class="sl-row"><label>a₂₂</label><input type="range" id="slC22" min="-3" max="3" step="0.25" value="1"><span class="val" id="valC22">1.00</span></div>
+</div>
+
+<!-- Test vector -->
+<div class="param-section">
+<div class="ctrl-title">Test Vector v (drag on canvas or use sliders)</div>
+<div class="sl-row"><label>v₁</label><input type="range" id="slVx" min="-4" max="4" step="0.5" value="2"><span class="val" id="valVx">2.0</span></div>
+<div class="sl-row"><label>v₂</label><input type="range" id="slVy" min="-4" max="4" step="0.5" value="1.5"><span class="val" id="valVy">1.5</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+<!-- STEP-BY-STEP -->
+<div class="card">
+<div class="chd bl">STEP-BY-STEP</div>
+<div class="cbd">
+<div class="step-row wait" id="sr0"><div class="step-dot">1</div><div class="step-label" id="sl0">Show <b>original grid</b> and basis vectors</div></div>
+<div class="step-row wait" id="sr1"><div class="step-dot">2</div><div class="step-label" id="sl1">Display the <b>transformation matrix</b></div></div>
+<div class="step-row wait" id="sr2"><div class="step-dot">3</div><div class="step-label" id="sl2"><b>Deform the grid</b> smoothly</div></div>
+<div class="step-row wait" id="sr3"><div class="step-dot">4</div><div class="step-label" id="sl3">Show <b>T(v)</b> — where the test vector lands</div></div>
+<div class="step-row wait" id="sr4"><div class="step-dot">5</div><div class="step-label" id="sl4">Report <b>properties</b>: det, rank, type</div></div>
+</div>
+<div class="mbx" id="mathBox"></div>
+<div class="result-box hide" id="resultBox"></div>
+</div>
+
+<!-- MATRIX + PROPERTIES -->
+<div class="card">
+<div class="chd tl">MATRIX & PROPERTIES</div>
+<div class="cbd">
+<div class="mbx" id="matBox"></div>
+<div class="prop-grid">
+<div class="prop-item"><div class="prop-lbl">Determinant</div><div class="prop-val" id="pDet">1.00</div></div>
+<div class="prop-item"><div class="prop-lbl">Rank</div><div class="prop-val" id="pRank">2</div></div>
+<div class="prop-item"><div class="prop-lbl">Nullity</div><div class="prop-val" id="pNullity">0</div></div>
+<div class="prop-item"><div class="prop-lbl">|det| (area)</div><div class="prop-val" id="pArea">1.00</div></div>
+</div>
+<div id="propDesc" style="font-size:11px;line-height:1.5;color:var(--med);margin-top:6px;"></div>
+</div>
+</div>
+
+<!-- KEY INSIGHT -->
+<div class="card">
+<div class="chd or">KEY INSIGHT</div>
+<div class="cbd">
+<div class="ins">
+<div class="it">KEY INSIGHT</div>
+<p id="insP">Every linear transformation of ℝ² is one of (or a combination of) these five types. The matrix encodes the geometry: its <b>determinant</b> tells you area scaling and orientation, its <b>rank</b> tells you how many dimensions survive.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<footer>
+<div class="fl"><div class="flb">M</div><span class="flt">MathSphere · Created by Anupam Nigam</span></div>
+<div class="fr">Mathematics for Machine Learning · Chapter 2 · Animation 2.4</div>
+</footer>
+
+<script>
+const GS=48,dpr=window.devicePixelRatio||1;
+const cvs=document.getElementById('cv'),ctx=cvs.getContext('2d');
+let W,H,ox,oy;
+const C={deep:'#1B2A4A',ora:'#E07A3A',gray:'#F2F2F2',med:'#B0B0B0',txt:'#2C2C2C',pur:'#7C3AED',grn:'#22C55E',blu:'#2563EB',red:'#EF4444',teal:'#06B6D4'};
+function rgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
+function snap(v){return Math.round(v*2)/2;}
+function mag(x,y){return Math.sqrt(x*x+y*y);}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function m2p(x,y){return[ox+x*GS,oy-y*GS];}
+function p2m(px,py){return[(px-ox)/GS,-(py-oy)/GS];}
+
+let curType='rotation';
+let pvx=2,pvy=1.5;
+let anim=null,dragWhat=null,hoverWhat=null;
+// Current matrix (always recomputed from params)
+let M=[[1,0],[0,1]];
+// Animation lerp factor for live preview
+let liveT=1;
+
+// ===== COMPUTE MATRIX =====
+function computeMatrix(){
+    if(curType==='rotation'){
+        const a=parseFloat(document.getElementById('slTheta').value)*Math.PI/180;
+        M=[[Math.cos(a),-Math.sin(a)],[Math.sin(a),Math.cos(a)]];
+    } else if(curType==='reflection'){
+        const a=parseFloat(document.getElementById('slAlpha').value)*Math.PI/180;
+        M=[[Math.cos(2*a),Math.sin(2*a)],[Math.sin(2*a),-Math.cos(2*a)]];
+    } else if(curType==='scaling'){
+        const s1=parseFloat(document.getElementById('slS1').value);
+        const s2=parseFloat(document.getElementById('slS2').value);
+        M=[[s1,0],[0,s2]];
+    } else if(curType==='shear'){
+        const k=parseFloat(document.getElementById('slK').value);
+        M=[[1,k],[0,1]];
+    } else if(curType==='projection'){
+        const a=parseFloat(document.getElementById('slPhi').value)*Math.PI/180;
+        const c=Math.cos(a),s=Math.sin(a);
+        M=[[c*c,c*s],[c*s,s*s]];
+    } else if(curType==='custom'){
+        M=[[parseFloat(document.getElementById('slC11').value),parseFloat(document.getElementById('slC12').value)],
+           [parseFloat(document.getElementById('slC21').value),parseFloat(document.getElementById('slC22').value)]];
+    }
+}
+
+function applyM(x,y){return[M[0][0]*x+M[0][1]*y,M[1][0]*x+M[1][1]*y];}
+function det(){return M[0][0]*M[1][1]-M[0][1]*M[1][0];}
+
+// ===== RESIZE =====
+function resize(){
+    const rect=cvs.parentElement.getBoundingClientRect();
+    W=rect.width;H=520;
+    cvs.style.width=W+'px';cvs.style.height=H+'px';
+    cvs.width=W*dpr;cvs.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ox=W/2;oy=H/2;
+}
+
+// ===== DRAW GRID =====
+function drawGrid(frac){
+    const ext=7,steps=50;
+    const f=ease(Math.max(0,Math.min(1,frac)));
+    for(let i=-ext;i<=ext;i++){
+        // Vertical
+        ctx.beginPath();
+        ctx.strokeStyle=i===0?rgba(C.deep,.22):rgba(C.med,.13);
+        ctx.lineWidth=i===0?1.2:.6;
+        for(let j=0;j<=steps;j++){
+            const ry=-ext+(2*ext)*j/steps,rx=i;
+            const[tx,ty]=applyM(rx,ry);
+            const dx=rx+(tx-rx)*f,dy=ry+(ty-ry)*f;
+            const[px,py]=m2p(dx,dy);
+            j===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+        }
+        ctx.stroke();
+        // Horizontal
+        ctx.beginPath();
+        ctx.strokeStyle=i===0?rgba(C.deep,.22):rgba(C.med,.13);
+        ctx.lineWidth=i===0?1.2:.6;
+        for(let j=0;j<=steps;j++){
+            const rx=-ext+(2*ext)*j/steps,ry=i;
+            const[tx,ty]=applyM(rx,ry);
+            const dx=rx+(tx-rx)*f,dy=ry+(ty-ry)*f;
+            const[px,py]=m2p(dx,dy);
+            j===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+        }
+        ctx.stroke();
+    }
+    // Ticks only when near identity
+    if(f<.15){
+        ctx.font="9px 'JetBrains Mono',monospace";ctx.fillStyle=rgba(C.med,.6);ctx.textAlign='center';
+        for(let i=-ext;i<=ext;i++){
+            if(!i)continue;
+            const[px]=m2p(i,0);if(px>10&&px<W-10)ctx.fillText(i,px,oy+15);
+            const[,py]=m2p(0,i);if(py>10&&py<H-10){ctx.textAlign='right';ctx.fillText(i,ox-7,py+3);ctx.textAlign='center';}
+        }
+        ctx.font="11px 'Inter',sans-serif";ctx.fillStyle=rgba(C.deep,.5);
+        ctx.textAlign='left';ctx.fillText('x₁',W-24,oy-8);
+        ctx.textAlign='center';ctx.fillText('x₂',ox+14,15);
+    }
+}
+
+// ===== DRAW LINE THROUGH ORIGIN =====
+function drawLine(dx,dy,col,alpha,lw,dash){
+    const len=mag(dx,dy);if(len<.001)return;
+    const nx=dx/len,ny=dy/len,ext=9;
+    const[x1,y1]=m2p(-ext*nx,-ext*ny),[x2,y2]=m2p(ext*nx,ext*ny);
+    ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=col;ctx.lineWidth=lw||2;
+    if(dash)ctx.setLineDash(dash);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+}
+
+// ===== DRAW ARROW =====
+function drawArrow(x1,y1,x2,y2,col,lw,alpha,hs){
+    hs=hs||11;const a=.38;
+    ctx.save();ctx.globalAlpha=alpha!=null?alpha:1;
+    ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=lw||2.5;ctx.lineCap='round';
+    const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+    if(len<1){ctx.restore();return;}
+    const ang=Math.atan2(dy,dx);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2-Math.cos(ang)*hs*.5,y2-Math.sin(ang)*hs*.5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hs*Math.cos(ang-a),y2-hs*Math.sin(ang-a));ctx.lineTo(x2-hs*Math.cos(ang+a),y2-hs*Math.sin(ang+a));ctx.closePath();ctx.fill();
+    ctx.restore();
+}
+
+function drawVec(vx2,vy2,col,label,hov,alpha){
+    const[px,py]=m2p(vx2,vy2);const a=alpha!=null?alpha:1;
+    if(mag(vx2,vy2)<.05){
+        ctx.save();ctx.globalAlpha=a*.6;ctx.fillStyle=col;ctx.beginPath();ctx.arc(ox,oy,5,0,Math.PI*2);ctx.fill();ctx.restore();
+        if(label){ctx.save();ctx.globalAlpha=a;ctx.font="700 12px 'Inter',sans-serif";ctx.fillStyle=col;ctx.textAlign='left';ctx.fillText(label,ox+10,oy-10);ctx.restore();}
+        return;
+    }
+    if(hov){ctx.save();ctx.globalAlpha=.15*a;ctx.strokeStyle=col;ctx.lineWidth=12;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(px,py);ctx.stroke();ctx.restore();}
+    drawArrow(ox,oy,px,py,col,2.8,a);
+    ctx.save();ctx.globalAlpha=a;ctx.fillStyle=col;ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();ctx.restore();
+    if(hov){ctx.save();ctx.globalAlpha=.5*a;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,13,0,Math.PI*2);ctx.stroke();ctx.restore();}
+    if(label){
+        ctx.save();ctx.globalAlpha=a;ctx.font="700 13px 'Inter',sans-serif";ctx.fillStyle=col;
+        const oX=vx2>=0?10:-10,oY=vy2>=0?-14:18;ctx.textAlign=vx2>=0?'left':'right';
+        ctx.fillText(label,px+oX,py+oY);
+        ctx.font="10px 'JetBrains Mono',monospace";ctx.fillStyle=rgba(col,.7);
+        ctx.fillText(`(${vx2.toFixed(1)}, ${vy2.toFixed(1)})`,px+oX,py+oY+14);ctx.restore();
+    }
+}
+
+function drawOrigin(){
+    ctx.fillStyle=C.deep;ctx.beginPath();ctx.arc(ox,oy,4,0,Math.PI*2);ctx.fill();
+    ctx.font="700 11px 'Inter',sans-serif";ctx.fillStyle=rgba(C.deep,.6);ctx.textAlign='right';ctx.fillText('O',ox-8,oy+4);
+}
+
+// Draw unit parallelogram (image of unit square)
+function drawUnitPgram(frac,alpha){
+    const f=ease(Math.max(0,Math.min(1,frac)));
+    // Corners of unit square: (0,0),(1,0),(1,1),(0,1)
+    const corners=[[0,0],[1,0],[1,1],[0,1]];
+    const pts=corners.map(([x,y])=>{
+        const[tx,ty]=applyM(x,y);
+        return m2p(x+(tx-x)*f, y+(ty-y)*f);
+    });
+    ctx.save();ctx.globalAlpha=(alpha||.12)*f;ctx.fillStyle=C.teal;
+    ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+    for(let i=1;i<4;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+    ctx.closePath();ctx.fill();
+    ctx.globalAlpha=(alpha||.12)*f*2;ctx.strokeStyle=C.teal;ctx.lineWidth=1.5;ctx.stroke();
+    ctx.restore();
+}
+
+// Draw mirror/projection line
+function drawSpecialLine(frac){
+    const f=ease(Math.max(0,Math.min(1,frac)));
+    if(curType==='reflection'){
+        const a=parseFloat(document.getElementById('slAlpha').value)*Math.PI/180;
+        drawLine(Math.cos(a),Math.sin(a),C.blu,.3*f+.1,2,[6,4]);
+        // Label
+        const[lx,ly]=m2p(3.5*Math.cos(a),3.5*Math.sin(a));
+        ctx.save();ctx.globalAlpha=.7*f;ctx.font="600 11px 'Inter',sans-serif";ctx.fillStyle=C.blu;ctx.textAlign='center';
+        ctx.fillText('mirror line',lx+15,ly-8);ctx.restore();
+    }
+    if(curType==='projection'){
+        const a=parseFloat(document.getElementById('slPhi').value)*Math.PI/180;
+        drawLine(Math.cos(a),Math.sin(a),C.grn,.3*f+.15,3);
+        const[lx,ly]=m2p(3.5*Math.cos(a),3.5*Math.sin(a));
+        ctx.save();ctx.globalAlpha=.7*f;ctx.font="600 11px 'Inter',sans-serif";ctx.fillStyle=C.grn;ctx.textAlign='center';
+        ctx.fillText('projection line',lx+20,ly-8);ctx.restore();
+    }
+}
+
+// ===== ANIMATION =====
+const stepDurs=[0.5,.7,1.4,.8,.7];
+function advanceAnim(){
+    if(!anim)return;
+    anim.t+=.008;
+    if(anim.t>=stepDurs[anim.step]){
+        setStepState(anim.step,'done');
+        anim.step++;anim.t=0;
+        if(anim.step>=5){finishAnim();return;}
+        setStepState(anim.step,'active');
+    }
+}
+function finishAnim(){
+    const rb=document.getElementById('resultBox');
+    rb.classList.remove('hide');rb.classList.add('suc');
+    const d=det();
+    const desc=getTypeDesc();
+    rb.textContent=`✓ ${desc.name}: det = ${d.toFixed(2)}, rank = ${desc.rank}`;
+    document.getElementById('btnGo').disabled=false;
+    anim=null;liveT=1;
+}
+function setStepState(i,s){
+    const row=document.getElementById('sr'+i);row.className='step-row '+s;
+    const dot=row.querySelector('.step-dot');
+    if(s==='done')dot.textContent='✓';else dot.textContent=(i+1);
+}
+function resetSteps(){
+    for(let i=0;i<5;i++)setStepState(i,'wait');
+    document.getElementById('resultBox').classList.add('hide');
+    document.getElementById('mathBox').innerHTML='';
+    liveT=1;
+}
+
+function getTypeDesc(){
+    const d=det();
+    const r=Math.abs(d)<.001?((mag(M[0][0],M[1][0])<.001&&mag(M[0][1],M[1][1])<.001)?0:1):2;
+    const names={rotation:'Rotation',reflection:'Reflection',scaling:'Scaling',shear:'Shear',projection:'Projection',custom:'Custom'};
+    return{name:names[curType]||'Custom',rank:r,nullity:2-r,det:d};
+}
+
+// ===== MAIN LOOP =====
+function frame(){
+    ctx.clearRect(0,0,W,H);ctx.fillStyle='#FAFBFD';ctx.fillRect(0,0,W,H);
+    advanceAnim();
+    computeMatrix();
+
+    const[tvx,tvy]=applyM(pvx,pvy);
+    const[te1x,te1y]=applyM(1,0);
+    const[te2x,te2y]=applyM(0,1);
+
+    if(!anim){
+        // Live preview: fully transformed
+        drawGrid(liveT);
+        drawSpecialLine(liveT);
+        drawUnitPgram(liveT,.1);
+
+        // Original basis (faded)
+        drawVec(1,0,C.deep,'e₁',false,.18);
+        drawVec(0,1,C.ora,'e₂',false,.18);
+
+        // Transformed basis
+        const f=ease(liveT);
+        const c1x=1+(te1x-1)*f,c1y=0+(te1y-0)*f;
+        const c2x=0+(te2x-0)*f,c2y=1+(te2y-1)*f;
+        drawVec(c1x,c1y,C.deep,'T(e₁)',false,.65);
+        drawVec(c2x,c2y,C.ora,'T(e₂)',false,.65);
+
+        // Test vector
+        drawVec(pvx,pvy,C.pur,'v',hoverWhat==='v',.35);
+
+        // Transformed test vector
+        const cx=pvx+(tvx-pvx)*f,cy=pvy+(tvy-pvy)*f;
+        drawVec(cx,cy,C.pur,'T(v)',false,.8);
+
+        // Dashed connector
+        if(f>.5){
+            const[p1x,p1y]=m2p(pvx,pvy);const[p2x,p2y]=m2p(cx,cy);
+            ctx.save();ctx.globalAlpha=.15;ctx.strokeStyle=C.med;ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
+            ctx.beginPath();ctx.moveTo(p1x,p1y);ctx.lineTo(p2x,p2y);ctx.stroke();ctx.restore();
+        }
+
+        // Projection: draw drop line from v to projection
+        if(curType==='projection'&&f>.5){
+            const[p1x,p1y]=m2p(pvx,pvy);const[p2x,p2y]=m2p(tvx,tvy);
+            ctx.save();ctx.globalAlpha=.35;ctx.strokeStyle=C.red;ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+            ctx.beginPath();ctx.moveTo(p1x,p1y);ctx.lineTo(p2x,p2y);ctx.stroke();ctx.restore();
+        }
+    } else {
+        const step=anim.step,t=anim.t,dur=stepDurs[step],p=Math.min(t/dur,1),ep=ease(p);
+
+        if(step===0){
+            // Original grid + basis
+            drawGrid(0);
+            drawVec(1,0,C.deep,'e₁',false,ep);
+            drawVec(0,1,C.ora,'e₂',false,ep);
+            drawVec(pvx,pvy,C.pur,'v',false,ep*.4);
+            drawUnitPgram(0,ep*.08);
+        }
+        else if(step===1){
+            // Show matrix
+            drawGrid(0);
+            drawVec(1,0,C.deep,'e₁',false,.6);
+            drawVec(0,1,C.ora,'e₂',false,.6);
+            drawVec(pvx,pvy,C.pur,'v',false,.3);
+            drawUnitPgram(0,.06);
+            try{
+                const tex=`A = \\begin{pmatrix}${M[0][0].toFixed(2)}&${M[0][1].toFixed(2)}\\\\${M[1][0].toFixed(2)}&${M[1][1].toFixed(2)}\\end{pmatrix}`;
+                katex.render(tex,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});
+            }catch(e){}
+        }
+        else if(step===2){
+            // Deform grid
+            drawGrid(p);
+            drawSpecialLine(p);
+            drawUnitPgram(p,.1);
+            // Basis vectors moving
+            const c1x=1+(te1x-1)*ep,c1y=(te1y)*ep;
+            const c2x=(te2x)*ep,c2y=1+(te2y-1)*ep;
+            drawVec(c1x,c1y,C.deep,'T(e₁)',false,.7);
+            drawVec(c2x,c2y,C.ora,'T(e₂)',false,.7);
+            // Faded originals
+            drawVec(1,0,C.deep,'e₁',false,.1*(1-ep));
+            drawVec(0,1,C.ora,'e₂',false,.1*(1-ep));
+            drawVec(pvx,pvy,C.pur,'v',false,.2);
+        }
+        else if(step===3){
+            // Show T(v)
+            drawGrid(1);
+            drawSpecialLine(1);
+            drawUnitPgram(1,.08);
+            drawVec(te1x,te1y,C.deep,'T(e₁)',false,.4);
+            drawVec(te2x,te2y,C.ora,'T(e₂)',false,.4);
+            drawVec(pvx,pvy,C.pur,'v',false,.2);
+
+            // T(v) growing
+            const cx=tvx*ep,cy=tvy*ep;
+            drawVec(cx,cy,C.pur,'T(v)',false,ep);
+
+            // Pulsing
+            if(ep>.7){
+                const pulse=.5+.5*Math.sin(Date.now()*.006);
+                const[fpx,fpy]=m2p(cx,cy);
+                ctx.save();ctx.globalAlpha=.2*pulse;ctx.strokeStyle=C.pur;ctx.lineWidth=3;
+                ctx.beginPath();ctx.arc(fpx,fpy,16+5*pulse,0,Math.PI*2);ctx.stroke();ctx.restore();
+            }
+
+            if(curType==='projection'){
+                const[p1x,p1y]=m2p(pvx,pvy);const[p2x,p2y]=m2p(tvx*ep,tvy*ep);
+                ctx.save();ctx.globalAlpha=.3*ep;ctx.strokeStyle=C.red;ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+                ctx.beginPath();ctx.moveTo(p1x,p1y);ctx.lineTo(p2x,p2y);ctx.stroke();ctx.restore();
+            }
+
+            try{
+                katex.render(`T(\\mathbf{v}) = \\begin{pmatrix}${tvx.toFixed(2)}\\\\${tvy.toFixed(2)}\\end{pmatrix}`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});
+            }catch(e){}
+        }
+        else if(step===4){
+            // Properties
+            drawGrid(1);
+            drawSpecialLine(1);
+            drawUnitPgram(1,.08);
+            drawVec(te1x,te1y,C.deep,'T(e₁)',false,.35);
+            drawVec(te2x,te2y,C.ora,'T(e₂)',false,.35);
+            drawVec(tvx,tvy,C.pur,'T(v)',false,.7);
+
+            const d=det(),info=getTypeDesc();
+            const pulse=.5+.5*Math.sin(Date.now()*.005);
+            ctx.save();ctx.globalAlpha=.04*pulse*ep;ctx.fillStyle=C.teal;ctx.fillRect(0,0,W,H);ctx.restore();
+
+            try{
+                katex.render(`\\det(A)=${d.toFixed(2)},\\quad\\text{rank}=${info.rank},\\quad\\text{nullity}=${info.nullity}`,document.getElementById('mathBox'),{displayMode:true,throwOnError:false});
+            }catch(e){}
+        }
+    }
+    drawOrigin();
+    requestAnimationFrame(frame);
+}
+
+// ===== TYPE SELECTOR =====
+document.getElementById('typeGrid').addEventListener('click',e=>{
+    const btn=e.target.closest('.type-btn');if(!btn)return;
+    curType=btn.dataset.type;
+    document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    // Show/hide param sections
+    document.querySelectorAll('[id^="params-"]').forEach(el=>el.style.display='none');
+    const sec=document.getElementById('params-'+curType);
+    if(sec)sec.style.display='block';
+    computeMatrix();updateProps();
+    if(anim){anim=null;document.getElementById('btnGo').disabled=false;}
+    resetSteps();liveT=1;
+});
+
+// ===== SLIDER HANDLERS =====
+function setupSlider(id,valId,fmt){
+    document.getElementById(id).addEventListener('input',()=>{
+        const v=parseFloat(document.getElementById(id).value);
+        document.getElementById(valId).textContent=fmt(v);
+        computeMatrix();updateProps();
+        if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();liveT=1;
+    });
+}
+setupSlider('slTheta','valTheta',v=>v+'°');
+setupSlider('slAlpha','valAlpha',v=>v+'°');
+setupSlider('slS1','valS1',v=>v.toFixed(2));
+setupSlider('slS2','valS2',v=>v.toFixed(2));
+setupSlider('slK','valK',v=>v.toFixed(2));
+setupSlider('slPhi','valPhi',v=>v+'°');
+setupSlider('slC11','valC11',v=>v.toFixed(2));
+setupSlider('slC12','valC12',v=>v.toFixed(2));
+setupSlider('slC21','valC21',v=>v.toFixed(2));
+setupSlider('slC22','valC22',v=>v.toFixed(2));
+
+// Test vector sliders
+document.getElementById('slVx').addEventListener('input',()=>{
+    pvx=parseFloat(document.getElementById('slVx').value);
+    document.getElementById('valVx').textContent=pvx.toFixed(1);
+    if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();liveT=1;
+});
+document.getElementById('slVy').addEventListener('input',()=>{
+    pvy=parseFloat(document.getElementById('slVy').value);
+    document.getElementById('valVy').textContent=pvy.toFixed(1);
+    if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();liveT=1;
+});
+
+function syncVSliders(){
+    document.getElementById('slVx').value=pvx;document.getElementById('slVy').value=pvy;
+    document.getElementById('valVx').textContent=pvx.toFixed(1);document.getElementById('valVy').textContent=pvy.toFixed(1);
+}
+
+// ===== UPDATE PROPERTIES =====
+function updateProps(){
+    computeMatrix();
+    const d=det(),info=getTypeDesc();
+    try{
+        katex.render(`A=\\begin{pmatrix}${M[0][0].toFixed(2)}&${M[0][1].toFixed(2)}\\\\${M[1][0].toFixed(2)}&${M[1][1].toFixed(2)}\\end{pmatrix}`,document.getElementById('matBox'),{displayMode:true,throwOnError:false});
+    }catch(e){}
+
+    const detEl=document.getElementById('pDet');
+    detEl.textContent=d.toFixed(2);
+    detEl.style.color=Math.abs(d)<.01?C.red:(d<0?C.ora:C.grn);
+
+    document.getElementById('pRank').textContent=info.rank;
+    document.getElementById('pRank').style.color=info.rank<2?C.ora:C.grn;
+    document.getElementById('pNullity').textContent=info.nullity;
+    document.getElementById('pNullity').style.color=info.nullity>0?C.red:C.grn;
+    document.getElementById('pArea').textContent=Math.abs(d).toFixed(2);
+    document.getElementById('pArea').style.color=Math.abs(d)<.01?C.red:C.blu;
+
+    // Description
+    const desc=document.getElementById('propDesc');
+    const ins=document.getElementById('insP');
+    if(curType==='rotation'){
+        const th=parseFloat(document.getElementById('slTheta').value);
+        desc.textContent=`Rotation by ${th}°. Preserves distances and angles. det = ${d.toFixed(2)} (always ±1 for rotations). Area unchanged.`;
+        ins.innerHTML=`Rotation is an <b>isomorphism</b> (rank 2, nullity 0). It preserves all geometric structure: lengths, angles, and areas. In ML, rotation matrices appear in <b>data augmentation</b> and <b>orthogonal weight initialization</b>.`;
+    } else if(curType==='reflection'){
+        const al=parseFloat(document.getElementById('slAlpha').value);
+        desc.textContent=`Reflection across line at ${al}°. Preserves distances but reverses orientation (det = ${d.toFixed(2)}). Area unchanged.`;
+        ins.innerHTML=`Reflection is an <b>isomorphism</b> that reverses orientation (det = -1). It is its own inverse: reflect twice and you return to the original. Geometrically, it "flips" the plane like a mirror.`;
+    } else if(curType==='scaling'){
+        const s1=parseFloat(document.getElementById('slS1').value),s2=parseFloat(document.getElementById('slS2').value);
+        const zero1=Math.abs(s1)<.01,zero2=Math.abs(s2)<.01;
+        if(zero1&&zero2) desc.textContent='Both scale factors are 0: this is the zero map. Everything maps to the origin.';
+        else if(zero1||zero2) desc.textContent=`One scale factor is 0: the plane collapses to a ${zero1?'vertical':'horizontal'} line. Rank 1, nullity 1.`;
+        else desc.textContent=`Stretches by ${s1.toFixed(2)}× horizontally and ${s2.toFixed(2)}× vertically. Area scales by |s₁·s₂| = ${Math.abs(s1*s2).toFixed(2)}.`;
+        ins.innerHTML=info.rank<2
+            ?`When a scale factor is <b>zero</b>, that axis collapses — information along it is destroyed. This is a <b>projection</b> in disguise. The null space is the collapsed axis.`
+            :`Diagonal scaling is the simplest linear transformation. Each axis scales independently. In ML, <b>feature normalization</b> is exactly this: rescaling each feature by its standard deviation.`;
+    } else if(curType==='shear'){
+        const k=parseFloat(document.getElementById('slK').value);
+        desc.textContent=`Horizontal shear with k = ${k.toFixed(2)}. Tilts vertical lines. det = 1 always (area preserved). Invertible.`;
+        ins.innerHTML=`Shear is always an <b>isomorphism</b> (det = 1, rank 2). It distorts angles and shapes but preserves area. The inverse of shear k is shear -k. Shear appears in <b>affine data augmentation</b> for images.`;
+    } else if(curType==='projection'){
+        const ph=parseFloat(document.getElementById('slPhi').value);
+        desc.textContent=`Orthogonal projection onto line at ${ph}°. det = 0, rank 1, nullity 1. The perpendicular component is destroyed.`;
+        ins.innerHTML=`Projection is <b>not invertible</b> (det = 0). It crushes one dimension of information. The null space is the line perpendicular to the projection line. In ML, <b>PCA</b> uses exactly this: projecting data onto the directions of maximum variance.`;
+    } else {
+        desc.textContent=`Custom matrix. det = ${d.toFixed(2)}, rank = ${info.rank}.`;
+        ins.innerHTML=info.rank===2
+            ?`This custom matrix defines an <b>invertible</b> transformation. It can be decomposed into a rotation, scaling, and another rotation (SVD — Chapter 7).`
+            :(info.rank===1
+                ?`This matrix is <b>rank 1</b>: the plane collapses to a line. The null space is 1-dimensional. One dimension of information is lost.`
+                :`This is the <b>zero matrix</b>: everything maps to the origin. Maximum information loss.`);
+    }
+}
+
+// ===== INTERACTION =====
+function findNearest(mx,my){
+    const[px,py]=m2p(pvx,pvy);
+    if(Math.sqrt((mx-px)**2+(my-py)**2)<24)return'v';
+    return null;
+}
+cvs.addEventListener('mousedown',e=>{
+    const rect=cvs.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    const hit=findNearest(mx,my);
+    if(hit){dragWhat=hit;cvs.style.cursor='grabbing';if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();liveT=1;}
+});
+cvs.addEventListener('mousemove',e=>{
+    const rect=cvs.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    if(dragWhat){
+        const[mvx,mvy]=p2m(mx,my);pvx=snap(Math.max(-4,Math.min(4,mvx)));pvy=snap(Math.max(-4,Math.min(4,mvy)));
+        syncVSliders();
+    } else {hoverWhat=findNearest(mx,my);cvs.style.cursor=hoverWhat?'grab':'crosshair';}
+});
+cvs.addEventListener('mouseup',()=>{dragWhat=null;cvs.style.cursor='crosshair';});
+cvs.addEventListener('mouseleave',()=>{dragWhat=null;hoverWhat=null;cvs.style.cursor='crosshair';});
+cvs.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];cvs.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+cvs.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];cvs.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY}));},{passive:false});
+cvs.addEventListener('touchend',e=>{e.preventDefault();cvs.dispatchEvent(new MouseEvent('mouseup'));},{passive:false});
+
+// ===== BUTTONS =====
+document.getElementById('btnGo').addEventListener('click',()=>{
+    resetSteps();liveT=0;
+    anim={step:0,t:0};setStepState(0,'active');document.getElementById('btnGo').disabled=true;
+    const info=getTypeDesc();
+    document.getElementById('sl2').innerHTML=`<b>Deform the grid</b> — apply ${info.name}`;
+    const[tvx,tvy]=applyM(pvx,pvy);
+    document.getElementById('sl3').innerHTML=`Show <b style="color:${C.pur}">T(v) = (${tvx.toFixed(2)}, ${tvy.toFixed(2)})</b>`;
+    document.getElementById('sl4').innerHTML=`Properties: <b>det=${det().toFixed(2)}, rank=${info.rank}</b>`;
+});
+
+document.getElementById('btnRandomV').addEventListener('click',()=>{
+    pvx=snap(Math.random()*8-4);pvy=snap(Math.random()*8-4);
+    if(pvx===0&&pvy===0)pvx=1;
+    syncVSliders();if(anim){anim=null;document.getElementById('btnGo').disabled=false;}resetSteps();liveT=1;
+});
+
+document.getElementById('btnReset').addEventListener('click',()=>{
+    curType='rotation';pvx=2;pvy=1.5;
+    document.getElementById('slTheta').value=45;document.getElementById('valTheta').textContent='45°';
+    document.getElementById('slAlpha').value=0;document.getElementById('valAlpha').textContent='0°';
+    document.getElementById('slS1').value=2;document.getElementById('valS1').textContent='2.00';
+    document.getElementById('slS2').value=.5;document.getElementById('valS2').textContent='0.50';
+    document.getElementById('slK').value=1;document.getElementById('valK').textContent='1.00';
+    document.getElementById('slPhi').value=0;document.getElementById('valPhi').textContent='0°';
+    document.getElementById('slC11').value=1;document.getElementById('valC11').textContent='1.00';
+    document.getElementById('slC12').value=0;document.getElementById('valC12').textContent='0.00';
+    document.getElementById('slC21').value=0;document.getElementById('valC21').textContent='0.00';
+    document.getElementById('slC22').value=1;document.getElementById('valC22').textContent='1.00';
+    syncVSliders();
+    document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('[data-type="rotation"]').classList.add('active');
+    document.querySelectorAll('[id^="params-"]').forEach(el=>el.style.display='none');
+    document.getElementById('params-rotation').style.display='block';
+    computeMatrix();updateProps();
+    anim=null;document.getElementById('btnGo').disabled=false;resetSteps();liveT=1;
+});
+
+// ===== INIT =====
+window.addEventListener('resize',resize);
+resize();computeMatrix();updateProps();syncVSliders();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
